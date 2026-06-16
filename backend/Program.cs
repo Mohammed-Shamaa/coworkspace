@@ -33,7 +33,9 @@ if (builder.Environment.IsDevelopment())
 }
 
 // Database
-var connString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=Coworkspace.db";
+var connString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? builder.Configuration["DATABASE_URL"]
+    ?? "Data Source=Coworkspace.db";
 if (builder.Environment.IsDevelopment())
     builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connString));
 else
