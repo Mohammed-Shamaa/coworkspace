@@ -3,13 +3,19 @@ using Coworkspace.API.Data;
 using Coworkspace.API.Middleware;
 using Coworkspace.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Resolve port conflicts in development mode
-if (builder.Environment.IsDevelopment())
+// Resolve port
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+else if (builder.Environment.IsDevelopment())
 {
     var explicitUrls = builder.Configuration["ASPNETCORE_URLS"];
     if (string.IsNullOrEmpty(explicitUrls))
@@ -31,6 +37,13 @@ if (builder.Environment.IsDevelopment())
         builder.WebHost.UseUrls($"http://localhost:{selectedPort}");
     }
 }
+
+// Data Protection (persist keys to avoid container/ephemeral warnings)
+var keysDir = "/tmp/keys";
+Directory.CreateDirectory(keysDir);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysDir))
+    .SetApplicationName("Coworkspace");
 
 // Database
 var connString = builder.Configuration["DATABASE_URL"]
