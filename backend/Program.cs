@@ -9,34 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Resolve port
-var port = Environment.GetEnvironmentVariable("PORT");
-if (!string.IsNullOrEmpty(port))
-{
-    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-}
-else if (builder.Environment.IsDevelopment())
-{
-    var explicitUrls = builder.Configuration["ASPNETCORE_URLS"];
-    if (string.IsNullOrEmpty(explicitUrls))
-    {
-        var preferredPort = 5000;
-        var selectedPort = preferredPort;
-        var listeners = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties()
-            .GetActiveTcpListeners();
-        while (listeners.Any(l => l.Port == selectedPort))
-        {
-            selectedPort++;
-            if (selectedPort > 5010)
-                break;
-        }
-        if (selectedPort != preferredPort)
-        {
-            Console.WriteLine($"[PortConflict] Port {preferredPort} is in use. Falling back to port {selectedPort}.");
-        }
-        builder.WebHost.UseUrls($"http://localhost:{selectedPort}");
-    }
-}
+// Bind to Render dynamic PORT (fallback 5000 for local dev)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // Data Protection (persist keys to avoid container/ephemeral warnings)
 var keysDir = "/tmp/keys";
