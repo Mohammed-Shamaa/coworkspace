@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --page-bg: #F5F6FA;
+    --card-bg: #FFFFFF;
+    --card-border: #E0E0E0;
+    --text-primary: #1A237E;
+    --text-secondary: #666666;
+    --input-bg: #FFFFFF;
+    --input-border: #CCCCCC;
+    --datagrid-header: #1565C0;
+    --datagrid-alt: #F5F5F5;
+    --success-bg: #E8F5E9;
+    --success-text: #2E7D32;
+    --error-bg: #FFF8E1;
+    --error-text: #E65100;
+    --navy: #1A237E;
+    --green: #2E7D32;
+    --purple: #6A1B9A;
+    --red: #C62828;
+    --orange: #E65100;
+    --sidebar-bg: #1A237E;
+    --sidebar-hover: #283593;
+    --sidebar-active: #283593;
+    --sidebar-text: #ffffff;
+    --sidebar-text-muted: #90CAF9;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --page-bg: #121212;
+    --card-bg: #1E1E2E;
+    --card-border: #2D2D3D;
+    --text-primary: #C0C0E0;
+    --text-secondary: #9999BB;
+    --input-bg: #2A2A3A;
+    --input-border: #3A3A4A;
+    --datagrid-header: #1565C0;
+    --datagrid-alt: #252535;
+    --success-bg: #1B3A1B;
+    --success-text: #81C784;
+    --error-bg: #3A1B1B;
+    --error-text: #EF9A9A;
+    --navy: #5C6BC0;
+    --green: #81C784;
+    --purple: #CE93D8;
+    --red: #EF9A9A;
+    --orange: #FFB74D;
+    --sidebar-bg: #0D0D1A;
+    --sidebar-hover: #1A1A3A;
+    --sidebar-active: #1A1A3A;
+    --sidebar-text: #ffffff;
+    --sidebar-text-muted: #90CAF9;
+  }
+}
+
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body {
+  background-color: var(--page-bg);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+[dir="rtl"] body,
+[dir="rtl"] {
+  font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+}
+
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .mr-1 {
+  margin-right: 0;
+  margin-left: 0.25rem;
+}
+
+[dir="rtl"] .gap-2 {
+  gap: 0.5rem;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .border-r-4 {
+  border-right-width: 0;
+  border-left-width: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #3a3a5a;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #5a5a7a;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }

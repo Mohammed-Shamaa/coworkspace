@@ -1,0 +1,14 @@
+﻿{
+  "profiles": {
+    "Coworkspace.API": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": ""
+      }
+    }
+  }
+}
