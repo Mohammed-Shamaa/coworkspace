@@ -2,9 +2,7 @@ import type { NextConfig } from "next";
 
 const backendUrl = process.env.API_BACKEND_URL || "http://localhost:5000";
 
-const nextConfig: NextConfig = {
-  outputFileTracingRoot: process.cwd(),
-};
+const nextConfig: NextConfig = {};
 
 nextConfig.rewrites = async () => [
   {
