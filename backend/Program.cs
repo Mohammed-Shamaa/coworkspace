@@ -33,13 +33,16 @@ if (builder.Environment.IsDevelopment())
 }
 
 // Database
-var connString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? builder.Configuration["DATABASE_URL"]
+var connString = builder.Configuration["DATABASE_URL"]
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Data Source=Coworkspace.db";
-if (builder.Environment.IsDevelopment())
-    builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connString));
-else
+var isPostgres = connString.StartsWith("Host=", StringComparison.OrdinalIgnoreCase)
+    || connString.StartsWith("Server=", StringComparison.OrdinalIgnoreCase)
+    || connString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase);
+if (isPostgres)
     builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
+else
+    builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connString));
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "SuperSecretKeyForDevelopment12345678!";
