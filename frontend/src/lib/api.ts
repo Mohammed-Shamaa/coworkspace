@@ -49,13 +49,23 @@ api.interceptors.response.use(
         console.error('[API Error] Setup error:', error.message)
       }
     }
-    const originalRequest = error.config as { _retry?: boolean; headers: Record<string, string> }
+    const originalRequest = error.config as { _retry?: boolean; headers: Record<string, string>; url?: string }
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      if (originalRequest.url?.includes('/auth/refresh')) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
+        localStorage.removeItem('tenant')
+        if (typeof window !== 'undefined') {
+          window.location.href = '/auth/login'
+        }
+        return Promise.reject(error)
+      }
       originalRequest._retry = true
       try {
         const refreshToken = localStorage.getItem('refreshToken')
         if (refreshToken) {
-          const res = await axios.post(`${API_URL}/auth/refresh`, { refreshToken })
+          const res = await api.post('/auth/refresh', { refreshToken })
           const { token } = res.data
           localStorage.setItem('token', token)
           originalRequest.headers.Authorization = `Bearer ${token}`

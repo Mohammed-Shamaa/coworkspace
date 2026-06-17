@@ -29,7 +29,10 @@ public class MembersController : ControllerBase
     private int UserId => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("Missing NameIdentifier"));
 
     [HttpGet]
-    public async Task<ActionResult<List<MemberResponse>>> GetAll([FromQuery] string? search, [FromQuery] string? filter, [FromQuery] string? type, [FromQuery] string? paymentStatus, [FromQuery] bool? expired)
+    public async Task<ActionResult<List<MemberResponse>>> GetAll(
+        [FromQuery] string? search, [FromQuery] string? filter,
+        [FromQuery] string? type, [FromQuery] string? paymentStatus,
+        [FromQuery] bool? expired, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
     {
         var query = _db.Members.AsNoTracking().Where(m => m.TenantId == TenantId);
 
@@ -60,6 +63,8 @@ public class MembersController : ControllerBase
 
         var memberEntities = await query
             .OrderByDescending(m => m.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
         var members = memberEntities.Select(MapToResponse).ToList();
@@ -70,7 +75,7 @@ public class MembersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<MemberResponse>> GetById(int id)
     {
-        var member = await _db.Members.Include(m => m.Payments).FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);
+        var member = await _db.Members.AsNoTracking().AsSplitQuery().Include(m => m.Payments).FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);
         if (member == null) return NotFound();
 
         var response = MapToResponse(member);
@@ -275,12 +280,10 @@ public class MembersController : ControllerBase
     [HttpGet("{id}/pdf")]
     public async Task<ActionResult> GeneratePdf(int id)
     {
-        var member = await _db.Members.Include(m => m.Payments).FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);
+        var member = await _db.Members.AsNoTracking().AsSplitQuery().Include(m => m.Payments).Include(m => m.Tenant).FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);
         if (member == null) return NotFound();
 
-        var tenant = await _db.Tenants.FindAsync(TenantId);
-
-        var pdfBytes = _pdf.GenerateMemberPdf(member, member.Payments.ToList(), tenant?.CompanyName ?? "Coworkspace");
+        var pdfBytes = _pdf.GenerateMemberPdf(member, member.Payments.ToList(), member.Tenant?.CompanyName ?? "Coworkspace");
 
         return File(pdfBytes, "application/pdf", $"Member_{member.FullName}_{DateTime.Now:yyyy-MM-dd}.pdf");
     }
@@ -290,24 +293,20 @@ public class MembersController : ControllerBase
         var query = _db.Members.Where(m => m.TenantId == TenantId);
         if (excludeId.HasValue) query = query.Where(m => m.Id != excludeId.Value);
 
-        var existing = await query
-            .Where(m => m.FullName.ToLower() == fullName.ToLower() || m.PhoneNumber == phoneNumber || m.NationalId == nationalId)
-            .Select(m => new { m.FullName, m.PhoneNumber, m.NationalId })
-            .ToListAsync();
+        var nameExists = await query.AnyAsync(m => m.FullName.ToLower() == fullName.ToLower());
+        if (nameExists) return BadRequest(new { message = "A member with this Full Name already exists." });
 
-        if (existing.Any(m => m.FullName.Equals(fullName, StringComparison.OrdinalIgnoreCase)))
-            return BadRequest(new { message = "A member with this Full Name already exists." });
-        if (existing.Any(m => m.PhoneNumber == phoneNumber))
-            return BadRequest(new { message = "A member with this Phone Number already exists." });
-        if (existing.Any(m => m.NationalId == nationalId))
-            return BadRequest(new { message = "A member with this National ID already exists." });
+        var phoneExists = await query.AnyAsync(m => m.PhoneNumber == phoneNumber);
+        if (phoneExists) return BadRequest(new { message = "A member with this Phone Number already exists." });
+
+        var nationalIdExists = await query.AnyAsync(m => m.NationalId == nationalId);
+        if (nationalIdExists) return BadRequest(new { message = "A member with this National ID already exists." });
 
         if (!string.IsNullOrEmpty(deskNumber) && startTime.HasValue && endTime.HasValue)
         {
-            var existingDeskMembers = await query
-                .Where(m => m.DeskNumber == deskNumber)
-                .ToListAsync();
-            if (existingDeskMembers.Any(m => m.StartTime < endTime.Value && m.EndTime > startTime.Value))
+            var deskConflict = await query
+                .AnyAsync(m => m.DeskNumber == deskNumber && m.StartTime < endTime.Value && m.EndTime > startTime.Value);
+            if (deskConflict)
                 return BadRequest(new { message = "This desk is already occupied during the selected time period." });
         }
 

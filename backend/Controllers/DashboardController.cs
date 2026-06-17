@@ -26,7 +26,7 @@ public class DashboardController : ControllerBase
         var now = DateTime.Today;
         var members = _db.Members.AsNoTracking().Where(m => m.TenantId == TenantId);
 
-        var result = await members
+        var aggregatesTask = members
             .GroupBy(m => 1)
             .Select(g => new DashboardResponse
             {
@@ -36,18 +36,27 @@ public class DashboardController : ControllerBase
                 UnpaidMembers = g.Count(m => m.PaymentStatus == PaymentStatus.Unpaid),
                 StudentCount = g.Count(m => m.MemberType == MemberType.Student),
                 RemoteWorkerCount = g.Count(m => m.MemberType == MemberType.RemoteWorker),
-                MonthlyIncome = g.Where(m => m.PaymentStatus == PaymentStatus.Paid).Select(m => (decimal?)m.MonthlyFee).Sum() ?? 0,
-                RecentRegistrations = g.OrderByDescending(m => m.CreatedAt).Take(10)
-                    .Select(m => new RecentRegistration
-                    {
-                        Id = m.Id,
-                        FullName = m.FullName,
-                        MemberType = m.MemberType.ToString(),
-                        RegistrationDate = m.RegistrationDate,
-                        MonthlyFee = m.MonthlyFee
-                    }).ToList()
+                MonthlyIncome = g.Where(m => m.PaymentStatus == PaymentStatus.Paid).Select(m => (decimal?)m.MonthlyFee).Sum() ?? 0
             })
             .FirstOrDefaultAsync();
+
+        var recentTask = members
+            .OrderByDescending(m => m.CreatedAt)
+            .Take(10)
+            .Select(m => new RecentRegistration
+            {
+                Id = m.Id,
+                FullName = m.FullName,
+                MemberType = m.MemberType.ToString(),
+                RegistrationDate = m.RegistrationDate,
+                MonthlyFee = m.MonthlyFee
+            })
+            .ToListAsync();
+
+        await Task.WhenAll(aggregatesTask, recentTask);
+
+        var result = aggregatesTask.Result;
+        if (result != null) result.RecentRegistrations = recentTask.Result;
 
         return result ?? new DashboardResponse();
     }

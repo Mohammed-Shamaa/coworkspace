@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -8,8 +8,7 @@ import { tenantsApi } from '@/lib/api'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 
-function SettingsContent() {
-  const { tenant } = useAuth()
+function SettingsContent({ tenant }: { tenant: { companyName?: string; name?: string; primaryColor?: string; logoUrl?: string } | null }) {
   const { t } = useTranslation()
   const [companyName, setCompanyName] = useState(tenant?.companyName || '')
   const [name, setName] = useState(tenant?.name || '')
@@ -17,17 +16,6 @@ function SettingsContent() {
   const [logoUrl, setLogoUrl] = useState(tenant?.logoUrl || '')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
-
-  useEffect(() => {
-    if (!tenant) return
-    const timer = setTimeout(() => {
-      setCompanyName(tenant.companyName)
-      setName(tenant.name)
-      setPrimaryColor(tenant.primaryColor)
-      setLogoUrl(tenant.logoUrl)
-    }, 0)
-    return () => clearTimeout(timer)
-  }, [tenant])
 
   const handleSave = async () => {
     setSaving(true)
@@ -88,5 +76,6 @@ function SettingsContent() {
 }
 
 export default function SettingsPage() {
-  return <SettingsContent />
+  const { tenant } = useAuth()
+  return <SettingsContent key={tenant?.id || 'default'} tenant={tenant} />
 }

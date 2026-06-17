@@ -18,8 +18,6 @@ public class TenantMiddleware
             if (!string.IsNullOrEmpty(tenantIdClaim) && int.TryParse(tenantIdClaim, out var tenantId))
             {
                 context.Items["TenantId"] = tenantId;
-                var tenant = await db.Tenants.FindAsync(tenantId);
-                if (tenant != null) context.Items["Tenant"] = tenant;
             }
         }
 

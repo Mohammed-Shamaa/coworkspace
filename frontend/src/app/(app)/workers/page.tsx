@@ -48,14 +48,22 @@ function WorkersContent() {
   }, [debouncedSearch])
 
   const handlePdf = async (member: Member) => {
-    const res = await membersApi.downloadPdf(member.id)
-    const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
-    window.open(url, '_blank')
+    try {
+      const res = await membersApi.downloadPdf(member.id)
+      const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+      window.open(url, '_blank')
+    } catch (err) {
+      console.error('Failed to download PDF:', err)
+    }
   }
 
   const handleMarkPaid = async (member: Member) => {
-    await membersApi.markPaid(member.id)
-    loadWorkers()
+    try {
+      await membersApi.markPaid(member.id)
+      loadWorkers()
+    } catch (err) {
+      console.error('Failed to mark as paid:', err)
+    }
   }
 
   return (

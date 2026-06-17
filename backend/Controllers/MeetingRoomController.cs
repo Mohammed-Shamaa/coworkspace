@@ -28,6 +28,7 @@ public class MeetingRoomController : ControllerBase
     public async Task<ActionResult<List<ReservationResponse>>> GetAll([FromQuery] string? date, [FromQuery] string? search)
     {
         var query = _db.MeetingRoomReservations
+            .AsNoTracking()
             .Where(r => r.TenantId == TenantId);
 
         if (!string.IsNullOrEmpty(date) && DateOnly.TryParse(date, out var filterDate))
@@ -42,19 +43,19 @@ public class MeetingRoomController : ControllerBase
             query = query.Where(r => r.PersonName.ToLower().Contains(term));
         }
 
-        var reservations = await query.ToListAsync();
-
-        return reservations
+        var reservations = await query
             .OrderByDescending(r => r.ReservationDate)
             .ThenBy(r => r.StartTime)
-            .Select(MapToResponse)
-            .ToList();
+            .ToListAsync();
+
+        return reservations.Select(MapToResponse).ToList();
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ReservationResponse>> GetById(int id)
     {
         var reservation = await _db.MeetingRoomReservations
+            .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Id == id && r.TenantId == TenantId);
 
         if (reservation == null) return NotFound();
@@ -147,21 +148,23 @@ public class MeetingRoomController : ControllerBase
         var now = DateTime.UtcNow;
         var today = now.Date;
 
-        var reservations = await _db.MeetingRoomReservations
-            .Where(r => r.TenantId == TenantId)
-            .ToListAsync();
+        var baseQuery = _db.MeetingRoomReservations
+            .AsNoTracking()
+            .Where(r => r.TenantId == TenantId);
 
-        var total = reservations.Count;
-        var todays = reservations.Count(r => r.ReservationDate == today);
-        var upcoming = reservations.Count(r => r.ReservationDate >= today && r.StartTime > now.TimeOfDay);
-        var past = reservations.Count(r => r.ReservationDate < today || (r.ReservationDate == today && r.EndTime <= now.TimeOfDay));
+        var totalTask = baseQuery.CountAsync();
+        var todaysTask = baseQuery.CountAsync(r => r.ReservationDate == today);
+        var upcomingTask = baseQuery.CountAsync(r => r.ReservationDate >= today && r.StartTime > now.TimeOfDay);
+        var pastTask = baseQuery.CountAsync(r => r.ReservationDate < today || (r.ReservationDate == today && r.EndTime <= now.TimeOfDay));
+
+        await Task.WhenAll(totalTask, todaysTask, upcomingTask, pastTask);
 
         return new ReservationStatsResponse
         {
-            TotalReservations = total,
-            TodaysReservations = todays,
-            UpcomingReservations = upcoming,
-            PastReservations = past
+            TotalReservations = totalTask.Result,
+            TodaysReservations = todaysTask.Result,
+            UpcomingReservations = upcomingTask.Result,
+            PastReservations = pastTask.Result
         };
     }
 
@@ -172,13 +175,12 @@ public class MeetingRoomController : ControllerBase
         var today = now.Date;
 
         var reservations = await _db.MeetingRoomReservations
+            .AsNoTracking()
             .Where(r => r.TenantId == TenantId && r.ReservationDate >= today)
-            .ToListAsync();
-        reservations = reservations
             .OrderBy(r => r.ReservationDate)
             .ThenBy(r => r.StartTime)
             .Take(10)
-            .ToList();
+            .ToListAsync();
 
         return reservations.Select(MapToResponse).ToList();
     }

@@ -28,6 +28,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasIndex(u => new { u.TenantId, u.Email }).IsUnique();
+            entity.HasIndex(u => u.RefreshToken);
             entity.HasOne(u => u.Tenant).WithMany(t => t.Users).HasForeignKey(u => u.TenantId).OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -37,6 +38,12 @@ public class AppDbContext : DbContext
             entity.HasIndex(m => new { m.TenantId, m.FullName }).IsUnique();
             entity.HasIndex(m => new { m.TenantId, m.PhoneNumber }).IsUnique();
             entity.HasIndex(m => new { m.TenantId, m.NationalId }).IsUnique();
+            entity.HasIndex(m => new { m.TenantId, m.MemberType });
+            entity.HasIndex(m => new { m.TenantId, m.PaymentStatus });
+            entity.HasIndex(m => new { m.TenantId, m.EndDate });
+            entity.HasIndex(m => new { m.TenantId, m.CreatedAt });
+            entity.HasIndex(m => new { m.TenantId, m.DeskNumber });
+            entity.HasIndex(m => new { m.TenantId, m.NextDueDate });
             entity.Property(m => m.MemberType).HasConversion<string>().HasMaxLength(20);
             entity.Property(m => m.WorkerType).HasConversion<string>().HasMaxLength(20);
             entity.Property(m => m.AttendancePlan).HasConversion<string>().HasMaxLength(20);
@@ -49,6 +56,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Payment>(entity =>
         {
             entity.Property(p => p.Status).HasMaxLength(10);
+            entity.HasIndex(p => new { p.TenantId, p.MemberId, p.PaymentDate });
             entity.HasOne(p => p.Member).WithMany(m => m.Payments).HasForeignKey(p => p.MemberId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(p => p.RecordedByUser).WithMany(u => u.RecordedPayments).HasForeignKey(p => p.RecordedByUserId).OnDelete(DeleteBehavior.SetNull);
         });
@@ -56,6 +64,7 @@ public class AppDbContext : DbContext
         // AuditLog
         modelBuilder.Entity<AuditLog>(entity =>
         {
+            entity.HasIndex(a => a.TenantId);
             entity.HasOne(a => a.User).WithMany(u => u.AuditLogs).HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.SetNull);
         });
 

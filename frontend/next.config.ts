@@ -2,7 +2,11 @@ import type { NextConfig } from "next";
 
 const backendUrl = process.env.API_BACKEND_URL || "http://localhost:5000";
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  turbopack: {
+    root: process.cwd(),
+  },
+};
 
 nextConfig.rewrites = async () => [
   {

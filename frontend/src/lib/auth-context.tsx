@@ -62,19 +62,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await api.get('/setup/info')
       const info = res.data
-      const updatedTenant = {
-        ...tenant,
-        hasMeetingRoom: info.hasMeetingRoom,
-        address: info.address,
-        openingTime: info.openingTime,
-        closingTime: info.closingTime,
-      } as Tenant
-      if (updatedTenant) {
-        localStorage.setItem('tenant', JSON.stringify(updatedTenant))
-        setTenant(updatedTenant)
-      }
+      setTenant(prev => {
+        const updatedTenant = {
+          ...prev,
+          hasMeetingRoom: info.hasMeetingRoom,
+          address: info.address,
+          openingTime: info.openingTime,
+          closingTime: info.closingTime,
+        } as Tenant
+        if (updatedTenant) {
+          localStorage.setItem('tenant', JSON.stringify(updatedTenant))
+        }
+        return updatedTenant
+      })
     } catch { /* ignore */ }
-  }, [tenant])
+  }, [])
 
   const handleAuthResponse = (data: AuthResponse) => {
     localStorage.setItem('token', data.token)

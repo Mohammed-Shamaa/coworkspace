@@ -53,8 +53,12 @@ function ExpiredContent() {
   }, [debouncedSearch])
 
   const handleMarkPaid = async (member: Member) => {
-    await membersApi.markPaid(member.id, { recordedByUserId: user?.id })
-    loadExpired()
+    try {
+      await membersApi.markPaid(member.id, { recordedByUserId: user?.id })
+      loadExpired()
+    } catch (err) {
+      console.error('Failed to mark as paid:', err)
+    }
   }
 
   return (

@@ -12,11 +12,13 @@ export default function DashboardHome() {
   const { t } = useTranslation()
   const [dashboard, setDashboard] = useState<Dashboard | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     let ignore = false
     const fetchData = async () => {
+      setLoading(true)
       try {
         const res = await dashboardApi.get()
         if (!ignore) setDashboard(res.data)
@@ -27,6 +29,7 @@ export default function DashboardHome() {
           console.error(err)
         }
       }
+      if (!ignore) setLoading(false)
     }
     fetchData()
     return () => { ignore = true }
@@ -39,6 +42,16 @@ export default function DashboardHome() {
     { label: t('dashboard.monthlyIncome'), value: dashboard.monthlyIncome.toFixed(2), bgColor: '#F3E5F5', textColor: '#6A1B9A', prefix: '$' },
     { label: t('dashboard.expiredMembers'), value: dashboard.expiredMembers, bgColor: '#FFEBEE', textColor: '#C62828' },
   ] : []
+
+  if (loading) {
+    return (
+      <div>
+        <h1 className="text-3xl font-bold text-[var(--text-primary)]">{t('dashboard.title')}</h1>
+        <p className="text-[var(--text-secondary)] mb-6">{t('dashboard.subtitle')}</p>
+        <div className="text-center py-8 text-[var(--text-secondary)]">{t('common.loading')}</div>
+      </div>
+    )
+  }
 
   if (error) {
     return (

@@ -38,14 +38,12 @@ public class MeetingRoomService
         if (date.Year == now.Year && date.Month == now.Month && date.Day == now.Day && startTime <= now.TimeOfDay)
             throw new InvalidOperationException("Cannot create a reservation for a time that has already passed today.");
 
-        var reservations = await _db.MeetingRoomReservations
-            .Where(r => r.TenantId == tenantId && r.ReservationDate == date)
-            .ToListAsync();
-
-        if (excludeReservationId.HasValue)
-            reservations = reservations.Where(r => r.Id != excludeReservationId.Value).ToList();
-
-        var conflict = reservations.Any(r => startTime < r.EndTime && endTime > r.StartTime);
+        var conflict = await _db.MeetingRoomReservations
+            .AnyAsync(r => r.TenantId == tenantId
+                        && r.ReservationDate == date
+                        && r.Id != (excludeReservationId ?? 0)
+                        && startTime < r.EndTime
+                        && endTime > r.StartTime);
 
         if (conflict)
             throw new InvalidOperationException("This time slot is already reserved. Please choose a different time.");
