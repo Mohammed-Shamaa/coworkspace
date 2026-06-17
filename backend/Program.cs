@@ -26,14 +26,18 @@ var connString = builder.Configuration["DATABASE_URL"]
     ?? "Data Source=Coworkspace.db";
 var isPostgres = connString.StartsWith("Host=", StringComparison.OrdinalIgnoreCase)
     || connString.StartsWith("Server=", StringComparison.OrdinalIgnoreCase)
-    || connString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase);
+    || connString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
+    || connString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase);
 if (isPostgres)
     builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
 else
     builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connString));
 
 // JWT Authentication
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "SuperSecretKeyForDevelopment12345678!";
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? (builder.Environment.IsDevelopment()
+        ? "SuperSecretKeyForDevelopment12345678!"
+        : throw new InvalidOperationException("Jwt:Key is not configured. Set the Jwt__Key environment variable in production."));
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "CoworkspaceAPI";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "CoworkspaceApp";
 
@@ -114,13 +118,25 @@ Console.WriteLine($"[Startup] Backend listening on: {string.Join(", ", urls)}");
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    if (app.Environment.IsDevelopment() && db.Database.ProviderName?.Contains("Sqlite") == true)
+    try
     {
-        db.Database.EnsureCreated();
+        if (db.Database.ProviderName?.Contains("Npgsql") == true)
+        {
+            await db.Database.EnsureCreatedAsync();
+        }
+        else if (app.Environment.IsDevelopment())
+        {
+            db.Database.EnsureCreated();
+        }
+        else
+        {
+            await db.Database.MigrateAsync();
+        }
     }
-    else
+    catch (Exception ex)
     {
-        await db.Database.MigrateAsync();
+        Console.WriteLine($"[Startup] Database initialization failed: {ex.Message}");
+        Console.WriteLine("[Startup] API will start but database-dependent endpoints will fail.");
     }
 }
 
