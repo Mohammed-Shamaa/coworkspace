@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { useAuth } from '@/lib/auth-context'
 import { meetingRoomApi, setupApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,7 +12,6 @@ import type { Reservation, ReservationStats } from '@/types'
 
 function MeetingRoomContent() {
   const { t, i18n } = useTranslation()
-  const { tenant } = useAuth()
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [stats, setStats] = useState<ReservationStats | null>(null)
   const [upcoming, setUpcoming] = useState<Reservation[]>([])
@@ -49,27 +47,39 @@ function MeetingRoomContent() {
     }
   }, [])
 
-  const fetchReservations = useCallback(async () => {
+  const fetchReservations = async () => {
     try {
       const params: { date?: string; search?: string } = {}
       if (filterDate) params.date = filterDate
       if (search) params.search = search
-
       const res = await meetingRoomApi.getAll(params)
       setReservations(res.data)
     } catch {
       showMessage(t('errors.generic'), 'error')
     }
-  }, [filterDate, search, showMessage])
-
-  const refreshStatsAndUpcoming = useCallback(async () => {
-    try { setStats((await meetingRoomApi.getStats()).data) } catch { /* ignore */ }
-    try { setUpcoming((await meetingRoomApi.getUpcoming()).data) } catch { /* ignore */ }
-  }, [])
+  }
 
   useEffect(() => {
-    fetchReservations()
-  }, [fetchReservations])
+    let ignore = false
+    const fetchData = async () => {
+      try {
+        const params: { date?: string; search?: string } = {}
+        if (filterDate) params.date = filterDate
+        if (search) params.search = search
+        const res = await meetingRoomApi.getAll(params)
+        if (!ignore) setReservations(res.data)
+      } catch {
+        if (!ignore) showMessage(t('errors.generic'), 'error')
+      }
+    }
+    fetchData()
+    return () => { ignore = true }
+  }, [filterDate, search, showMessage, t])
+
+  const refreshStatsAndUpcoming = async () => {
+    try { setStats((await meetingRoomApi.getStats()).data) } catch { /* ignore */ }
+    try { setUpcoming((await meetingRoomApi.getUpcoming()).data) } catch { /* ignore */ }
+  }
 
   useEffect(() => {
     if (initialLoadRef.current) return
@@ -175,8 +185,9 @@ function MeetingRoomContent() {
       setEditingReservation(null)
       fetchReservations()
       refreshStatsAndUpcoming()
-    } catch (err: any) {
-      setFormError(err.response?.data?.message || err.message || t('errors.generic'))
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setFormError(error.response?.data?.message || error.message || t('errors.generic'))
     } finally {
       setSaving(false)
     }
@@ -435,11 +446,9 @@ function MeetingRoomContent() {
                       <div className="space-y-0.5">
                         {generateTimeSlots().map((slot) => {
                           const res = getReservationForSlot(slot)
-                          const [h, m] = slot.split(':')
+                          const m = slot.split(':')[1]
                           const slotLabel = formatTimeForDisplay(slot)
-                          const nextSlot = generateTimeSlots()[generateTimeSlots().indexOf(slot) + 1]
                           const isHalfHour = parseInt(m) === 30
-                          const rowSpan = res && !isHalfHour ? 2 : 1
                           if (isHalfHour && res && getReservationForSlot(generateTimeSlots()[generateTimeSlots().indexOf(slot) - 1]) === res) {
                             return null
                           }

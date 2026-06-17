@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -103,8 +103,9 @@ export default function OnboardingPage() {
       }
 
       setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1))
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || t('errors.generic'))
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setError(error.response?.data?.message || error.message || t('errors.generic'))
     } finally {
       setLoading(false)
     }

@@ -10,7 +10,8 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const router = useRouter()
   const { t } = useTranslation()
   const routerRef = useRef(router)
-  routerRef.current = router
+
+  useEffect(() => { routerRef.current = router }, [router])
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {

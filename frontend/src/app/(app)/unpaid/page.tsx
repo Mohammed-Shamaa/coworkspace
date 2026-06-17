@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useDebounce } from '@/lib/use-debounce'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
@@ -20,20 +20,35 @@ function UnpaidContent() {
 
   const debouncedSearch = useDebounce(search, 300)
 
-  const loadUnpaid = useCallback(async () => {
-    setLoading(true)
-    setLoadError(null)
+  const loadUnpaid = async () => {
     try {
       const res = await membersApi.getAll({ paymentStatus: 'Unpaid', search: debouncedSearch })
       setMembers(res.data)
-    } catch (err: any) {
-      setLoadError(err.response?.data?.error || err.message || 'Failed to load unpaid members')
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } }; message?: string }
+      setLoadError(error.response?.data?.error || error.message || 'Failed to load unpaid members')
       console.error(err)
     }
-    finally { setLoading(false) }
-  }, [debouncedSearch])
+  }
 
-  useEffect(() => { loadUnpaid() }, [loadUnpaid])
+  useEffect(() => {
+    let ignore = false
+    const fetchData = async () => {
+      try {
+        const res = await membersApi.getAll({ paymentStatus: 'Unpaid', search: debouncedSearch })
+        if (!ignore) setMembers(res.data)
+      } catch (err: unknown) {
+        if (!ignore) {
+          const error = err as { response?: { data?: { error?: string } }; message?: string }
+          setLoadError(error.response?.data?.error || error.message || 'Failed to load unpaid members')
+          console.error(err)
+        }
+      }
+      if (!ignore) setLoading(false)
+    }
+    fetchData()
+    return () => { ignore = true }
+  }, [debouncedSearch])
 
   const handleMarkPaid = async (member: Member) => {
     try {

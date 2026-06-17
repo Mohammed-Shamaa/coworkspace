@@ -15,12 +15,21 @@ export default function DashboardHome() {
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
-    setError(null)
-    dashboardApi.get().then(res => setDashboard(res.data)).catch(err => {
-      const msg = err.response?.data?.error || err.message || 'Failed to load dashboard'
-      setError(msg)
-      console.error(err)
-    })
+    let ignore = false
+    const fetchData = async () => {
+      try {
+        const res = await dashboardApi.get()
+        if (!ignore) setDashboard(res.data)
+      } catch (err: unknown) {
+        if (!ignore) {
+          const error = err as { response?: { data?: { error?: string } }; message?: string }
+          setError(error.response?.data?.error || error.message || 'Failed to load dashboard')
+          console.error(err)
+        }
+      }
+    }
+    fetchData()
+    return () => { ignore = true }
   }, [refreshKey])
 
   const cards: { label: string; value: string | number; bgColor: string; textColor: string; prefix?: string }[] = dashboard ? [

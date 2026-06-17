@@ -1,14 +1,14 @@
 'use client'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
-import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import MemberForm from '@/components/member-form'
+import type { Member } from '@/types'
 
 interface EditMemberModalProps {
   isOpen: boolean
   onClose: () => void
-  member: any
+  member: Member | null
   onSuccess: () => void
 }
 

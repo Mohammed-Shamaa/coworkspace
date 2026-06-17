@@ -15,7 +15,9 @@ function OnboardingCheck({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
   const routerRef = useRef(router)
-  routerRef.current = router
+
+  useEffect(() => { routerRef.current = router }, [router])
+
   const checkedRef = useRef(false)
 
   useEffect(() => {
@@ -29,14 +31,15 @@ function OnboardingCheck({ children }: { children: React.ReactNode }) {
         if (!res.data.onboardingCompleted) {
           routerRef.current.push('/onboarding')
         }
-      } catch (err: any) {
-        const status = err?.response?.status
+      } catch (err: unknown) {
+        const axiosErr = err as { response?: { status?: number; data?: Record<string, unknown> }; message?: string }
+        const status = axiosErr?.response?.status
         if (status === 429) return
-        console.warn(`[OnboardingCheck] Status check failed (${status || 'no response'}):`, err?.response?.data || err?.message || err)
+        console.warn(`[OnboardingCheck] Status check failed (${status || 'no response'}):`, axiosErr?.response?.data || axiosErr?.message || axiosErr)
       }
     }
     check()
-  }, [isAuthenticated, loading])
+  }, [isAuthenticated, loading, pathname])
 
   return <>{children}</>
 }

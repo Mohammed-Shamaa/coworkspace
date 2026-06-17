@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { CreateMemberRequest, CreateReservationRequest, UpdateReservationRequest } from '@/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 let last429Warning = 0
@@ -48,7 +49,7 @@ api.interceptors.response.use(
         console.error('[API Error] Setup error:', error.message)
       }
     }
-    const originalRequest = error.config
+    const originalRequest = error.config as { _retry?: boolean; headers: Record<string, string> }
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true
       try {
@@ -92,8 +93,8 @@ export const membersApi = {
   getAll: (params?: { search?: string; filter?: string; type?: string; paymentStatus?: string; expired?: boolean }) =>
     api.get('/members', { params }),
   getById: (id: number) => api.get(`/members/${id}`),
-  create: (data: any) => api.post('/members', data),
-  update: (id: number, data: any) => api.put(`/members/${id}`, data),
+  create: (data: CreateMemberRequest) => api.post('/members', data),
+  update: (id: number, data: Partial<CreateMemberRequest>) => api.put(`/members/${id}`, data),
   delete: (id: number) => api.delete(`/members/${id}`),
   markPaid: (id: number, data?: { recordedByUserId?: number }) => api.post(`/members/${id}/mark-paid`, data),
   downloadPdf: (id: number) => api.get(`/members/${id}/pdf`, { responseType: 'blob' }),
@@ -107,23 +108,23 @@ export const paymentsApi = {
 
 export const tenantsApi = {
   getSettings: () => api.get('/tenants/settings'),
-  updateSettings: (data: any) => api.put('/tenants/settings', data),
+  updateSettings: (data: { companyName: string; name: string; primaryColor: string; logoUrl: string }) => api.put('/tenants/settings', data),
 }
 
 export const setupApi = {
   getStatus: () => api.get('/setup/status'),
   getInfo: () => api.get('/setup/info'),
-  saveWorkspaceInfo: (data: any) => api.post('/setup/workspace-info', data),
-  saveAddress: (data: any) => api.post('/setup/address', data),
-  saveWorkingHours: (data: any) => api.post('/setup/working-hours', data),
+  saveWorkspaceInfo: (data: { totalDesks: number; maxCapacity: number; hasMeetingRoom: boolean }) => api.post('/setup/workspace-info', data),
+  saveAddress: (data: { address: string }) => api.post('/setup/address', data),
+  saveWorkingHours: (data: { openingTime: string; closingTime: string }) => api.post('/setup/working-hours', data),
   complete: () => api.post('/setup/complete'),
 }
 
 export const meetingRoomApi = {
   getAll: (params?: { date?: string; search?: string }) => api.get('/meetingroom', { params }),
   getById: (id: number) => api.get(`/meetingroom/${id}`),
-  create: (data: any) => api.post('/meetingroom', data),
-  update: (id: number, data: any) => api.put(`/meetingroom/${id}`, data),
+  create: (data: CreateReservationRequest) => api.post('/meetingroom', data),
+  update: (id: number, data: UpdateReservationRequest) => api.put(`/meetingroom/${id}`, data),
   delete: (id: number) => api.delete(`/meetingroom/${id}`),
   getStats: () => api.get('/meetingroom/stats'),
   getUpcoming: () => api.get('/meetingroom/upcoming'),

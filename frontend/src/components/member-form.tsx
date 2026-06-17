@@ -1,32 +1,33 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { membersApi } from '@/lib/api'
+import type { Member, CreateMemberRequest } from '@/types'
 
-const MEMBER_TYPES = (t: any) => [
+const MEMBER_TYPES = (t: (key: string) => string) => [
   { value: 'Student', label: t('memberForm.student') },
   { value: 'RemoteWorker', label: t('memberForm.remoteWorker') },
 ]
-const WORKER_TYPES = (t: any) => [
+const WORKER_TYPES = (t: (key: string) => string) => [
   { value: 'FullTime', label: t('memberForm.fullTime') },
   { value: 'PartTime', label: t('memberForm.partTime') },
 ]
-const ATTENDANCE_PLANS = (t: any) => [
+const ATTENDANCE_PLANS = (t: (key: string) => string) => [
   { value: 'ThreeDaysPerWeek', label: t('memberForm.plan3Days') },
   { value: 'SixDaysPerWeek', label: t('memberForm.plan6Days') },
 ]
-const SCHEDULES = (t: any) => [
+const SCHEDULES = (t: (key: string) => string) => [
   { value: 'SaturdayMondayWednesday', label: t('memberForm.scheduleSatMonWed') },
   { value: 'SundayTuesdayThursday', label: t('memberForm.scheduleSunTueThu') },
 ]
 
 interface MemberFormProps {
   onSuccess: () => void
-  initialData?: any
+  initialData?: Member
   memberId?: number
 }
 
@@ -44,26 +45,15 @@ export default function MemberForm({ onSuccess, initialData, memberId }: MemberF
   const [noEndDate, setNoEndDate] = useState(initialData?.noEndDate || false)
   const [attendancePlan, setAttendancePlan] = useState(initialData?.attendancePlan || 'ThreeDaysPerWeek')
   const [attendanceSchedule, setAttendanceSchedule] = useState(initialData?.attendanceSchedule || '')
-  const [startHours, setStartHours] = useState('09')
-  const [startMinutes, setStartMinutes] = useState('00')
-  const [endHours, setEndHours] = useState('17')
-  const [endMinutes, setEndMinutes] = useState('00')
+  const [startHours, setStartHours] = useState(initialData?.startTime?.split(':')[0] || '09')
+  const [startMinutes, setStartMinutes] = useState(initialData?.startTime?.split(':')[1] || '00')
+  const [endHours, setEndHours] = useState(initialData?.endTime?.split(':')[0] || '17')
+  const [endMinutes, setEndMinutes] = useState(initialData?.endTime?.split(':')[1] || '00')
   const [deskNumber, setDeskNumber] = useState(initialData?.deskNumber || '')
   const [monthlyFee, setMonthlyFee] = useState(initialData?.monthlyFee?.toString() || '')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (initialData) {
-      const [sh, sm] = (initialData.startTime || '09:00').split(':')
-      const [eh, em] = (initialData.endTime || '17:00').split(':')
-      setStartHours(sh)
-      setStartMinutes(sm)
-      setEndHours(eh)
-      setEndMinutes(em)
-    }
-  }, [initialData])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,22 +61,22 @@ export default function MemberForm({ onSuccess, initialData, memberId }: MemberF
     setSuccess('')
     setLoading(true)
 
-    const data: any = {
+    const data: CreateMemberRequest = {
       fullName: fullName.trim(),
       phoneNumber: phoneNumber.trim(),
       nationalId: nationalId.trim(),
       memberType,
+      workerType: memberType === 'RemoteWorker' ? workerType : undefined,
       registrationDate: new Date(registrationDate).toISOString(),
       endDate: noEndDate ? null : (endDate ? new Date(endDate).toISOString() : null),
       noEndDate,
       attendancePlan,
-      attendanceSchedule: attendancePlan === 'ThreeDaysPerWeek' ? attendanceSchedule : null,
+      attendanceSchedule: attendancePlan === 'ThreeDaysPerWeek' ? attendanceSchedule : undefined,
       startTime: `${startHours.padStart(2, '0')}:${startMinutes.padStart(2, '0')}`,
       endTime: `${endHours.padStart(2, '0')}:${endMinutes.padStart(2, '0')}`,
       deskNumber: deskNumber.trim(),
       monthlyFee: parseFloat(monthlyFee),
     }
-    if (memberType === 'RemoteWorker' && workerType) data.workerType = workerType
 
     try {
       if (memberId) {
@@ -101,8 +91,9 @@ export default function MemberForm({ onSuccess, initialData, memberId }: MemberF
         setMemberType('Student'); setAttendancePlan('ThreeDaysPerWeek'); setAttendanceSchedule('')
       }
       onSuccess()
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || t('memberForm.failedToSave'))
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setError(error.response?.data?.message || error.message || t('memberForm.failedToSave'))
     } finally {
       setLoading(false)
     }

@@ -22,10 +22,18 @@ export default function MemberDetailModal({ isOpen, onClose, memberId }: MemberD
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (memberId) {
-      setLoading(true)
-      membersApi.getById(memberId).then(res => setMember(res.data)).catch(console.error).finally(() => setLoading(false))
+    let ignore = false
+    const fetchData = async () => {
+      try {
+        const res = await membersApi.getById(memberId!)
+        if (!ignore) setMember(res.data)
+      } catch (e: unknown) {
+        if (!ignore) console.error(e)
+      }
+      if (!ignore) setLoading(false)
     }
+    if (memberId) fetchData()
+    return () => { ignore = true }
   }, [memberId])
 
   if (!isOpen) return null

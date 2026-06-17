@@ -18,7 +18,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
     i18n.on('languageChanged', handleLanguageChanged)
     return () => { i18n.off('languageChanged', handleLanguageChanged) }
-  }, [])
+  }, [i18n])
 
   return <>{children}</>
 }

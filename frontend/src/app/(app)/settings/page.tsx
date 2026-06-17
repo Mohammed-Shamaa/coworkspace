@@ -5,12 +5,11 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { tenantsApi } from '@/lib/api'
-import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 
 function SettingsContent() {
-  const { tenant, logout } = useAuth()
+  const { tenant } = useAuth()
   const { t } = useTranslation()
   const [companyName, setCompanyName] = useState(tenant?.companyName || '')
   const [name, setName] = useState(tenant?.name || '')
@@ -20,12 +19,14 @@ function SettingsContent() {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    if (tenant) {
+    if (!tenant) return
+    const timer = setTimeout(() => {
       setCompanyName(tenant.companyName)
       setName(tenant.name)
       setPrimaryColor(tenant.primaryColor)
       setLogoUrl(tenant.logoUrl)
-    }
+    }, 0)
+    return () => clearTimeout(timer)
   }, [tenant])
 
   const handleSave = async () => {
@@ -34,8 +35,9 @@ function SettingsContent() {
     try {
       await tenantsApi.updateSettings({ companyName, name, primaryColor, logoUrl })
       setMessage(t('settings.savedSuccess'))
-    } catch (err: any) {
-      setMessage(err.response?.data?.message || t('settings.failedToSave'))
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setMessage(error.response?.data?.message || t('settings.failedToSave'))
     } finally {
       setSaving(false)
     }

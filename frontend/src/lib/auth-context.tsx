@@ -20,31 +20,33 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [tenant, setTenant] = useState<Tenant | null>(null)
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window === 'undefined') return null
+    try { return JSON.parse(localStorage.getItem('user') || 'null') }
+    catch { return null }
+  })
+  const [tenant, setTenant] = useState<Tenant | null>(() => {
+    if (typeof window === 'undefined') return null
+    try { return JSON.parse(localStorage.getItem('tenant') || 'null') }
+    catch { return null }
+  })
   const [loading, setLoading] = useState(true)
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    const expiresAt = localStorage.getItem('expiresAt')
-    const savedUser = localStorage.getItem('user')
-    const savedTenant = localStorage.getItem('tenant')
-
-    if (token && savedUser) {
-      if (expiresAt && new Date(expiresAt) <= new Date()) {
+    const timer = setTimeout(() => {
+      const token = localStorage.getItem('token')
+      const expiresAt = localStorage.getItem('expiresAt')
+      if (token && expiresAt && new Date(expiresAt) <= new Date()) {
         localStorage.clear()
-        setLoading(false)
+        setUser(null)
+        setTenant(null)
         router.push('/auth/login')
-        return
       }
-      try {
-        setUser(JSON.parse(savedUser))
-        if (savedTenant) setTenant(JSON.parse(savedTenant))
-      } catch { /* ignore */ }
-    }
-    setLoading(false)
+      setLoading(false)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [router])
 
   const checkOnboardingStatus = useCallback(async () => {

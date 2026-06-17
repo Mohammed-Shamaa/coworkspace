@@ -14,22 +14,17 @@ const ThemeContext = createContext<ThemeContextValue>({
 })
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'light'
     const stored = localStorage.getItem('theme') as Theme | null
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const initial = stored || (prefersDark ? 'dark' : 'light')
-    setTheme(initial)
-    setMounted(true)
-  }, [])
+    return stored || (prefersDark ? 'dark' : 'light')
+  })
 
   useEffect(() => {
-    if (!mounted) return
     document.documentElement.classList.toggle('dark', theme === 'dark')
     localStorage.setItem('theme', theme)
-  }, [theme, mounted])
+  }, [theme])
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light')
 

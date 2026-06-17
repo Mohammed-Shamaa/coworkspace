@@ -26,13 +26,14 @@ function LoginForm() {
     try {
       await login(email, password)
       router.push('/')
-    } catch (err: any) {
-      if (err.code === 'ERR_NETWORK' || !err.response) {
+    } catch (err: unknown) {
+      const axiosErr = err as { code?: string; response?: { data?: { message?: string; title?: string } } }
+      if (axiosErr.code === 'ERR_NETWORK' || !axiosErr.response) {
         setError('Unable to connect to the server. Please ensure the backend is running on port 5000 and try again.')
-      } else if (err.code === 'ECONNABORTED') {
+      } else if (axiosErr.code === 'ECONNABORTED') {
         setError('Connection timed out. Please check your network and try again.')
       } else {
-        setError(err.response?.data?.message || err.response?.data?.title || t('auth.loginFailed'))
+        setError(axiosErr.response?.data?.message || axiosErr.response?.data?.title || t('auth.loginFailed'))
       }
     } finally {
       setLoading(false)

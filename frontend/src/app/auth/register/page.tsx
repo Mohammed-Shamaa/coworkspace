@@ -34,14 +34,6 @@ function RegisterForm() {
   const router = useRouter()
   const { t } = useTranslation()
 
-  const fieldLabels: Record<string, string> = {
-    email: t('auth.emailLabel'),
-    password: t('auth.passwordLabel'),
-    fullName: t('auth.fullName'),
-    companyName: t('auth.companyName'),
-    subdomain: t('auth.subdomainLabel'),
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMessage('')
@@ -64,21 +56,21 @@ function RegisterForm() {
     try {
       await register({ email, password, fullName, companyName, subdomain: subdomain.toLowerCase() })
       router.push('/')
-    } catch (err: any) {
-      const data = err.response?.data
-      if (data && typeof data === 'object') {
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string; title?: string; errors?: Record<string, string[]> } }; message?: string }
+      const data = axiosErr.response?.data
+      if (data) {
         if (data.errors && typeof data.errors === 'object') {
           const backendFieldErrors: FieldErrors = {}
-          const errorEntries = Object.entries(data.errors)
-          for (const [field, msgs] of errorEntries) {
+          for (const [field, msgs] of Object.entries(data.errors)) {
             const lowerField = field.charAt(0).toLowerCase() + field.slice(1)
-            backendFieldErrors[lowerField] = msgs as string[]
+            backendFieldErrors[lowerField] = msgs
           }
           setFieldErrors(backendFieldErrors)
         }
         setErrorMessage(data.message || data.title || t('auth.registrationFailed'))
       } else {
-        setErrorMessage(err.message || t('auth.registrationFailed'))
+        setErrorMessage(axiosErr.message || t('auth.registrationFailed'))
       }
     } finally {
       setLoading(false)
@@ -99,7 +91,7 @@ function RegisterForm() {
     value: string,
     onChange: (v: string) => void,
     placeholder?: string,
-    extraProps?: Record<string, any>
+    extraProps?: Record<string, unknown>
   ) => {
     const errors = getFieldError(field)
     const hasError = errors && errors.length > 0

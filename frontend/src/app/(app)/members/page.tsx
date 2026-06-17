@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useDebounce } from '@/lib/use-debounce'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
@@ -30,24 +30,39 @@ function MembersPageContent() {
   const [editMember, setEditMember] = useState<Member | null>(null)
   const [showEdit, setShowEdit] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
-  const [detailId, setDetailId] = useState<number | null>(null)
+  const [detailId] = useState<number | null>(null)
 
   const debouncedSearch = useDebounce(search, 300)
 
-  const loadMembers = useCallback(async () => {
-    setLoading(true)
-    setLoadError(null)
+  const loadMembers = async () => {
     try {
       const res = await membersApi.getAll({ search: debouncedSearch, filter: filter !== 'all' ? filter : undefined })
       setMembers(res.data)
-    } catch (err: any) {
-      setLoadError(err.response?.data?.error || err.message || 'Failed to load members')
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } }; message?: string }
+      setLoadError(error.response?.data?.error || error.message || 'Failed to load members')
       console.error(err)
     }
-    finally { setLoading(false) }
-  }, [debouncedSearch, filter])
+  }
 
-  useEffect(() => { loadMembers() }, [loadMembers])
+  useEffect(() => {
+    let ignore = false
+    const fetchData = async () => {
+      try {
+        const res = await membersApi.getAll({ search: debouncedSearch, filter: filter !== 'all' ? filter : undefined })
+        if (!ignore) setMembers(res.data)
+      } catch (err: unknown) {
+        if (!ignore) {
+          const error = err as { response?: { data?: { error?: string } }; message?: string }
+          setLoadError(error.response?.data?.error || error.message || 'Failed to load members')
+          console.error(err)
+        }
+      }
+      if (!ignore) setLoading(false)
+    }
+    fetchData()
+    return () => { ignore = true }
+  }, [debouncedSearch, filter])
 
   const handleEdit = (member: Member) => {
     setEditMember(member)

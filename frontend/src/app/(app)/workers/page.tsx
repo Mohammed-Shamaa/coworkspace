@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useDebounce } from '@/lib/use-debounce'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
@@ -17,20 +17,35 @@ function WorkersContent() {
 
   const debouncedSearch = useDebounce(search, 300)
 
-  const loadWorkers = useCallback(async () => {
-    setLoading(true)
-    setLoadError(null)
+  const loadWorkers = async () => {
     try {
       const res = await membersApi.getAll({ type: 'RemoteWorker', search: debouncedSearch })
       setMembers(res.data)
-    } catch (err: any) {
-      setLoadError(err.response?.data?.error || err.message || 'Failed to load workers')
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } }; message?: string }
+      setLoadError(error.response?.data?.error || error.message || 'Failed to load workers')
       console.error(err)
     }
-    finally { setLoading(false) }
-  }, [debouncedSearch])
+  }
 
-  useEffect(() => { loadWorkers() }, [loadWorkers])
+  useEffect(() => {
+    let ignore = false
+    const fetchData = async () => {
+      try {
+        const res = await membersApi.getAll({ type: 'RemoteWorker', search: debouncedSearch })
+        if (!ignore) setMembers(res.data)
+      } catch (err: unknown) {
+        if (!ignore) {
+          const error = err as { response?: { data?: { error?: string } }; message?: string }
+          setLoadError(error.response?.data?.error || error.message || 'Failed to load workers')
+          console.error(err)
+        }
+      }
+      if (!ignore) setLoading(false)
+    }
+    fetchData()
+    return () => { ignore = true }
+  }, [debouncedSearch])
 
   const handlePdf = async (member: Member) => {
     const res = await membersApi.downloadPdf(member.id)
