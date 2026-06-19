@@ -41,7 +41,7 @@ function RegisterForm() {
 
     const clientErrors: FieldErrors = {}
     if (!email.trim()) clientErrors.email = [t('errors.generic')]
-    if (!password.trim() || password.length < 6) clientErrors.password = [t('errors.generic')]
+    if (!password.trim() || password.length < 8) clientErrors.password = ['Password must be at least 8 characters.']
     if (!fullName.trim()) clientErrors.fullName = [t('errors.generic')]
     if (!companyName.trim()) clientErrors.companyName = [t('errors.generic')]
     if (!subdomain.trim()) clientErrors.subdomain = [t('errors.generic')]

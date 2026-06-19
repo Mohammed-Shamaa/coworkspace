@@ -136,12 +136,13 @@ public class AuthController : ControllerBase
                 _db.Users.Add(user);
 
                 await _db.SaveChangesAsync();
+
+                var token = GenerateJwtToken(user, tenant);
+
                 await transaction.CommitAsync();
 
                 _logger.LogInformation("Registration successful: UserId={UserId}, TenantId={TenantId}, Email={Email}",
                     user.Id, tenant.Id, user.Email);
-
-                var token = GenerateJwtToken(user, tenant);
 
                 return new AuthResponse
                 {
@@ -195,107 +196,148 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
     {
-        var email = request.Email.Trim().ToLowerInvariant();
-
-        var user = await _db.Users.Include(u => u.Tenant)
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == email);
-
-        if (user == null || user.Tenant == null)
-            return Unauthorized(new { success = false, message = "Invalid credentials.", errorCode = "AUTH_INVALID_CREDENTIALS" });
-
-        bool passwordValid;
         try
         {
-            passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+            var email = request.Email?.Trim().ToLowerInvariant() ?? "";
+
+            var user = await _db.Users.Include(u => u.Tenant)
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email);
+
+            if (user == null || user.Tenant == null)
+                return Unauthorized(new { success = false, message = "Invalid credentials.", errorCode = "AUTH_INVALID_CREDENTIALS" });
+
+            bool passwordValid;
+            try
+            {
+                passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Password verification failed for UserId={UserId}, Email={Email}", user.Id, user.Email);
+                return Unauthorized(new { success = false, message = "Invalid credentials.", errorCode = "AUTH_INVALID_CREDENTIALS" });
+            }
+
+            if (!passwordValid)
+                return Unauthorized(new { success = false, message = "Invalid credentials.", errorCode = "AUTH_INVALID_CREDENTIALS" });
+
+            if (!user.IsActive)
+                return Unauthorized(new { success = false, message = "Account is disabled.", errorCode = "AUTH_ACCOUNT_DISABLED" });
+
+            var tenant = user.Tenant;
+
+            var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            user.LastLoginAt = DateTime.UtcNow;
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Failed to persist login token fields for UserId={UserId}, TenantId={TenantId}", user.Id, user.TenantId);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Login failed while updating the session. Please try again.",
+                    errorCode = "AUTH_LOGIN_UPDATE_FAILED"
+                });
+            }
+
+            var token = GenerateJwtToken(user, tenant);
+
+            return new AuthResponse
+            {
+                Token = token,
+                RefreshToken = refreshToken,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(15),
+                User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
+                Tenant = new TenantInfo
+                {
+                    Id = tenant.Id,
+                    Name = tenant.Name,
+                    Subdomain = tenant.Subdomain,
+                    LogoUrl = tenant.LogoUrl,
+                    PrimaryColor = tenant.PrimaryColor,
+                    CompanyName = tenant.CompanyName,
+                    HasMeetingRoom = tenant.HasMeetingRoom
+                }
+            };
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Password verification failed for UserId={UserId}, Email={Email}", user.Id, user.Email);
-            return Unauthorized(new { success = false, message = "Invalid credentials.", errorCode = "AUTH_INVALID_CREDENTIALS" });
-        }
-
-        if (!passwordValid)
-            return Unauthorized(new { success = false, message = "Invalid credentials.", errorCode = "AUTH_INVALID_CREDENTIALS" });
-
-        if (!user.IsActive)
-            return Unauthorized(new { success = false, message = "Account is disabled.", errorCode = "AUTH_ACCOUNT_DISABLED" });
-
-        var tenant = user.Tenant;
-
-        var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-        user.LastLoginAt = DateTime.UtcNow;
-        try
-        {
-            await _db.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Failed to persist login token fields for UserId={UserId}, TenantId={TenantId}", user.Id, user.TenantId);
+            _logger.LogError(ex, "Unexpected error during login for Email={Email}", request.Email);
             return StatusCode(500, new
             {
                 success = false,
-                message = "Login failed while updating the session. Please try again.",
-                errorCode = "AUTH_LOGIN_UPDATE_FAILED"
+                message = "An unexpected error occurred during login. Please try again.",
+                errorCode = "AUTH_LOGIN_ERROR",
+                errors = new { general = new[] { ex.Message } }
             });
         }
-
-        var token = GenerateJwtToken(user, tenant);
-
-        return new AuthResponse
-        {
-            Token = token,
-            RefreshToken = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(15),
-            User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
-            Tenant = new TenantInfo
-            {
-                Id = tenant.Id,
-                Name = tenant.Name,
-                Subdomain = tenant.Subdomain,
-                LogoUrl = tenant.LogoUrl,
-                PrimaryColor = tenant.PrimaryColor,
-                CompanyName = tenant.CompanyName,
-                HasMeetingRoom = tenant.HasMeetingRoom
-            }
-        };
     }
 
     [HttpPost("refresh")]
     public async Task<ActionResult<AuthResponse>> Refresh(RefreshTokenRequest request)
     {
-        var user = await _db.Users.Include(u => u.Tenant).FirstOrDefaultAsync(u => u.RefreshToken == request.RefreshToken);
-        if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)
-            return Unauthorized(new { success = false, message = "Invalid or expired refresh token.", errorCode = "AUTH_TOKEN_EXPIRED" });
-
-        if (user.Tenant == null)
-            return BadRequest(new { success = false, message = "User has no associated tenant.", errorCode = "AUTH_TENANT_MISSING" });
-
-        var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-        await _db.SaveChangesAsync();
-
-        var token = GenerateJwtToken(user, user.Tenant);
-
-        return new AuthResponse
+        try
         {
-            Token = token,
-            RefreshToken = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(15),
-            User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
-            Tenant = new TenantInfo
+            var user = await _db.Users.Include(u => u.Tenant).FirstOrDefaultAsync(u => u.RefreshToken == request.RefreshToken);
+            if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)
+                return Unauthorized(new { success = false, message = "Invalid or expired refresh token.", errorCode = "AUTH_TOKEN_EXPIRED" });
+
+            if (user.Tenant == null)
+                return BadRequest(new { success = false, message = "User has no associated tenant.", errorCode = "AUTH_TENANT_MISSING" });
+
+            var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            try
             {
-                Id = user.Tenant.Id,
-                Name = user.Tenant.Name,
-                Subdomain = user.Tenant.Subdomain,
-                LogoUrl = user.Tenant.LogoUrl,
-                PrimaryColor = user.Tenant.PrimaryColor,
-                CompanyName = user.Tenant.CompanyName,
-                HasMeetingRoom = user.Tenant.HasMeetingRoom
+                await _db.SaveChangesAsync();
             }
-        };
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Failed to persist refresh token for UserId={UserId}", user.Id);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Failed to refresh session. Please try again.",
+                    errorCode = "AUTH_REFRESH_UPDATE_FAILED"
+                });
+            }
+
+            var token = GenerateJwtToken(user, user.Tenant);
+
+            return new AuthResponse
+            {
+                Token = token,
+                RefreshToken = refreshToken,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(15),
+                User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
+                Tenant = new TenantInfo
+                {
+                    Id = user.Tenant.Id,
+                    Name = user.Tenant.Name,
+                    Subdomain = user.Tenant.Subdomain,
+                    LogoUrl = user.Tenant.LogoUrl,
+                    PrimaryColor = user.Tenant.PrimaryColor,
+                    CompanyName = user.Tenant.CompanyName,
+                    HasMeetingRoom = user.Tenant.HasMeetingRoom
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during token refresh");
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "An unexpected error occurred during token refresh.",
+                errorCode = "AUTH_REFRESH_ERROR",
+                errors = new { general = new[] { ex.Message } }
+            });
+        }
     }
 
     [Authorize]
@@ -315,8 +357,14 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(User user, Tenant tenant)
     {
+        var jwtKey = _config["Jwt:Key"];
+        if (string.IsNullOrEmpty(jwtKey) || Encoding.UTF8.GetByteCount(jwtKey) < 16)
+        {
+            _logger.LogCritical("Jwt:Key is missing or too short (minimum 16 bytes required). Auth will fail.");
+            throw new InvalidOperationException("Jwt:Key is not configured or is too short.");
+        }
+
         var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key is not configured.");
         var key = Encoding.UTF8.GetBytes(jwtKey);
         var expiry = DateTime.UtcNow.AddMinutes(15);
 

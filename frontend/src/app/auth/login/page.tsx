@@ -22,16 +22,22 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    if (!email.trim() || !password.trim()) {
+      setError('Please fill in all required fields.')
+      return
+    }
     setLoading(true)
     try {
       await login(email, password)
       router.push('/')
     } catch (err: unknown) {
-      const axiosErr = err as { code?: string; response?: { data?: { message?: string; title?: string } } }
+      const axiosErr = err as { code?: string; response?: { status?: number; data?: { message?: string; title?: string } } }
       if (axiosErr.code === 'ERR_NETWORK' || !axiosErr.response) {
         setError('Unable to connect to the server. Please ensure the backend is running on port 5000 and try again.')
       } else if (axiosErr.code === 'ECONNABORTED') {
         setError('Connection timed out. Please check your network and try again.')
+      } else if (axiosErr.response?.status === 401) {
+        setError('Invalid email or password.')
       } else {
         setError(axiosErr.response?.data?.message || axiosErr.response?.data?.title || t('auth.loginFailed'))
       }
