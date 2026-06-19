@@ -111,7 +111,7 @@ export default function MemberForm({ onSuccess, initialData, memberId }: MemberF
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.fullName')}</label>
-          <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="John Doe" required />
         </div>
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.phoneNumber')}</label>
@@ -119,7 +119,7 @@ export default function MemberForm({ onSuccess, initialData, memberId }: MemberF
         </div>
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.nationalId')}</label>
-          <Input value={nationalId} onChange={(e) => setNationalId(e.target.value)} required />
+          <Input value={nationalId} onChange={(e) => setNationalId(e.target.value)} required placeholder="e.g., 1234567890" />
         </div>
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.memberCategory')}</label>
@@ -135,12 +135,12 @@ export default function MemberForm({ onSuccess, initialData, memberId }: MemberF
 
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.registrationDate')}</label>
-          <Input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} required />
+          <Input type="date" value={registrationDate} onChange={(e) => setRegistrationDate(e.target.value)} placeholder="Select registration date" required />
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.endDate')}</label>
-          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} disabled={noEndDate} />
+          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} disabled={noEndDate} placeholder="Select end date (optional)" />
         </div>
         <div className="flex items-center gap-2 pt-6">
           <input
@@ -168,29 +168,29 @@ export default function MemberForm({ onSuccess, initialData, memberId }: MemberF
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.startTime')}</label>
           <div className="flex items-center gap-1">
-            <Input type="number" min="0" max="23" value={startHours} onChange={(e) => setStartHours(e.target.value)} className="w-20 text-center" />
+            <Input type="number" min="0" max="23" value={startHours} onChange={(e) => setStartHours(e.target.value)} className="w-20 text-center" placeholder="HH" />
             <span className="text-[var(--text-primary)] font-bold">:</span>
-            <Input type="number" min="0" max="59" value={startMinutes} onChange={(e) => setStartMinutes(e.target.value)} className="w-20 text-center" />
+            <Input type="number" min="0" max="59" value={startMinutes} onChange={(e) => setStartMinutes(e.target.value)} className="w-20 text-center" placeholder="MM" />
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.endTime')}</label>
           <div className="flex items-center gap-1">
-            <Input type="number" min="0" max="23" value={endHours} onChange={(e) => setEndHours(e.target.value)} className="w-20 text-center" />
+            <Input type="number" min="0" max="23" value={endHours} onChange={(e) => setEndHours(e.target.value)} className="w-20 text-center" placeholder="HH" />
             <span className="text-[var(--text-primary)] font-bold">:</span>
-            <Input type="number" min="0" max="59" value={endMinutes} onChange={(e) => setEndMinutes(e.target.value)} className="w-20 text-center" />
+            <Input type="number" min="0" max="59" value={endMinutes} onChange={(e) => setEndMinutes(e.target.value)} className="w-20 text-center" placeholder="MM" />
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.monthlyFee')}</label>
-          <Input type="number" step="0.01" min="0" value={monthlyFee} onChange={(e) => setMonthlyFee(e.target.value)} required />
+          <Input type="number" step="0.01" min="0" value={monthlyFee} onChange={(e) => setMonthlyFee(e.target.value)} placeholder="e.g., 150.00" required />
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('memberForm.deskNumber')}</label>
-          <Input value={deskNumber} onChange={(e) => setDeskNumber(e.target.value)} required />
+          <Input value={deskNumber} onChange={(e) => setDeskNumber(e.target.value)} placeholder="e.g., D-12" required />
         </div>
       </div>
 

@@ -48,17 +48,17 @@ function SettingsContent({ tenant }: { tenant: { companyName?: string; name?: st
 
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('settings.companyName')}</label>
-            <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+            <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="e.g., Acme Coworkspace" />
           </div>
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('settings.displayName')}</label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., My Coworkspace" />
           </div>
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('settings.primaryColor')}</label>
             <div className="flex items-center gap-2">
               <Input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-16 h-10 p-1" />
-              <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="flex-1" />
+              <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="flex-1" placeholder="#1565C0" />
             </div>
           </div>
           <div>

@@ -27,7 +27,16 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     )
   }
 
-  if (!isAuthenticated) return null
+  // If user is not authenticated we render a small non-blocking fallback
+  // while the router redirect happens. Returning null produced a blank page
+  // in some environments during navigation.
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--page-bg)]">
+        <div className="text-[var(--text-primary)] text-lg font-medium">{t('auth.redirecting') || 'Redirecting...'}</div>
+      </div>
+    )
+  }
 
   return <>{children}</>
 }

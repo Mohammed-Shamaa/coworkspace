@@ -6,9 +6,21 @@ let last429Warning = 0
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 30000,
+  timeout: 60000,
   headers: { 'Content-Type': 'application/json' }
 })
+
+// Warn in production if frontend is configured to talk to localhost which
+// will fail for public deployments. This helps catch misconfigured env vars.
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+  try {
+    if (API_URL.includes('localhost') || API_URL.includes('127.0.0.1')) {
+      console.error('[API] NEXT_PUBLIC_API_URL appears to be pointing to localhost. Update the environment variable for production.')
+    }
+  } catch {
+    /* ignore */
+  }
+}
 
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
@@ -51,33 +63,40 @@ api.interceptors.response.use(
     }
     const originalRequest = error.config as { _retry?: boolean; headers: Record<string, string>; url?: string }
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      // Guard localStorage / window access in case of restricted environments
+      const safeRemoveAll = () => {
+        try {
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('token')
+            localStorage.removeItem('refreshToken')
+            localStorage.removeItem('user')
+            localStorage.removeItem('tenant')
+          }
+        } catch { /* ignore */ }
+      }
+
       if (originalRequest.url?.includes('/auth/refresh')) {
-        localStorage.removeItem('token')
-        localStorage.removeItem('refreshToken')
-        localStorage.removeItem('user')
-        localStorage.removeItem('tenant')
+        safeRemoveAll()
         if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login'
+          try { window.location.href = '/auth/login' } catch { /* ignore */ }
         }
         return Promise.reject(error)
       }
       originalRequest._retry = true
       try {
-        const refreshToken = localStorage.getItem('refreshToken')
+        let refreshToken: string | null = null
+        try { refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null } catch { refreshToken = null }
         if (refreshToken) {
           const res = await api.post('/auth/refresh', { refreshToken })
           const { token } = res.data
-          localStorage.setItem('token', token)
-          originalRequest.headers.Authorization = `Bearer ${token}`
+          try { localStorage.setItem('token', token) } catch { /* ignore */ }
+          if (originalRequest.headers) originalRequest.headers.Authorization = `Bearer ${token}`
           return api(originalRequest)
         }
       } catch {
-        localStorage.removeItem('token')
-        localStorage.removeItem('refreshToken')
-        localStorage.removeItem('user')
-        localStorage.removeItem('tenant')
+        safeRemoveAll()
         if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login'
+          try { window.location.href = '/auth/login' } catch { /* ignore */ }
         }
       }
     }

@@ -133,11 +133,11 @@ function RegisterForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {renderField('companyName', t('auth.companyName'), 'text', companyName, setCompanyName)}
+          {renderField('companyName', t('auth.companyName'), 'text', companyName, setCompanyName, 'My Company')}
           {renderField('subdomain', t('auth.subdomainLabel') + ' ' + t('auth.subdomainHint'), 'text', subdomain, setSubdomain, t('auth.subdomainPlaceholder'))}
-          {renderField('fullName', t('auth.fullName'), 'text', fullName, setFullName)}
-          {renderField('email', t('auth.emailLabel'), 'email', email, setEmail)}
-          {renderField('password', t('auth.passwordLabel'), 'password', password, setPassword, undefined, { minLength: 6 })}
+          {renderField('fullName', t('auth.fullName'), 'text', fullName, setFullName, 'John Doe')}
+          {renderField('email', t('auth.emailLabel'), 'email', email, setEmail, 'name@example.com')}
+          {renderField('password', t('auth.passwordLabel'), 'password', password, setPassword, 'Create a strong password', { minLength: 6 })}
 
           {fieldErrors.general && fieldErrors.general.length > 0 && (
             <div className="bg-[#FFEBEE] dark:bg-[#3A1B1B] p-3 rounded text-sm text-[#C62828] dark:text-[#EF9A9A]">
