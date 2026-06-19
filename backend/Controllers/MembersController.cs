@@ -306,8 +306,10 @@ public class MembersController : ControllerBase
         {
             var st = startTime.Value;
             var et = endTime.Value;
-            var deskConflict = await query
-                .AnyAsync(m => m.DeskNumber == deskNumber && m.StartTime < et && m.EndTime > st);
+            var matchingDesks = await query
+                .Where(m => m.DeskNumber == deskNumber)
+                .ToListAsync();
+            var deskConflict = matchingDesks.Any(m => m.StartTime < et && m.EndTime > st);
             if (deskConflict)
                 return BadRequest(new { message = "This desk is already occupied during the selected time period." });
         }

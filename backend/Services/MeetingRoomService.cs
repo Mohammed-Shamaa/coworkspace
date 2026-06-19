@@ -30,7 +30,7 @@ public class MeetingRoomService
         if (startTime >= endTime)
             throw new InvalidOperationException("Start time must be before end time.");
 
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         if (date.Year < now.Year || (date.Year == now.Year && date.Month < now.Month) || (date.Year == now.Year && date.Month == now.Month && date.Day < now.Day))
             throw new InvalidOperationException("Cannot create reservation in the past.");
@@ -38,12 +38,14 @@ public class MeetingRoomService
         if (date.Year == now.Year && date.Month == now.Month && date.Day == now.Day && startTime <= now.TimeOfDay)
             throw new InvalidOperationException("Cannot create a reservation for a time that has already passed today.");
 
-        var conflict = await _db.MeetingRoomReservations
-            .AnyAsync(r => r.TenantId == tenantId
-                        && r.ReservationDate == date
-                        && r.Id != (excludeReservationId ?? 0)
-                        && startTime < r.EndTime
-                        && endTime > r.StartTime);
+        var existingReservations = await _db.MeetingRoomReservations
+            .Where(r => r.TenantId == tenantId
+                     && r.ReservationDate == date
+                     && r.Id != (excludeReservationId ?? 0))
+            .ToListAsync();
+
+        // SQLite cannot translate TimeSpan comparisons; check overlap on client
+        var conflict = existingReservations.Any(r => startTime < r.EndTime && endTime > r.StartTime);
 
         if (conflict)
             throw new InvalidOperationException("This time slot is already reserved. Please choose a different time.");

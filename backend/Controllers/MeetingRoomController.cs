@@ -45,8 +45,10 @@ public class MeetingRoomController : ControllerBase
 
         var reservations = await query
             .OrderByDescending(r => r.ReservationDate)
-            .ThenBy(r => r.StartTime)
             .ToListAsync();
+
+        // SQLite cannot ORDER BY TimeSpan, sort on client
+        reservations = [.. reservations.OrderByDescending(r => r.ReservationDate).ThenBy(r => r.StartTime)];
 
         return reservations.Select(MapToResponse).ToList();
     }
@@ -153,18 +155,20 @@ public class MeetingRoomController : ControllerBase
             .Where(r => r.TenantId == TenantId);
 
         var totalTask = baseQuery.CountAsync();
-        var todaysTask = baseQuery.CountAsync(r => r.ReservationDate == today);
-        var upcomingTask = baseQuery.CountAsync(r => r.ReservationDate >= today && r.StartTime > now.TimeOfDay);
-        var pastTask = baseQuery.CountAsync(r => r.ReservationDate < today || (r.ReservationDate == today && r.EndTime <= now.TimeOfDay));
+        var pastDatesTask = baseQuery.CountAsync(r => r.ReservationDate < today);
+        var todaysReservations = await baseQuery
+            .Where(r => r.ReservationDate == today)
+            .ToListAsync();
 
-        await Task.WhenAll(totalTask, todaysTask, upcomingTask, pastTask);
+        await Task.WhenAll(totalTask, pastDatesTask);
 
+        // TimeSpan comparisons cannot be translated by SQLite; compute on client
         return new ReservationStatsResponse
         {
             TotalReservations = totalTask.Result,
-            TodaysReservations = todaysTask.Result,
-            UpcomingReservations = upcomingTask.Result,
-            PastReservations = pastTask.Result
+            TodaysReservations = todaysReservations.Count,
+            UpcomingReservations = todaysReservations.Count(r => r.StartTime > now.TimeOfDay),
+            PastReservations = pastDatesTask.Result + todaysReservations.Count(r => r.EndTime <= now.TimeOfDay)
         };
     }
 
@@ -178,9 +182,10 @@ public class MeetingRoomController : ControllerBase
             .AsNoTracking()
             .Where(r => r.TenantId == TenantId && r.ReservationDate >= today)
             .OrderBy(r => r.ReservationDate)
-            .ThenBy(r => r.StartTime)
-            .Take(10)
             .ToListAsync();
+
+        // SQLite cannot ORDER BY TimeSpan; sort on client
+        reservations = [.. reservations.OrderBy(r => r.ReservationDate).ThenBy(r => r.StartTime).Take(10)];
 
         return reservations.Select(MapToResponse).ToList();
     }
