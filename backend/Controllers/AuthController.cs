@@ -147,7 +147,7 @@ public class AuthController : ControllerBase
                 {
                     Token = token,
                     RefreshToken = refreshToken,
-                    ExpiresAt = DateTime.UtcNow.AddHours(24),
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(15),
                     User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
                     Tenant = new TenantInfo
                     {
@@ -247,7 +247,7 @@ public class AuthController : ControllerBase
         {
             Token = token,
             RefreshToken = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddHours(24),
+            ExpiresAt = DateTime.UtcNow.AddMinutes(15),
             User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
             Tenant = new TenantInfo
             {
@@ -283,7 +283,7 @@ public class AuthController : ControllerBase
         {
             Token = token,
             RefreshToken = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddHours(24),
+            ExpiresAt = DateTime.UtcNow.AddMinutes(15),
             User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
             Tenant = new TenantInfo
             {
@@ -316,9 +316,9 @@ public class AuthController : ControllerBase
     private string GenerateJwtToken(User user, Tenant tenant)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtKey = _config["Jwt:Key"] ?? "SuperSecretKeyForDevelopment12345678!";
+        var jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key is not configured.");
         var key = Encoding.UTF8.GetBytes(jwtKey);
-        var expiry = DateTime.UtcNow.AddHours(24);
+        var expiry = DateTime.UtcNow.AddMinutes(15);
 
         var claims = new[]
         {

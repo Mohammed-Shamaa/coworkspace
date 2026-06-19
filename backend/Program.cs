@@ -33,11 +33,9 @@ if (isPostgres)
 else
     builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connString));
 
-// JWT Authentication
+// JWT Authentication — key is REQUIRED in all environments (set via Jwt__Key env var)
 var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? (builder.Environment.IsDevelopment()
-        ? "SuperSecretKeyForDevelopment12345678!"
-        : throw new InvalidOperationException("Jwt:Key is not configured. Set the Jwt__Key environment variable in production."));
+    ?? throw new InvalidOperationException("Jwt:Key is not configured. Set the Jwt__Key environment variable.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "CoworkspaceAPI";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "CoworkspaceApp";
 
@@ -56,16 +54,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RequireManager", policy => policy.RequireRole("Admin", "Manager"));
+});
 
-// CORS
+// CORS — environment-aware
+var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        if (builder.Environment.IsDevelopment() || string.IsNullOrEmpty(frontendUrl))
+        {
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        }
+        else
+        {
+            policy.WithOrigins(frontendUrl).AllowAnyMethod().AllowAnyHeader();
+        }
     });
 });
 
@@ -143,6 +151,13 @@ using (var scope = app.Services.CreateScope())
 // Configure pipeline
 app.UseMiddleware<Coworkspace.API.Middleware.ExceptionHandlingMiddleware>();
 app.UseMiddleware<Coworkspace.API.Middleware.RequestLoggingMiddleware>();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+    app.UseHsts();
+}
+
 app.UseCors("AllowFrontend");
 
 if (app.Environment.IsDevelopment())
@@ -152,8 +167,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
-app.UseRateLimiting();
 app.UseAuthorization();
+app.UseRateLimiting();
 app.UseTenantMiddleware();
 app.MapControllers();
 

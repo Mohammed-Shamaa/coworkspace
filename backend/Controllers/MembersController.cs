@@ -94,6 +94,7 @@ public class MembersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<MemberResponse>> Create(CreateMemberRequest request)
     {
         if (!TimeSpan.TryParse(request.StartTime, out var startTime) || !TimeSpan.TryParse(request.EndTime, out var endTime))
@@ -161,6 +162,7 @@ public class MembersController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<MemberResponse>> Update(int id, UpdateMemberRequest request)
     {
         var member = await _db.Members.FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);
@@ -226,6 +228,7 @@ public class MembersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> Delete(int id)
     {
         var member = await _db.Members.Include(m => m.Payments).FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);
@@ -243,6 +246,7 @@ public class MembersController : ControllerBase
     }
 
     [HttpPost("{id}/mark-paid")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult> MarkPaid(int id, [FromBody] MarkPaidRequest? request)
     {
         var member = await _db.Members.FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);

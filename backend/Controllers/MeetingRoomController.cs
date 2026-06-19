@@ -66,6 +66,7 @@ public class MeetingRoomController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ReservationResponse>> Create(CreateReservationRequest request)
     {
         if (!DateOnly.TryParse(request.ReservationDate, out var dateOnly))
@@ -98,6 +99,7 @@ public class MeetingRoomController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ReservationResponse>> Update(int id, UpdateReservationRequest request)
     {
         if (!DateOnly.TryParse(request.ReservationDate, out var dateOnly))
@@ -131,6 +133,7 @@ public class MeetingRoomController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> Delete(int id)
     {
         var reservation = await _db.MeetingRoomReservations

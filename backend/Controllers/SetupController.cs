@@ -72,6 +72,7 @@ public class SetupController : ControllerBase
     }
 
     [HttpPost("workspace-info")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> SaveWorkspaceInfo(WorkspaceInfoRequest request)
     {
         var tenantId = int.Parse(User.FindFirst("TenantId")?.Value ?? "0");
@@ -89,6 +90,7 @@ public class SetupController : ControllerBase
     }
 
     [HttpPost("address")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> SaveAddress(WorkspaceAddressRequest request)
     {
         var tenantId = int.Parse(User.FindFirst("TenantId")?.Value ?? "0");
@@ -104,6 +106,7 @@ public class SetupController : ControllerBase
     }
 
     [HttpPost("working-hours")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> SaveWorkingHours(WorkingHoursRequest request)
     {
         var tenantId = int.Parse(User.FindFirst("TenantId")?.Value ?? "0");
@@ -129,6 +132,7 @@ public class SetupController : ControllerBase
     }
 
     [HttpPost("complete")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> CompleteOnboarding()
     {
         var tenantId = int.Parse(User.FindFirst("TenantId")?.Value ?? "0");

@@ -31,8 +31,8 @@ public class RateLimitingMiddleware
         string clientKey;
         if (isAuthenticated)
         {
-            var tenantId = context.User.FindFirst("TenantId")?.Value ?? "anon";
-            clientKey = $"auth_{tenantId}";
+            var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anon";
+            clientKey = $"user_{userId}";
         }
         else
         {

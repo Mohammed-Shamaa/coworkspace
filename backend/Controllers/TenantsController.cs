@@ -34,6 +34,7 @@ public class TenantsController : ControllerBase
     }
 
     [HttpPut("settings")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<TenantInfo>> UpdateSettings(UpdateTenantSettingsRequest request)
     {
         var tenantId = int.Parse(User.FindFirst("TenantId")?.Value ?? "0");

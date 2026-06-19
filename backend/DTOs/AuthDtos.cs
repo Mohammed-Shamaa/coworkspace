@@ -4,8 +4,12 @@ namespace Coworkspace.API.DTOs;
 
 public class RegisterRequest
 {
-    [Required] [MaxLength(100)] public string Email { get; set; } = string.Empty;
-    [Required] [MinLength(6)] public string Password { get; set; } = string.Empty;
+    [Required] [MaxLength(100)] [EmailAddress] public string Email { get; set; } = string.Empty;
+    [Required]
+    [MinLength(8)]
+    [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$",
+        ErrorMessage = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.")]
+    public string Password { get; set; } = string.Empty;
     [Required] [MaxLength(200)] public string FullName { get; set; } = string.Empty;
     [Required] [MaxLength(200)] public string CompanyName { get; set; } = string.Empty;
     [Required] [MaxLength(100)] public string Subdomain { get; set; } = string.Empty;
@@ -13,8 +17,8 @@ public class RegisterRequest
 
 public class LoginRequest
 {
-    [Required] public string Email { get; set; } = string.Empty;
-    [Required] public string Password { get; set; } = string.Empty;
+    [Required] [MaxLength(100)] public string Email { get; set; } = string.Empty;
+    [Required] [MaxLength(128)] public string Password { get; set; } = string.Empty;
 }
 
 public class AuthResponse
