@@ -33,9 +33,13 @@ if (isPostgres)
 else
     builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connString));
 
-// JWT Authentication — key is REQUIRED in all environments (set via Jwt__Key env var)
+// JWT Authentication — key is REQUIRED in production (set via Jwt__Key env var).
+// In development, a default key is provided for convenience.
 var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? (builder.Environment.IsDevelopment() ? "DevJwtKeyForLocalDevelopmentOnly_Min32Chars!!" : null)
     ?? throw new InvalidOperationException("Jwt:Key is not configured. Set the Jwt__Key environment variable.");
+// Push into configuration so controllers (e.g. AuthController.GenerateJwtToken) can read it.
+builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["Jwt:Key"] = jwtKey });
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "CoworkspaceAPI";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "CoworkspaceApp";
 
