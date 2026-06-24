@@ -66,17 +66,21 @@ builder.Services.AddAuthorization(options =>
 
 // CORS — environment-aware
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
+if (!builder.Environment.IsDevelopment() && string.IsNullOrEmpty(frontendUrl))
+{
+    throw new InvalidOperationException("FRONTEND_URL environment variable is required in production. Set it to your Vercel frontend URL.");
+}
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        if (builder.Environment.IsDevelopment() || string.IsNullOrEmpty(frontendUrl))
+        if (builder.Environment.IsDevelopment())
         {
             policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
         }
         else
         {
-            policy.WithOrigins(frontendUrl).AllowAnyMethod().AllowAnyHeader();
+            policy.WithOrigins(frontendUrl!).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
         }
     });
 });
@@ -108,6 +112,7 @@ builder.Services.AddControllers()
             {
                 success = false,
                 message = "Validation failed. Please check the form and try again.",
+                errorCode = "AUTH_VALIDATION_ERROR",
                 errors
             };
 
@@ -126,29 +131,53 @@ var app = builder.Build();
 var urls = app.Urls;
 Console.WriteLine($"[Startup] Backend listening on: {string.Join(", ", urls)}");
 
-// Apply migrations / ensure schema is up to date
+// Apply pending EF Core migrations (safe — never drops data).
+// Uses MigrateAsync in all environments.  A one-time transition helper
+// handles databases previously created by EnsureCreated — it creates the
+// __EFMigrationsHistory table and marks all migrations as applied so that
+// future deploys use normal migration flow with zero data loss.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        if (db.Database.ProviderName?.Contains("Npgsql") == true)
-        {
-            await db.Database.EnsureCreatedAsync();
-        }
-        else if (app.Environment.IsDevelopment())
-        {
-            db.Database.EnsureCreated();
-        }
-        else
-        {
-            await db.Database.MigrateAsync();
-        }
+        await db.Database.MigrateAsync();
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"[Startup] Database initialization failed: {ex.Message}");
-        Console.WriteLine("[Startup] API will start but database-dependent endpoints will fail.");
+        // If MigrateAsync fails, it may be because the database was
+        // previously created by EnsureCreated (tables exist but no
+        // __EFMigrationsHistory). Try the transition path.
+        Console.WriteLine($"[Startup] MigrateAsync failed: {ex.Message}. Attempting transition from EnsureCreated...");
+        try
+        {
+            var allMigrations = scope.ServiceProvider
+                .GetRequiredService<Microsoft.EntityFrameworkCore.Migrations.IMigrationsAssembly>()
+                .Migrations.Keys.OrderBy(m => m).ToList();
+
+            if (allMigrations.Count != 0)
+            {
+                await db.Database.ExecuteSqlRawAsync(
+                    "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (\"MigrationId\" TEXT NOT NULL, \"ProductVersion\" TEXT NOT NULL, PRIMARY KEY (\"MigrationId\"))");
+
+                var insertSql = db.Database.ProviderName?.Contains("Npgsql") == true
+                    ? "INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ({0}, {1}) ON CONFLICT DO NOTHING"
+                    : "INSERT OR IGNORE INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ({0}, {1})";
+
+                foreach (var m in allMigrations)
+                {
+                    await db.Database.ExecuteSqlRawAsync(insertSql, m, "10.0.8");
+                }
+
+                Console.WriteLine($"[Startup] Transition complete: marked {allMigrations.Count} migration(s) as applied.");
+            }
+        }
+        catch (Exception innerEx)
+        {
+            Console.WriteLine($"[Startup] FATAL: Database migration failed: {innerEx.Message}");
+            Console.WriteLine("[Startup] The application cannot start without a working database.");
+            throw;
+        }
     }
 }
 
@@ -158,8 +187,12 @@ app.UseMiddleware<Coworkspace.API.Middleware.RequestLoggingMiddleware>();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseHttpsRedirection();
-    app.UseHsts();
+    // Render terminates SSL at the proxy. ForwardedHeaders reads the
+    // X-Forwarded-Proto header so that generated URLs use HTTPS correctly.
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+    });
 }
 
 app.UseCors("AllowFrontend");

@@ -194,6 +194,11 @@ namespace Coworkspace.API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_TenantId",
+                table: "AuditLogs",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AuditLogs_UserId",
                 table: "AuditLogs",
                 column: "UserId");
@@ -204,16 +209,46 @@ namespace Coworkspace.API.Migrations
                 columns: new[] { "TenantId", "ReservationDate", "StartTime" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Members_TenantId_CreatedAt",
+                table: "Members",
+                columns: new[] { "TenantId", "CreatedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Members_TenantId_DeskNumber",
+                table: "Members",
+                columns: new[] { "TenantId", "DeskNumber" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Members_TenantId_EndDate",
+                table: "Members",
+                columns: new[] { "TenantId", "EndDate" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Members_TenantId_FullName",
                 table: "Members",
                 columns: new[] { "TenantId", "FullName" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Members_TenantId_MemberType",
+                table: "Members",
+                columns: new[] { "TenantId", "MemberType" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Members_TenantId_NationalId",
                 table: "Members",
                 columns: new[] { "TenantId", "NationalId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Members_TenantId_NextDueDate",
+                table: "Members",
+                columns: new[] { "TenantId", "NextDueDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Members_TenantId_PaymentStatus",
+                table: "Members",
+                columns: new[] { "TenantId", "PaymentStatus" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Members_TenantId_PhoneNumber",
@@ -232,10 +267,20 @@ namespace Coworkspace.API.Migrations
                 column: "RecordedByUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Payments_TenantId_MemberId_PaymentDate",
+                table: "Payments",
+                columns: new[] { "TenantId", "MemberId", "PaymentDate" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tenants_Subdomain",
                 table: "Tenants",
                 column: "Subdomain",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_RefreshToken",
+                table: "Users",
+                column: "RefreshToken");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_TenantId_Email",

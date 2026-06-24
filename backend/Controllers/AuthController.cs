@@ -171,13 +171,11 @@ public class AuthController : ControllerBase
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Database constraint violation during registration for Email={Email}", request.Email);
-            var detail = ex.InnerException?.Message ?? ex.Message;
             return Conflict(new
             {
                 success = false,
                 message = "A database constraint was violated. This email or subdomain may already be taken.",
-                errorCode = "AUTH_DB_CONSTRAINT",
-                errors = new { general = new[] { detail } }
+                errorCode = "AUTH_DB_CONSTRAINT"
             });
         }
         catch (Exception ex)
@@ -188,7 +186,7 @@ public class AuthController : ControllerBase
                 success = false,
                 message = "An unexpected error occurred during registration. Please try again.",
                 errorCode = "AUTH_REGISTRATION_ERROR",
-                errors = new { general = new[] { ex.Message } }
+                errors = new { general = new[] { "An internal error occurred." } }
             });
         }
     }
@@ -198,13 +196,28 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var email = request.Email?.Trim().ToLowerInvariant() ?? "";
+            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Email and password are required.",
+                    errorCode = "AUTH_VALIDATION_ERROR",
+                    errors = new
+                    {
+                        email = string.IsNullOrWhiteSpace(request.Email) ? new[] { "Email is required." } : Array.Empty<string>(),
+                        password = string.IsNullOrWhiteSpace(request.Password) ? new[] { "Password is required." } : Array.Empty<string>()
+                    }
+                });
+            }
+
+            var email = request.Email.Trim().ToLowerInvariant();
 
             var user = await _db.Users.Include(u => u.Tenant)
                 .FirstOrDefaultAsync(u => u.Email.ToLower() == email);
 
             if (user == null || user.Tenant == null)
-                return Unauthorized(new { success = false, message = "Invalid credentials.", errorCode = "AUTH_INVALID_CREDENTIALS" });
+                return Unauthorized(new { success = false, message = "Invalid email or password.", errorCode = "AUTH_INVALID_CREDENTIALS", errors = new { general = new[] { "Invalid email or password." } } });
 
             bool passwordValid;
             try
@@ -214,14 +227,14 @@ public class AuthController : ControllerBase
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Password verification failed for UserId={UserId}, Email={Email}", user.Id, user.Email);
-                return Unauthorized(new { success = false, message = "Invalid credentials.", errorCode = "AUTH_INVALID_CREDENTIALS" });
+                return Unauthorized(new { success = false, message = "Invalid email or password.", errorCode = "AUTH_INVALID_CREDENTIALS", errors = new { general = new[] { "Invalid email or password." } } });
             }
 
             if (!passwordValid)
-                return Unauthorized(new { success = false, message = "Invalid credentials.", errorCode = "AUTH_INVALID_CREDENTIALS" });
+                return Unauthorized(new { success = false, message = "Invalid email or password.", errorCode = "AUTH_INVALID_CREDENTIALS", errors = new { general = new[] { "Invalid email or password." } } });
 
             if (!user.IsActive)
-                return Unauthorized(new { success = false, message = "Account is disabled.", errorCode = "AUTH_ACCOUNT_DISABLED" });
+                return Unauthorized(new { success = false, message = "Account is disabled.", errorCode = "AUTH_ACCOUNT_DISABLED", errors = new { general = new[] { "Account is disabled." } } });
 
             var tenant = user.Tenant;
 
@@ -272,7 +285,7 @@ public class AuthController : ControllerBase
                 success = false,
                 message = "An unexpected error occurred during login. Please try again.",
                 errorCode = "AUTH_LOGIN_ERROR",
-                errors = new { general = new[] { ex.Message } }
+                errors = new { general = new[] { "An internal error occurred." } }
             });
         }
     }
@@ -335,7 +348,7 @@ public class AuthController : ControllerBase
                 success = false,
                 message = "An unexpected error occurred during token refresh.",
                 errorCode = "AUTH_REFRESH_ERROR",
-                errors = new { general = new[] { ex.Message } }
+                errors = new { general = new[] { "An internal error occurred." } }
             });
         }
     }

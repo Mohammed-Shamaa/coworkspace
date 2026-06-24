@@ -57,6 +57,8 @@ namespace Coworkspace.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("AuditLogs");
@@ -200,11 +202,23 @@ namespace Coworkspace.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TenantId", "CreatedAt");
+
+                    b.HasIndex("TenantId", "DeskNumber");
+
+                    b.HasIndex("TenantId", "EndDate");
+
                     b.HasIndex("TenantId", "FullName")
                         .IsUnique();
 
+                    b.HasIndex("TenantId", "MemberType");
+
                     b.HasIndex("TenantId", "NationalId")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "NextDueDate");
+
+                    b.HasIndex("TenantId", "PaymentStatus");
 
                     b.HasIndex("TenantId", "PhoneNumber")
                         .IsUnique();
@@ -256,6 +270,8 @@ namespace Coworkspace.API.Migrations
                     b.HasIndex("MemberId");
 
                     b.HasIndex("RecordedByUserId");
+
+                    b.HasIndex("TenantId", "MemberId", "PaymentDate");
 
                     b.ToTable("Payments");
                 });
@@ -374,6 +390,8 @@ namespace Coworkspace.API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RefreshToken");
 
                     b.HasIndex("TenantId", "Email")
                         .IsUnique();

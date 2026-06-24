@@ -31,15 +31,17 @@ function LoginForm() {
       await login(email, password)
       router.push('/')
     } catch (err: unknown) {
-      const axiosErr = err as { code?: string; response?: { status?: number; data?: { message?: string; title?: string } } }
-      if (axiosErr.code === 'ERR_NETWORK' || !axiosErr.response) {
+      const apiErr = err as { apiError?: { status: number; message: string; code?: string }; code?: string; response?: { status?: number; data?: { message?: string; title?: string } } }
+      if (apiErr.apiError) {
+        setError(apiErr.apiError.message)
+      } else if (apiErr.code === 'ERR_NETWORK' || !apiErr.response) {
         setError('Unable to connect to the server. Please ensure the backend is running on port 5000 and try again.')
-      } else if (axiosErr.code === 'ECONNABORTED') {
+      } else if (apiErr.code === 'ECONNABORTED') {
         setError('Connection timed out. Please check your network and try again.')
-      } else if (axiosErr.response?.status === 401) {
+      } else if (apiErr.response?.status === 401) {
         setError('Invalid email or password.')
       } else {
-        setError(axiosErr.response?.data?.message || axiosErr.response?.data?.title || t('auth.loginFailed'))
+        setError(apiErr.response?.data?.message || apiErr.response?.data?.title || t('auth.loginFailed'))
       }
     } finally {
       setLoading(false)

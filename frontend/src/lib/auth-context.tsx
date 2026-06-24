@@ -101,7 +101,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const login = async (email: string, password: string) => {
-    const res = await api.post('/auth/login', { email, password })
+    if (!email.trim() || !password.trim()) {
+      throw { apiError: { status: 0, message: 'Email and password are required.', code: 'VALIDATION_ERROR' } }
+    }
+    const res = await api.post('/auth/login', { email: email.trim(), password })
     handleAuthResponse(res.data)
   }
 

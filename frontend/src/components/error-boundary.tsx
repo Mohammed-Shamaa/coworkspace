@@ -1,14 +1,13 @@
 'use client'
-import { Component } from 'react'
-import type { ReactNode } from 'react'
+import React from 'react'
 
-interface Props { children: ReactNode; fallback?: ReactNode }
-interface State { hasError: boolean; error?: Error }
+interface Props { children: React.ReactNode }
+interface State { hasError: boolean; error: Error | null }
 
-export default class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, error: null }
   }
 
   static getDerivedStateFromError(error: Error): State {
@@ -16,24 +15,28 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('[ErrorBoundary]', error, info)
+    console.error('[ErrorBoundary]', error, info.componentStack)
   }
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) return this.props.fallback
       return (
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-center p-8">
-            <div className="text-4xl mb-4 text-red-500">!</div>
-            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">Something went wrong</h2>
-            <p className="text-[var(--text-secondary)] mb-4">An unexpected error occurred. Please try refreshing the page.</p>
-            <button
-              onClick={() => this.setState({ hasError: false })}
-              className="px-4 py-2 bg-[#1565C0] text-white rounded hover:bg-[#1976D2] cursor-pointer"
-            >
-              Try again
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-md text-center">
+            <div className="text-4xl mb-4">!</div>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Something went wrong</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">An unexpected error occurred. Please try refreshing the page.</p>
+            <button onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload() }} className="px-4 py-2 bg-[#1565C0] text-white rounded hover:bg-[#1976D2] cursor-pointer">
+              Refresh Page
             </button>
+            {this.state.error && (
+              <details className="mt-4 text-left">
+                <summary className="text-sm text-gray-500 cursor-pointer">Error details</summary>
+                <pre className="mt-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded overflow-auto max-h-40">
+                  {this.state.error.message}
+                </pre>
+              </details>
+            )}
           </div>
         </div>
       )
@@ -41,3 +44,5 @@ export default class ErrorBoundary extends Component<Props, State> {
     return this.props.children
   }
 }
+
+export default ErrorBoundary

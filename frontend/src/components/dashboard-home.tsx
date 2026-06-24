@@ -39,7 +39,7 @@ export default function DashboardHome() {
     { label: t('dashboard.students'), value: dashboard.studentCount, bgColor: '#E3F2FD', textColor: '#1565C0' },
     { label: t('dashboard.remoteWorkers'), value: dashboard.remoteWorkerCount, bgColor: '#E8F5E9', textColor: '#2E7D32' },
     { label: t('dashboard.unpaidMembers'), value: dashboard.unpaidMembers, bgColor: '#FFF3E0', textColor: '#E65100' },
-    { label: t('dashboard.monthlyIncome'), value: dashboard.monthlyIncome.toFixed(2), bgColor: '#F3E5F5', textColor: '#6A1B9A', prefix: '$' },
+    { label: t('dashboard.monthlyIncome'), value: dashboard.monthlyIncome?.toFixed(2) ?? '—', bgColor: '#F3E5F5', textColor: '#6A1B9A', prefix: '$' },
     { label: t('dashboard.expiredMembers'), value: dashboard.expiredMembers, bgColor: '#FFEBEE', textColor: '#C62828' },
   ] : []
 
@@ -91,7 +91,7 @@ export default function DashboardHome() {
         <MemberForm onSuccess={() => setRefreshKey(k => k + 1)} />
       </div>
 
-      {dashboard && dashboard.recentRegistrations.length > 0 && (
+      {dashboard && dashboard.recentRegistrations && dashboard.recentRegistrations.length > 0 && (
         <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-5 mt-6">
           <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">{t('dashboard.recentRegistrations')}</h2>
           <div className="space-y-2">

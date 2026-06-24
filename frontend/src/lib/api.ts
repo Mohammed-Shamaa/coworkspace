@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { CreateMemberRequest, CreateReservationRequest, UpdateReservationRequest } from '@/types'
+import type { ApiError } from './utils'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 let last429Warning = 0
@@ -15,7 +16,7 @@ const api = axios.create({
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
   try {
     if (API_URL.includes('localhost') || API_URL.includes('127.0.0.1')) {
-      console.error('[API] NEXT_PUBLIC_API_URL appears to be pointing to localhost. Update the environment variable for production.')
+      console.warn('[API] NEXT_PUBLIC_API_URL appears to be pointing to localhost. Update the environment variable for production.')
     }
   } catch {
     /* ignore */
@@ -30,40 +31,47 @@ api.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${token}`
     }
   }
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`)
-  }
   return config
 })
 
 api.interceptors.response.use(
-  (response) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[API Response] ${response.status} ${response.config.url}`)
-    }
-    return response
-  },
+  (response) => response,
   async (error) => {
+    const normalizedError: ApiError = {
+      status: 0,
+      message: 'Server is not reachable. Please check your connection and try again.',
+      code: 'NETWORK_ERROR'
+    }
+
+    if (error.response) {
+      const status = error.response.status
+      const data = error.response.data
+      normalizedError.status = status
+      normalizedError.message = data?.message ?? 'An unexpected error occurred.'
+      normalizedError.code = data?.code
+      normalizedError.errors = data?.errors
+    }
+
+    error.apiError = normalizedError
+
     if (process.env.NODE_ENV === 'development') {
       if (error.response) {
         if (error.response.status === 429) {
           const now = Date.now()
           if (now - last429Warning > 5000) {
             last429Warning = now
-            console.warn('[API Rate Limited] Too many requests. Please slow down.')
+            console.warn('[API] Rate limited — slowing down.')
           }
-        } else {
-          console.error(`[API Error] ${error.response.status} ${error.config?.url}`, error.response.data)
+        } else if (error.response.status >= 500) {
+          console.warn(`[API] ${error.response.status} on ${error.config?.url}`)
         }
       } else if (error.request) {
-        console.error('[API Network Error] No response received:', error.message)
-      } else {
-        console.error('[API Error] Setup error:', error.message)
+        console.warn('[API] Network error — no response received.')
       }
     }
+
     const originalRequest = error.config as { _retry?: boolean; headers: Record<string, string>; url?: string }
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      // Guard localStorage / window access in case of restricted environments
       const safeRemoveAll = () => {
         try {
           if (typeof window !== 'undefined') {
