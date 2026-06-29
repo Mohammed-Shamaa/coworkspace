@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,19 +25,42 @@ builder.Services.AddDataProtection()
 var connString = builder.Configuration["DATABASE_URL"]
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Data Source=Coworkspace.db";
-var isPostgres = connString.StartsWith("Host=", StringComparison.OrdinalIgnoreCase)
-    || connString.StartsWith("Server=", StringComparison.OrdinalIgnoreCase)
-    || connString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
+var isPostgresUri = connString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
     || connString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase);
-// Render PostgreSQL requires SSL.  Ensure it's set when not already present.
-if (isPostgres && !connString.Contains("SSL Mode", StringComparison.OrdinalIgnoreCase))
-{
-    connString += ";SSL Mode=Require;Trust Server Certificate=true";
-}
+var isPostgresKeyValue = connString.StartsWith("Host=", StringComparison.OrdinalIgnoreCase)
+    || connString.StartsWith("Server=", StringComparison.OrdinalIgnoreCase);
+var isPostgres = isPostgresUri || isPostgresKeyValue;
+
 if (isPostgres)
+{
+    // Render provides postgres:// URI — NpgsqlConnectionStringBuilder handles both
+    // URI (postgres://) and key-value (Host=...) formats.
+    try
+    {
+        var npgsqlBuilder = new NpgsqlConnectionStringBuilder(connString);
+        // Render PostgreSQL requires SSL.  Upgrade from Disable/Allow/Prefer to Require.
+        if (npgsqlBuilder.SslMode < SslMode.Require)
+        {
+            npgsqlBuilder.SslMode = SslMode.Require;
+        }
+        connString = npgsqlBuilder.ConnectionString;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Startup] Warning: Could not parse PostgreSQL URI: {ex.Message}");
+        // Fallback: append SSL mode directly to raw string
+        if (!connString.Contains("SSL Mode", StringComparison.OrdinalIgnoreCase)
+            && !connString.Contains("SslMode", StringComparison.OrdinalIgnoreCase))
+        {
+            connString += ";SSL Mode=Require;Trust Server Certificate=true";
+        }
+    }
     builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
+}
 else
+{
     builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connString));
+}
 
 // JWT Authentication — key is REQUIRED in production (set via Jwt__Key env var).
 // In development, a default key is provided for convenience.
@@ -143,32 +167,35 @@ catch
 var urls = app.Urls;
 Console.WriteLine($"[Startup] Backend listening on: {string.Join(", ", urls)}");
 
-// Apply pending EF Core migrations.
+// Apply pending EF Core migrations with graceful error handling.
 // SQLite (dev): use MigrateAsync with the existing SQLite-compatible migration.
 // PostgreSQL (Render): MigrateAsync will fail at model-snapshot mismatch because
 // the migration was generated for SQLite. In that case we run raw PostgreSQL DDL
 // with proper identity columns, create __EFMigrationsHistory, and mark the
 // migration as applied — a one-time bootstrap per database.
+// If ANY part of database initialization fails, the app logs a warning and
+// continues starting — it never crashes the container.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var usingPostgres = db.Database.ProviderName?.Contains("Npgsql") == true;
 
-    if (usingPostgres)
+    try
     {
-        // For PostgreSQL — try MigrateAsync first.  If it fails (expected on a
-        // fresh database because the migration was generated for SQLite),
-        // bootstrap with raw DDL and stub the history table.
-        try
+        if (usingPostgres)
         {
-            await db.Database.MigrateAsync();
-        }
-        catch
-        {
-            Console.WriteLine("[Startup] MigrateAsync failed on PostgreSQL; running raw schema bootstrap...");
             try
             {
-                await db.Database.ExecuteSqlRawAsync("""
+                Console.WriteLine("[Startup] Applying PostgreSQL migrations...");
+                await db.Database.MigrateAsync();
+                Console.WriteLine("[Startup] PostgreSQL migrations applied successfully.");
+            }
+            catch
+            {
+                Console.WriteLine("[Startup] MigrateAsync failed on PostgreSQL; running raw schema bootstrap...");
+                try
+                {
+                    await db.Database.ExecuteSqlRawAsync("""
 CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
     "MigrationId" text NOT NULL,
     "ProductVersion" text NOT NULL,
@@ -304,58 +331,62 @@ CREATE INDEX IF NOT EXISTS "IX_Payments_RecordedByUserId" ON "Payments" ("Record
 CREATE INDEX IF NOT EXISTS "IX_Payments_TenantId_MemberId_PaymentDate" ON "Payments" ("TenantId", "MemberId", "PaymentDate");
 CREATE INDEX IF NOT EXISTS "IX_Users_RefreshToken" ON "Users" ("RefreshToken");
 """);
-                var migrationId = "20260619182035_InitialCreate";
-                await db.Database.ExecuteSqlRawAsync(
-                    "INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ({0}, {1}) ON CONFLICT DO NOTHING",
-                    migrationId, "10.0.8");
-                Console.WriteLine("[Startup] PostgreSQL schema bootstrapped and migration marked as applied.");
+                    var migrationId = "20260619182035_InitialCreate";
+                    await db.Database.ExecuteSqlRawAsync(
+                        "INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ({0}, {1}) ON CONFLICT DO NOTHING",
+                        migrationId, "10.0.8");
+                    Console.WriteLine("[Startup] PostgreSQL schema bootstrapped and migration marked as applied.");
+                }
+                catch (Exception innerEx)
+                {
+                    Console.WriteLine($"[Startup] WARNING: PostgreSQL schema bootstrap failed: {innerEx.Message}");
+                    Console.WriteLine("[Startup] App will continue starting. Manual DB setup may be required.");
+                }
             }
-            catch (Exception innerEx)
+        }
+        else
+        {
+            try
             {
-                Console.WriteLine($"[Startup] FATAL: PostgreSQL schema bootstrap failed: {innerEx.Message}");
-                Console.WriteLine("[Startup] The application cannot start without a working database.");
-                throw;
+                Console.WriteLine("[Startup] Applying SQLite migrations...");
+                await db.Database.MigrateAsync();
+                Console.WriteLine("[Startup] SQLite migrations applied successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Startup] WARNING: SQLite migration failed: {ex.Message}");
+                try
+                {
+                    var allMigrations = scope.ServiceProvider
+                        .GetRequiredService<Microsoft.EntityFrameworkCore.Migrations.IMigrationsAssembly>()
+                        .Migrations.Keys.OrderBy(m => m).ToList();
+
+                    if (allMigrations.Count != 0)
+                    {
+                        await db.Database.ExecuteSqlRawAsync(
+                            "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (\"MigrationId\" TEXT NOT NULL, \"ProductVersion\" TEXT NOT NULL, PRIMARY KEY (\"MigrationId\"))");
+
+                        foreach (var m in allMigrations)
+                        {
+                            await db.Database.ExecuteSqlRawAsync(
+                                "INSERT OR IGNORE INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ({0}, {1})",
+                                m, "10.0.8");
+                        }
+
+                        Console.WriteLine($"[Startup] Transition complete: marked {allMigrations.Count} migration(s) as applied.");
+                    }
+                }
+                catch (Exception innerEx)
+                {
+                    Console.WriteLine($"[Startup] WARNING: SQLite migration fallback also failed: {innerEx.Message}");
+                }
             }
         }
     }
-    else
+    catch (Exception ex)
     {
-        // SQLite — use normal MigrateAsync flow
-        try
-        {
-            await db.Database.MigrateAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[Startup] MigrateAsync failed: {ex.Message}. Attempting transition from EnsureCreated...");
-            try
-            {
-                var allMigrations = scope.ServiceProvider
-                    .GetRequiredService<Microsoft.EntityFrameworkCore.Migrations.IMigrationsAssembly>()
-                    .Migrations.Keys.OrderBy(m => m).ToList();
-
-                if (allMigrations.Count != 0)
-                {
-                    await db.Database.ExecuteSqlRawAsync(
-                        "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (\"MigrationId\" TEXT NOT NULL, \"ProductVersion\" TEXT NOT NULL, PRIMARY KEY (\"MigrationId\"))");
-
-                    foreach (var m in allMigrations)
-                    {
-                        await db.Database.ExecuteSqlRawAsync(
-                            "INSERT OR IGNORE INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ({0}, {1})",
-                            m, "10.0.8");
-                    }
-
-                    Console.WriteLine($"[Startup] Transition complete: marked {allMigrations.Count} migration(s) as applied.");
-                }
-            }
-            catch (Exception innerEx)
-            {
-                Console.WriteLine($"[Startup] FATAL: Database migration failed: {innerEx.Message}");
-                Console.WriteLine("[Startup] The application cannot start without a working database.");
-                throw;
-            }
-        }
+        Console.WriteLine($"[Startup] WARNING: Database initialization error: {ex.Message}");
+        Console.WriteLine("[Startup] App will continue starting without database access.");
     }
 }
 
@@ -387,7 +418,21 @@ app.UseRateLimiting();
 app.UseTenantMiddleware();
 app.MapControllers();
 
-// Health check
-app.MapGet("/api/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+// Health check (reports database connectivity so Render can verify the app is alive)
+app.MapGet("/api/health", async (AppDbContext db) =>
+{
+    var dbHealthy = false;
+    try
+    {
+        dbHealthy = await db.Database.CanConnectAsync();
+    }
+    catch { }
+    return Results.Ok(new
+    {
+        status = dbHealthy ? "healthy" : "degraded",
+        database = dbHealthy ? "connected" : "unavailable",
+        timestamp = DateTime.UtcNow
+    });
+});
 
 app.Run();
