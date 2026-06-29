@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 import DashboardCard from '@/components/dashboard-card'
 import MemberForm from '@/components/member-form'
+import { useAuth } from '@/lib/auth-context'
 import { dashboardApi } from '@/lib/api'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import type { Dashboard } from '@/types'
@@ -13,6 +14,7 @@ const RETRY_DELAY_MS = 2000
 
 export default function DashboardHome() {
   const { t } = useTranslation()
+  const { loading: authLoading } = useAuth()
   const [dashboard, setDashboard] = useState<Dashboard | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -20,6 +22,8 @@ export default function DashboardHome() {
   const retryCountRef = useRef(0)
 
   useEffect(() => {
+    if (authLoading) return
+
     let ignore = false
     let retryTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -34,7 +38,7 @@ export default function DashboardHome() {
         }
       } catch (err: unknown) {
         if (!ignore) {
-          const axiosErr = err as { response?: { status: number }; message?: string }
+          const axiosErr = err as { response?: { status: number; data?: { message?: string } }; message?: string }
           const status = axiosErr.response?.status
 
           // 401 = auth expired → hard redirect already handled by interceptor
@@ -47,7 +51,7 @@ export default function DashboardHome() {
             return
           }
 
-          const errMsg = axiosErr.message || 'Failed to load dashboard'
+          const errMsg = axiosErr.response?.data?.message || axiosErr.message || 'Failed to load dashboard'
           setError(errMsg)
         }
       }
@@ -59,7 +63,7 @@ export default function DashboardHome() {
       ignore = true
       if (retryTimer) clearTimeout(retryTimer)
     }
-  }, [refreshKey])
+  }, [authLoading, refreshKey])
 
   const cards: { label: string; value: string | number; bgColor: string; textColor: string; prefix?: string }[] = dashboard ? [
     { label: t('dashboard.students'), value: dashboard.studentCount, bgColor: '#E3F2FD', textColor: '#1565C0' },

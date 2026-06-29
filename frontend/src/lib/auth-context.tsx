@@ -1,5 +1,5 @@
 'use client'
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import api from './api'
 import type { User, Tenant, AuthResponse } from '@/types'
@@ -24,40 +24,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [tenant, setTenant] = useState<Tenant | null>(null)
   const [loading, setLoading] = useState(true)
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null)
-  const routerRef = useRef(useRouter())
+  const router = useRouter()
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        if (typeof window !== 'undefined') {
-          const token = localStorage.getItem('token')
-          const expiresAt = localStorage.getItem('expiresAt')
-          if (token && expiresAt) {
-            const exp = new Date(expiresAt)
-            if (!isNaN(exp.getTime()) && exp <= new Date()) {
-              localStorage.clear()
-              setUser(null)
-              setTenant(null)
-              window.location.href = '/auth/login'
-              return
-            }
-            const storedUser = localStorage.getItem('user')
-            if (storedUser) {
-              try { setUser(JSON.parse(storedUser)) } catch { /* ignore */ }
-            }
-            const storedTenant = localStorage.getItem('tenant')
-            if (storedTenant) {
-              try { setTenant(JSON.parse(storedTenant)) } catch { /* ignore */ }
-            }
+    try {
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token')
+        const expiresAt = localStorage.getItem('expiresAt')
+        if (token && expiresAt) {
+          const exp = new Date(expiresAt)
+          if (!isNaN(exp.getTime()) && exp <= new Date()) {
+            localStorage.clear()
+            window.location.href = '/auth/login'
+            return
+          }
+          const storedUser = localStorage.getItem('user')
+          if (storedUser) {
+            try { setUser(JSON.parse(storedUser)) } catch { /* ignore */ }
+          }
+          const storedTenant = localStorage.getItem('tenant')
+          if (storedTenant) {
+            try { setTenant(JSON.parse(storedTenant)) } catch { /* ignore */ }
           }
         }
-      } catch (e) {
-        console.warn('[AuthProvider] localStorage access failed during init:', e)
-      } finally {
-        setLoading(false)
       }
-    }, 0)
-    return () => clearTimeout(timer)
+    } catch (e) {
+      console.warn('[AuthProvider] localStorage access failed during init:', e)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   const checkOnboardingStatus = useCallback(async () => {
@@ -121,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('tenant')
     setUser(null)
     setTenant(null)
-    routerRef.current.push('/auth/login')
+    router.push('/auth/login')
   }
 
   return (

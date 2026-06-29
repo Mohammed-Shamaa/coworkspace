@@ -11,22 +11,121 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
-// Warn in production if frontend is configured to talk to localhost which
-// will fail for public deployments. This helps catch misconfigured env vars.
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+function getToken(): string | null {
   try {
-    if (API_URL.includes('localhost') || API_URL.includes('127.0.0.1')) {
-      console.warn('[API] NEXT_PUBLIC_API_URL appears to be pointing to localhost. Update the environment variable for production.')
-    }
+    return typeof window !== 'undefined' ? localStorage.getItem('token') : null
   } catch {
-    /* ignore */
+    return null
   }
 }
 
-api.interceptors.request.use((config) => {
+function getExpiresAt(): string | null {
+  try {
+    return typeof window !== 'undefined' ? localStorage.getItem('expiresAt') : null
+  } catch {
+    return null
+  }
+}
+
+function getRefreshToken(): string | null {
+  try {
+    return typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null
+  } catch {
+    return null
+  }
+}
+
+function safeRemoveAll(): void {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('expiresAt')
+      localStorage.removeItem('user')
+      localStorage.removeItem('tenant')
+    }
+  } catch { /* ignore */ }
+}
+
+function isTokenExpired(): boolean {
+  const expiresAt = getExpiresAt()
+  if (!expiresAt) return true
+  try {
+    const exp = new Date(expiresAt)
+    return isNaN(exp.getTime()) || exp <= new Date()
+  } catch {
+    return true
+  }
+}
+
+function isTokenExpiringSoon(minutes = 5): boolean {
+  const expiresAt = getExpiresAt()
+  if (!expiresAt) return true
+  try {
+    const exp = new Date(expiresAt)
+    if (isNaN(exp.getTime())) return true
+    const soon = new Date(Date.now() + minutes * 60 * 1000)
+    return exp <= soon
+  } catch {
+    return true
+  }
+}
+
+// Proactive token refresh: before every request, refresh if token is about to expire.
+let refreshPromise: Promise<boolean> | null = null
+
+async function refreshTokenIfNeeded(): Promise<void> {
+  if (typeof window === 'undefined') return
+
+  const token = getToken()
+  if (!token) return
+
+  // Only refresh if token is expiring soon or already expired
+  if (!isTokenExpiringSoon(5) && !isTokenExpired()) return
+
+  const refreshToken = getRefreshToken()
+  if (!refreshToken) return
+
+  if (refreshPromise) {
+    await refreshPromise
+    return
+  }
+
+  refreshPromise = (async () => {
+    try {
+      const res = await api.post('/auth/refresh', { refreshToken })
+      const { token: newToken } = res.data
+      if (newToken) {
+        try { localStorage.setItem('token', newToken) } catch { /* ignore */ }
+        return true
+      }
+      return false
+    } catch {
+      safeRemoveAll()
+      try { window.location.href = '/auth/login' } catch { /* ignore */ }
+      return false
+    }
+  })()
+
+  const result = await refreshPromise
+  refreshPromise = null
+  if (!result) throw new Error('Token refresh failed')
+}
+
+api.interceptors.request.use(async (config) => {
   if (typeof window !== 'undefined') {
     const isAuthRequest = config.url?.startsWith('/auth/login') || config.url?.startsWith('/auth/register') || config.url?.startsWith('/auth/refresh')
-    const token = localStorage.getItem('token')
+
+    if (!isAuthRequest) {
+      try {
+        await refreshTokenIfNeeded()
+      } catch {
+        // refresh failed, redirect already happened
+        return Promise.reject(config)
+      }
+    }
+
+    const token = getToken()
     if (token && !isAuthRequest) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -47,7 +146,7 @@ api.interceptors.response.use(
       const status = error.response.status
       const data = error.response.data
       normalizedError.status = status
-      normalizedError.message = data?.message ?? 'An unexpected error occurred.'
+      normalizedError.message = data?.message ?? data?.error ?? 'An unexpected error occurred.'
       normalizedError.code = data?.code
       normalizedError.errors = data?.errors
     }
@@ -63,25 +162,15 @@ api.interceptors.response.use(
             console.warn('[API] Rate limited — slowing down.')
           }
         } else if (error.response.status >= 500) {
-          console.warn(`[API] ${error.response.status} on ${error.config?.url}`)
+          console.warn(`[API] ${error.response.status} on ${error.config?.url}:`, error.response.data)
         }
       } else if (error.request) {
         console.warn('[API] Network error — no response received.')
       }
     }
 
-    const originalRequest = error.config as { _retry?: boolean; headers: Record<string, string>; url?: string }
+    const originalRequest = error.config as { _retry?: boolean; _refreshAttempt?: boolean; headers: Record<string, string>; url?: string }
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      const safeRemoveAll = () => {
-        try {
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('token')
-            localStorage.removeItem('refreshToken')
-            localStorage.removeItem('user')
-            localStorage.removeItem('tenant')
-          }
-        } catch { /* ignore */ }
-      }
 
       if (originalRequest.url?.includes('/auth/refresh')) {
         safeRemoveAll()
@@ -90,16 +179,18 @@ api.interceptors.response.use(
         }
         return Promise.reject(error)
       }
+
       originalRequest._retry = true
       try {
-        let refreshToken: string | null = null
-        try { refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null } catch { refreshToken = null }
+        const refreshToken = getRefreshToken()
         if (refreshToken) {
           const res = await api.post('/auth/refresh', { refreshToken })
           const { token } = res.data
-          try { localStorage.setItem('token', token) } catch { /* ignore */ }
-          if (originalRequest.headers) originalRequest.headers.Authorization = `Bearer ${token}`
-          return api(originalRequest)
+          if (token) {
+            try { localStorage.setItem('token', token) } catch { /* ignore */ }
+            if (originalRequest.headers) originalRequest.headers.Authorization = `Bearer ${token}`
+            return api(originalRequest)
+          }
         }
       } catch {
         safeRemoveAll()
