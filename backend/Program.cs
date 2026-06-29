@@ -127,10 +127,17 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// QuestPDF license
-QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
-
 var app = builder.Build();
+
+// QuestPDF license
+try
+{
+    QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+}
+catch
+{
+    Console.WriteLine("[Startup] Warning: Could not set QuestPDF license. PDF generation may fail.");
+}
 
 // Log which port the server is actually listening on
 var urls = app.Urls;
