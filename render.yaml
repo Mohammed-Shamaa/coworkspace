@@ -10,7 +10,10 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - fromGroup: coworkspace-db
+      - key: DATABASE_URL
+        fromDatabase:
+          name: coworkspace-db
+          property: connectionString
       - fromGroup: coworkspace-secrets
 
 databases:
@@ -20,12 +23,6 @@ databases:
     postgresMajorVersion: 16
 
 envVarGroups:
-  - name: coworkspace-db
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: coworkspace-db
-          property: connectionString
   - name: coworkspace-secrets
     envVars:
       - key: Jwt__Key
