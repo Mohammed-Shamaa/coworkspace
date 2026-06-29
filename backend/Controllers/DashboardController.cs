@@ -53,11 +53,11 @@ public class DashboardController : ControllerBase
             })
             .ToListAsync();
 
-        await Task.WhenAll(aggregatesTask, recentTask);
+        var aggregates = await aggregatesTask;
+        var recent = await recentTask;
 
-        var result = aggregatesTask.Result;
-        if (result != null) result.RecentRegistrations = recentTask.Result;
+        if (aggregates != null) aggregates.RecentRegistrations = recent;
 
-        return result ?? new DashboardResponse();
+        return aggregates ?? new DashboardResponse();
     }
 }
