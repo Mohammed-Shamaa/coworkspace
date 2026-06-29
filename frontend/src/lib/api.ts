@@ -109,7 +109,8 @@ async function refreshTokenIfNeeded(): Promise<void> {
 
   const result = await refreshPromise
   refreshPromise = null
-  if (!result) throw new Error('Token refresh failed')
+  // If refresh failed, redirect already happened; allow request to proceed
+  // (it will get 401 and be handled by the response interceptor)
 }
 
 api.interceptors.request.use(async (config) => {
