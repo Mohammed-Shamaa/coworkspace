@@ -5,7 +5,7 @@ RUN dotnet restore
 COPY . .
 RUN dotnet publish -c Release -o /app -p:PublishReadyToRun=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-bookworm-slim AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libfontconfig1 \
     libfreetype6 \
