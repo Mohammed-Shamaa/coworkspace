@@ -8,6 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 
+// Npgsql: allow DateTime with Kind=Local to be sent to PostgreSQL timestamptz columns.
+// SQLite accepts any Kind, but PostgreSQL requires UTC. This switch avoids breaking
+// every DateTime query when migrating from SQLite.
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Bind to Render dynamic PORT (fallback 5000 for local dev)
