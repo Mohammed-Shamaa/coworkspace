@@ -33,26 +33,50 @@ var isPostgres = isPostgresUri || isPostgresKeyValue;
 
 if (isPostgres)
 {
-    // Render provides postgres:// URI — NpgsqlConnectionStringBuilder handles both
-    // URI (postgres://) and key-value (Host=...) formats.
-    try
+    if (isPostgresUri)
     {
-        var npgsqlBuilder = new NpgsqlConnectionStringBuilder(connString);
-        // Render PostgreSQL requires SSL.  Upgrade from Disable/Allow/Prefer to Require.
-        if (npgsqlBuilder.SslMode < SslMode.Require)
+        // Parse postgresql://user:password@host:port/database → key-value format.
+        // System.Uri handles any URI scheme reliably.
+        try
         {
-            npgsqlBuilder.SslMode = SslMode.Require;
+            var uri = new Uri(connString);
+            var userInfo = uri.UserInfo.Split(':');
+            var host = uri.Host;
+            var pgPort = uri.Port > 0 ? uri.Port : 5432;
+            var database = uri.AbsolutePath.Trim('/');
+            var username = Uri.UnescapeDataString(userInfo[0]);
+            var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
+
+            connString = $"Host={host};Port={pgPort};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true";
         }
-        connString = npgsqlBuilder.ConnectionString;
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"[Startup] Warning: Could not parse PostgreSQL URI: {ex.Message}");
-        // Fallback: append SSL mode directly to raw string
-        if (!connString.Contains("SSL Mode", StringComparison.OrdinalIgnoreCase)
-            && !connString.Contains("SslMode", StringComparison.OrdinalIgnoreCase))
+        catch (Exception ex)
         {
-            connString += ";SSL Mode=Require;Trust Server Certificate=true";
+            Console.WriteLine($"[Startup] Warning: Could not parse PostgreSQL URI: {ex.Message}");
+            if (!connString.Contains("SSL Mode", StringComparison.OrdinalIgnoreCase))
+            {
+                connString += ";SSL Mode=Require;Trust Server Certificate=true";
+            }
+        }
+    }
+    else
+    {
+        // Already key-value format — ensure SSL mode is set.
+        try
+        {
+            var npgsqlBuilder = new NpgsqlConnectionStringBuilder(connString);
+            if (npgsqlBuilder.SslMode < SslMode.Require)
+            {
+                npgsqlBuilder.SslMode = SslMode.Require;
+            }
+            connString = npgsqlBuilder.ConnectionString;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Startup] Warning: Could not parse PostgreSQL connection string: {ex.Message}");
+            if (!connString.Contains("SSL Mode", StringComparison.OrdinalIgnoreCase))
+            {
+                connString += ";SSL Mode=Require;Trust Server Certificate=true";
+            }
         }
     }
     builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
