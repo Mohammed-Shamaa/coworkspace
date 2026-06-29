@@ -6,6 +6,7 @@ services:
     plan: free
     rootDir: backend
     dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production

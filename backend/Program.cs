@@ -28,6 +28,11 @@ var isPostgres = connString.StartsWith("Host=", StringComparison.OrdinalIgnoreCa
     || connString.StartsWith("Server=", StringComparison.OrdinalIgnoreCase)
     || connString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
     || connString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase);
+// Render PostgreSQL requires SSL.  Ensure it's set when not already present.
+if (isPostgres && !connString.Contains("SSL Mode", StringComparison.OrdinalIgnoreCase))
+{
+    connString += ";SSL Mode=Require;Trust Server Certificate=true";
+}
 if (isPostgres)
     builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
 else
