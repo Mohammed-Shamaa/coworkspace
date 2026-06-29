@@ -157,21 +157,20 @@ public class MeetingRoomController : ControllerBase
             .AsNoTracking()
             .Where(r => r.TenantId == TenantId);
 
-        var totalTask = baseQuery.CountAsync();
-        var pastDatesTask = baseQuery.CountAsync(r => r.ReservationDate < today);
         var todaysReservations = await baseQuery
             .Where(r => r.ReservationDate == today)
             .ToListAsync();
 
-        await Task.WhenAll(totalTask, pastDatesTask);
+        var totalReservations = await baseQuery.CountAsync();
+        var pastReservations = await baseQuery.CountAsync(r => r.ReservationDate < today);
 
         // TimeSpan comparisons cannot be translated by SQLite; compute on client
         return new ReservationStatsResponse
         {
-            TotalReservations = totalTask.Result,
+            TotalReservations = totalReservations,
             TodaysReservations = todaysReservations.Count,
             UpcomingReservations = todaysReservations.Count(r => r.StartTime > now.TimeOfDay),
-            PastReservations = pastDatesTask.Result + todaysReservations.Count(r => r.EndTime <= now.TimeOfDay)
+            PastReservations = pastReservations + todaysReservations.Count(r => r.EndTime <= now.TimeOfDay)
         };
     }
 
