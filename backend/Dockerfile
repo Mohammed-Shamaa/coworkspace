@@ -3,9 +3,9 @@ WORKDIR /source
 COPY Coworkspace.API.csproj .
 RUN dotnet restore
 COPY . .
-RUN dotnet publish -c Release -o /app
+RUN dotnet publish -c Release -o /app -p:PublishReadyToRun=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-bookworm-slim AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libfontconfig1 \
     libfreetype6 \
@@ -17,4 +17,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV DOTNET_EnableDiagnostics=0
 WORKDIR /app
 COPY --from=build /app .
-CMD ["dotnet", "Coworkspace.API.dll"]
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
