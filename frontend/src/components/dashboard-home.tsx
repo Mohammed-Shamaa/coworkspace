@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 import DashboardCard from '@/components/dashboard-card'
@@ -8,31 +8,57 @@ import { dashboardApi } from '@/lib/api'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import type { Dashboard } from '@/types'
 
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 2000
+
 export default function DashboardHome() {
   const { t } = useTranslation()
   const [dashboard, setDashboard] = useState<Dashboard | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
+  const retryCountRef = useRef(0)
 
   useEffect(() => {
     let ignore = false
+    let retryTimer: ReturnType<typeof setTimeout> | null = null
+
     const fetchData = async () => {
       setLoading(true)
+      setError(null)
       try {
         const res = await dashboardApi.get()
-        if (!ignore) setDashboard(res.data)
+        if (!ignore) {
+          setDashboard(res.data)
+          retryCountRef.current = 0
+        }
       } catch (err: unknown) {
         if (!ignore) {
-          const error = err as { response?: { data?: { error?: string } }; message?: string }
-          setError(error.response?.data?.error || error.message || 'Failed to load dashboard')
-          console.error(err)
+          const axiosErr = err as { response?: { status: number }; message?: string }
+          const status = axiosErr.response?.status
+
+          // 401 = auth expired → hard redirect already handled by interceptor
+          if (status === 401) return
+
+          // Transient 500 or network error → auto-retry with backoff
+          if (retryCountRef.current < MAX_RETRIES) {
+            retryCountRef.current++
+            retryTimer = setTimeout(fetchData, RETRY_DELAY_MS)
+            return
+          }
+
+          const errMsg = axiosErr.message || 'Failed to load dashboard'
+          setError(errMsg)
         }
       }
       if (!ignore) setLoading(false)
     }
+
     fetchData()
-    return () => { ignore = true }
+    return () => {
+      ignore = true
+      if (retryTimer) clearTimeout(retryTimer)
+    }
   }, [refreshKey])
 
   const cards: { label: string; value: string | number; bgColor: string; textColor: string; prefix?: string }[] = dashboard ? [
