@@ -9,8 +9,14 @@ import { dashboardApi } from '@/lib/api'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import type { Dashboard } from '@/types'
 
-const MAX_RETRIES = 3
-const RETRY_DELAY_MS = 2000
+const MAX_RETRIES = 2
+const RETRY_DELAY_MS = 1000
+
+function isRetryable(status: number | undefined): boolean {
+  if (!status) return true // network error
+  if (status >= 500) return true // server error
+  return false // 4xx, 3xx, etc. are not transient
+}
 
 export default function DashboardHome() {
   const { t } = useTranslation()
@@ -20,9 +26,16 @@ export default function DashboardHome() {
   const [loading, setLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
   const retryCountRef = useRef(0)
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   useEffect(() => {
     if (authLoading) return
+    if (!mountedRef.current) return
 
     let ignore = false
     let retryTimer: ReturnType<typeof setTimeout> | null = null
@@ -38,20 +51,23 @@ export default function DashboardHome() {
         }
       } catch (err: unknown) {
         if (!ignore) {
-          const axiosErr = err as { response?: { status: number; data?: { message?: string } }; message?: string }
+          const axiosErr = err as { response?: { status: number; data?: { message?: string; error?: string } }; message?: string }
           const status = axiosErr.response?.status
 
           // 401 = auth expired → hard redirect already handled by interceptor
           if (status === 401) return
 
-          // Transient 500 or network error → auto-retry with backoff
-          if (retryCountRef.current < MAX_RETRIES) {
+          // Only retry transient errors (network, 5xx); never retry 4xx
+          if (isRetryable(status) && retryCountRef.current < MAX_RETRIES) {
             retryCountRef.current++
             retryTimer = setTimeout(fetchData, RETRY_DELAY_MS)
             return
           }
 
-          const errMsg = axiosErr.response?.data?.message || axiosErr.message || 'Failed to load dashboard'
+          // Use the server-provided message, fall back gracefully
+          const errMsg = axiosErr.response?.data?.message
+            || axiosErr.response?.data?.error
+            || (status ? `Server error (${status})` : 'Network error')
           setError(errMsg)
         }
       }

@@ -42,6 +42,8 @@ public class RateLimitingMiddleware
         var expiry = DateTime.UtcNow.Add(Window);
 
         var entry = _cache.GetOrCreate(clientKey, _ => new RateLimitEntry { Count = 0, ResetTime = expiry }) ?? new RateLimitEntry { Count = 0, ResetTime = expiry };
+        var isRateLimited = false;
+        string retryAfter;
 
         lock (entry)
         {
@@ -54,10 +56,29 @@ public class RateLimitingMiddleware
             entry.Count++;
             if (entry.Count > maxRequests)
             {
-                context.Response.StatusCode = 429;
-                context.Response.Headers["Retry-After"] = entry.ResetTime.Subtract(DateTime.UtcNow).TotalSeconds.ToString("0");
-                return;
+                isRateLimited = true;
+                retryAfter = entry.ResetTime.Subtract(DateTime.UtcNow).TotalSeconds.ToString("0");
             }
+            else
+            {
+                retryAfter = "";
+            }
+        }
+
+        if (isRateLimited)
+        {
+            context.Response.StatusCode = 429;
+            context.Response.ContentType = "application/json";
+            context.Response.Headers["Retry-After"] = retryAfter;
+            var body = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                success = false,
+                message = $"Rate limit exceeded. Try again in {retryAfter} seconds.",
+                errorCode = "RATE_LIMIT_EXCEEDED",
+                retryAfterSeconds = retryAfter
+            }, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
+            await context.Response.WriteAsync(body);
+            return;
         }
 
         _cache.Set(clientKey, entry, expiry);

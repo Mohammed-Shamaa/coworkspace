@@ -19,7 +19,20 @@ public class RequestLoggingMiddleware
         var method = context.Request.Method;
         var path = context.Request.Path;
 
-        await _next(context);
+        try
+        {
+            await _next(context);
+        }
+        catch
+        {
+            // Log the failed request before the exception propagates to
+            // ExceptionHandlingMiddleware. Without this catch, the logging
+            // line after _next is skipped and errors become invisible in logs.
+            sw.Stop();
+            _logger.LogWarning("{Method} {Path} threw after {ElapsedMs}ms — see ExceptionHandlingMiddleware for details",
+                method, path, sw.ElapsedMilliseconds);
+            throw;
+        }
 
         sw.Stop();
         var statusCode = context.Response.StatusCode;
