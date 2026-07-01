@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ThemeProvider } from '@/lib/theme-provider'
-import { AuthProvider, useAuth } from '@/lib/auth-context'
+import { useAuth } from '@/lib/auth-context'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
@@ -87,12 +86,8 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <LanguageProvider>
-          <LoginForm />
-        </LanguageProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <LoginForm />
+    </LanguageProvider>
   )
 }

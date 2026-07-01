@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ThemeProvider } from '@/lib/theme-provider'
-import { AuthProvider, useAuth } from '@/lib/auth-context'
+import { useAuth } from '@/lib/auth-context'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
@@ -168,12 +167,8 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <LanguageProvider>
-          <RegisterForm />
-        </LanguageProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <RegisterForm />
+    </LanguageProvider>
   )
 }

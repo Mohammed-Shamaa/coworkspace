@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import ErrorBoundary from "@/components/error-boundary"
+import { Providers } from "./providers"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           __html: `(function(){try{var e=localStorage.getItem("theme");if(e==="dark"||(!e&&window.matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
         }} />
       </head>
-      <body><ErrorBoundary>{children}</ErrorBoundary></body>
+      <body><ErrorBoundary><Providers>{children}</Providers></ErrorBoundary></body>
     </html>
   )
 }

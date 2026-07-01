@@ -1,0 +1,603 @@
+import arabic_reshaper
+from bidi.algorithm import get_display
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import mm, cm
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import os
+
+# ---------------------------------------------------------------------------
+# 1. Register Arabic-supporting fonts
+# ---------------------------------------------------------------------------
+FONT_DIR = r"C:\Windows\Fonts"
+AR_FONT = "Arial"
+AR_BOLD = "Arial-Bold"
+
+pdfmetrics.registerFont(TTFont(AR_FONT, os.path.join(FONT_DIR, "arial.ttf")))
+pdfmetrics.registerFont(TTFont(AR_BOLD, os.path.join(FONT_DIR, "arialbd.ttf")))
+
+def reshape(text):
+    """Reshape and reorder Arabic text for proper PDF rendering."""
+    if not text or not text.strip():
+        return text
+    reshaped = arabic_reshaper.reshape(text)
+    return get_display(reshaped)
+
+def has_arabic(text):
+    """Check if string contains Arabic characters."""
+    if not text:
+        return False
+    for ch in text:
+        if '\u0600' <= ch <= '\u06FF' or '\u0750' <= ch <= '\u077F' or '\u08A0' <= ch <= '\u08FF' or '\uFB50' <= ch <= '\uFDFF' or '\uFE70' <= ch <= '\uFEFF':
+            return True
+    return False
+
+def style_text(text, font_name=AR_FONT, font_size=8, bold=False, alignment=TA_LEFT):
+    """Return a formatted Paragraph string, applying Arabic reshaping if needed."""
+    if not text:
+        text = ""
+    font_to_use = AR_BOLD if bold else font_name
+    align_str = {TA_LEFT: "left", TA_CENTER: "center", TA_RIGHT: "right"}.get(alignment, "left")
+    
+    # Determine direction: if text contains Arabic, use RTL alignment
+    if has_arabic(text):
+        align_str = "right"
+        display_text = reshape(str(text))
+    else:
+        display_text = str(text)
+    
+    # Escape XML special chars
+    display_text = display_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    display_text = display_text.replace("\n", "<br/>")
+    
+    return (
+        f'<para autoLeading="off" leading={font_size + 3}>'
+        f'<font face="{font_to_use}" size="{font_size}" color="black">'
+        f'{display_text}'
+        f'</font></para>'
+    )
+
+# ===========================================================================
+# DATA – all 22 scenes, exactly as provided
+# ===========================================================================
+scenes = [
+    {
+        "num": "1",
+        "dialogue": "\u0645\u0648\u0633\u064a\u0642\u0649 \u0647\u0627\u062f\u0626\u0629 \u0648\u0645\u0624\u062b\u0631\u0629 \u062a\u0628\u062f\u0623 \u0641\u064a \u0627\u0644\u062e\u0644\u0641\u064a\u0629 \u0648\u062a\u0633\u062a\u0645\u0631 \u0637\u0648\u0627\u0644 \u0627\u0644\u0645\u0634\u0627\u0647\u062f \u0627\u0644\u0623\u0648\u0644\u0649.",
+        "description": "\u062a\u0638\u0647\u0631 \u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 \u0644\u0642\u062f\u0645\u064a \u0637\u0641\u0644\u0629 \u0635\u063a\u064a\u0631\u0629 \u062a\u0633\u064a\u0631 \u0645\u0631\u062a\u062f\u064a\u0629 \u062d\u0630\u0627\u0621\u064b \u0623\u0633\u0648\u062f \u0648\u062c\u0648\u0627\u0631\u0628 \u0628\u064a\u0636\u0627\u0621 \u0639\u0644\u0649 \u0631\u0635\u064a\u0641 \u062d\u062c\u0631\u064a \u0642\u062f\u064a\u0645.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 (Close-up)",
+        "location": "\u062e\u0627\u0631\u062c\u064a (\u0634\u0627\u0631\u0639/\u0632\u0642\u0627\u0642 \u0642\u062f\u064a\u0645)",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:01] - [00:04]",
+        "notes": "\u0627\u0644\u062a\u0631\u0643\u064a\u0632 \u0639\u0644\u0649 \u062d\u0631\u0643\u0629 \u0627\u0644\u0637\u0641\u0644\u0629 \u0644\u062a\u0628\u064a\u0646 \u0628\u0631\u0627\u0621\u062a\u0647\u0627 \u0648\u0633\u064a\u0631\u0647\u0627 \u0628\u0645\u0641\u0631\u062f\u0647\u0627."
+    },
+    {
+        "num": "2",
+        "dialogue": "\u0627\u0644\u0645\u0648\u0633\u064a\u0642\u0649 \u0645\u0633\u062a\u0645\u0631\u0629.",
+        "description": "\u0627\u0644\u0637\u0641\u0644\u0629 \u062a\u0633\u064a\u0631 \u0648\u062a\u062e\u0631\u062c \u0645\u0646 \u0645\u0645\u0631 \u0645\u0638\u0644\u0645 \u0628\u0627\u062a\u062c\u0627\u0647 \u0633\u0627\u062d\u0629 \u0639\u0627\u0645\u0629\u060c \u0648\u064a\u0638\u0647\u0631 \u0641\u064a \u0627\u0644\u062e\u0644\u0641\u064a\u0629 \u0623\u0634\u062e\u0627\u0635 \u064a\u0645\u0631\u0648\u0646 \u0641\u064a \u0627\u0644\u0634\u0627\u0631\u0639 \u0628\u0634\u0643\u0644 \u0627\u0639\u062a\u064a\u0627\u062f\u064a.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0648\u0627\u0633\u0639\u0629 (Wide Shot)",
+        "location": "\u062e\u0627\u0631\u062c\u064a (\u0627\u0644\u0634\u0627\u0631\u0639)",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:05] - [00:10]",
+        "notes": "\u0625\u0638\u0647\u0627\u0631 \u0627\u0644\u0628\u064a\u0626\u0629 \u0627\u0644\u0645\u062d\u064a\u0637\u0629 \u0648\u0627\u0644\u062c\u0648 \u0627\u0644\u0639\u0627\u0645 \u0644\u0644\u0645\u062f\u064a\u0646\u0629 \u0627\u0644\u0643\u0644\u0627\u0633\u064a\u0643\u064a\u0629 \u0627\u0644\u0642\u062f\u064a\u0645\u0629."
+    },
+    {
+        "num": "3",
+        "dialogue": "\u0627\u0644\u0645\u0648\u0633\u064a\u0642\u0649 \u0645\u0633\u062a\u0645\u0631\u0629.",
+        "description": "\u0631\u062c\u0644 \u0645\u0633\u0646 (\u0635\u0627\u062d\u0628 \u0627\u0644\u0645\u062a\u062c\u0631) \u064a\u062c\u0644\u0633 \u062e\u0644\u0641 \u0637\u0627\u0648\u0644\u0629 \u0645\u062a\u062c\u0631\u0647\u060c \u0648\u0627\u0636\u0639\u0627\u064b \u064a\u062f\u0647 \u0639\u0644\u0649 \u062e\u062f\u0647 \u0628\u0645\u0644\u0627\u0645\u062d \u062d\u0632\u064a\u0646\u0629 \u0648\u064a\u0633\u0631\u062d \u0641\u064a \u0623\u0641\u0643\u0627\u0631\u0647.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0648\u0633\u0637\u0629 (Medium Shot)",
+        "location": "\u062f\u0627\u062e\u0644\u064a (\u0645\u062a\u062c\u0631 \u0627\u0644\u0647\u062f\u0627\u064a\u0627)",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:11] - [00:15]",
+        "notes": "\u0625\u0638\u0647\u0627\u0631 \u062d\u0627\u0644\u0629 \u0627\u0644\u062d\u0632\u0646 \u0648\u0627\u0644\u0645\u0644\u0644 \u0627\u0644\u062a\u064a \u064a\u0639\u064a\u0634\u0647\u0627 \u0635\u0627\u062d\u0628 \u0627\u0644\u0645\u062a\u062c\u0631 \u0642\u0628\u0644 \u062f\u062e\u0648\u0644 \u0627\u0644\u0637\u0641\u0644\u0629."
+    },
+    {
+        "num": "4",
+        "dialogue": "\u0627\u0644\u0645\u0648\u0633\u064a\u0642\u0649 \u0645\u0633\u062a\u0645\u0631\u0629.",
+        "description": "\u0627\u0644\u0637\u0641\u0644\u0629 \u062a\u0642\u0641 \u062e\u0644\u0641 \u0632\u062c\u0627\u062c \u0645\u062a\u062c\u0631 \u0627\u0644\u0647\u062f\u0627\u064a\u0627\u060c \u062a\u0646\u0638\u0631 \u0628\u0641\u0636\u0648\u0644 \u0648\u0627\u0646\u0628\u0647\u0627\u0631 \u0634\u062f\u064a\u062f \u0646\u062d\u0648 \u0645\u0639\u0631\u0648\u0636\u0627\u062a \u0627\u0644\u0645\u062d\u0644.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0648\u0633\u0637\u0629 (Medium Shot) \u0645\u0646 \u0627\u0644\u062f\u0627\u062e\u0644 \u0644\u0644\u062e\u0627\u0631\u062c",
+        "location": "\u062f\u0627\u062e\u0644\u064a/\u062e\u0627\u0631\u062c\u064a \u0627\u0644\u0645\u0634\u0647\u062f \u0645\u0634\u062a\u0631\u0643\u0629 \u0639\u0628\u0631 \u0627\u0644\u0632\u062c\u0627\u062c",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:16] - [00:21]",
+        "notes": "\u0627\u0644\u062a\u0631\u0643\u064a\u0632 \u0639\u0644\u0649 \u0646\u0638\u0631\u0627\u062a \u0627\u0644\u0637\u0641\u0644\u0629 \u0644\u0625\u0628\u0631\u0627\u0632 \u0627\u0644\u0634\u064a\u0621 \u0627\u0644\u0630\u064a \u062c\u0630\u0628 \u0627\u0646\u062a\u0628\u0627\u0647\u0647\u0627."
+    },
+    {
+        "num": "5",
+        "dialogue": "\u0627\u0644\u0645\u0648\u0633\u064a\u0642\u0649 \u0645\u0633\u062a\u0645\u0631\u0629.",
+        "description": "\u0644\u0642\u0637\u0629 \u0645\u0646 \u0648\u062c\u0647\u0629 \u0646\u0638\u0631 \u0627\u0644\u0637\u0641\u0644\u0629 \u062a\u0638\u0647\u0631 \u0642\u0644\u0627\u062f\u0629 (\u0623\u0648 \u0639\u0642\u062f) \u0645\u0646 \u0627\u0644\u0641\u064a\u0631\u0648\u0632 \u0627\u0644\u0623\u0632\u0631\u0642 \u0627\u0644\u062c\u0645\u064a\u0644 \u0645\u0639\u0644\u0642\u0629 \u0639\u0644\u0649 \u0645\u062c\u0633\u0645 \u0641\u064a \u0648\u0627\u062c\u0647\u0629 \u0627\u0644\u0645\u062a\u062c\u0631.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 \u062c\u062f\u0627\u064b (Extreme Close-up)",
+        "location": "\u062f\u0627\u062e\u0644\u064a (\u0627\u0644\u0648\u0627\u062c\u0647\u0629)",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:22] - [00:23]",
+        "notes": "\u0625\u0628\u0631\u0627\u0632 \u062a\u0641\u0627\u0635\u064a\u0644 \u0627\u0644\u0642\u0644\u0627\u062f\u0629 \u0627\u0644\u0645\u0633\u062a\u0647\u062f\u0641\u0629 \u0628\u0627\u0644\u0634\u0631\u0627\u0621."
+    },
+    {
+        "num": "6",
+        "dialogue": "\u0627\u0644\u0645\u0648\u0633\u064a\u0642\u0649 \u0645\u0633\u062a\u0645\u0631\u0629.",
+        "description": "\u062a\u0639\u0648\u062f \u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627 \u0644\u0648\u062c\u0647 \u0627\u0644\u0637\u0641\u0644\u0629 \u0648\u0647\u064a \u062a\u062a\u0623\u0645\u0644 \u0627\u0644\u0642\u0644\u0627\u062f\u0629 \u0628\u0625\u0639\u062c\u0627\u0628 \u0634\u062f\u064a\u062f \u0648\u0639\u064a\u0646\u0627\u0647\u0627 \u062a\u0644\u0645\u0639\u0627\u0646\u060c \u062b\u0645 \u062a\u0642\u0631\u0631 \u0627\u0644\u062f\u062e\u0648\u0644.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 (Close-up)",
+        "location": "\u062e\u0627\u0631\u062c\u064a (\u0623\u0645\u0627\u0645 \u0627\u0644\u0648\u0627\u062c\u0647\u0629)",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:24] - [00:26]",
+        "notes": "\u0628\u064a\u0627\u0646 \u0627\u0644\u062a\u062d\u0648\u0644 \u0641\u064a \u0645\u0644\u0627\u0645\u062d \u0627\u0644\u0637\u0641\u0644\u0629 \u0648\u0639\u0632\u0645\u0647\u0627 \u0639\u0644\u0649 \u0627\u0644\u062f\u062e\u0648\u0644."
+    },
+    {
+        "num": "7",
+        "dialogue": "\u0627\u0644\u0637\u0641\u0644\u0629: \u201c\u0623\u0631\u0646\u064a \u0645\u0646 \u0641\u0636\u0644\u0643 \u062a\u0644\u0643 \u0627\u0644\u0642\u0644\u0627\u062f\u0629.. \u0623\u0631\u064a\u062f \u0623\u0646 \u0623\u0647\u062f\u064a\u0647\u0627 \u0644\u0634\u0642\u064a\u0642\u062a\u064a.\u201d",
+        "description": "\u0627\u0644\u0637\u0641\u0644\u0629 \u062a\u062f\u062e\u0644 \u0627\u0644\u0645\u062a\u062c\u0631 \u0648\u062a\u0642\u062a\u0631\u0628 \u0645\u0646 \u0627\u0644\u0628\u0627\u0626\u0639 \u0628\u062b\u0642\u0629 \u0648\u0628\u0631\u0627\u0621\u0629\u060c \u0648\u062a\u0634\u064a\u0631 \u0628\u0633\u0628\u0627\u0628\u062a\u0647\u0627 \u0646\u062d\u0648 \u0627\u0644\u0642\u0644\u0627\u062f\u0629. \u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u0646\u0638\u0631 \u0625\u0644\u064a\u0647\u0627 \u0628\u062c\u062f\u064a\u0629 \u0648\u062a\u0641\u0627\u062c\u0624.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0648\u0633\u0637\u0629 \u0648\u0627\u0633\u0639\u0629 (Medium Wide) \u062b\u0645 \u0644\u0642\u0637\u0629 \u0645\u062a\u0628\u0627\u062f\u0644\u0629",
+        "location": "\u062f\u0627\u062e\u0644\u064a (\u0627\u0644\u0645\u062a\u062c\u0631)",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:27] - [00:30]",
+        "notes": "\u064a\u0628\u062f\u0623 \u0627\u0644\u062d\u0648\u0627\u0631 \u0627\u0644\u0645\u062a\u0631\u062c\u0645 \u0648\u062a\u062a\u062d\u0648\u0644 \u0627\u0644\u0645\u0648\u0633\u064a\u0642\u0649 \u0644\u062a\u0646\u0627\u0633\u0628 \u0627\u0644\u062a\u0641\u0627\u0639\u0644 \u0628\u064a\u0646\u0647\u0645\u0627."
+    },
+    {
+        "num": "8",
+        "dialogue": "\u0627\u0644\u0637\u0641\u0644\u0629: \u201c\u0645\u0646 \u0641\u0636\u0644\u0643 \u0623\u0646 \u062a\u063a\u0644\u0641\u0647\u0627 \u0628\u0634\u0643\u0644 \u062c\u0645\u064a\u0644.\u201d",
+        "description": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 \u0639\u0644\u0649 \u0648\u062c\u0647 \u0627\u0644\u0637\u0641\u0644\u0629 \u0648\u0647\u064a \u062a\u062a\u062d\u062f\u062b \u0628\u0631\u062c\u0627\u0621 \u0648\u0639\u0627\u0637\u0641\u0629 \u0635\u0627\u062f\u0642\u0629 \u0645\u0646 \u0623\u062c\u0644 \u0623\u062e\u062a\u0647\u0627.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 (Close-up)",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:31] - [00:36]",
+        "notes": "\u0627\u0644\u062a\u0631\u0643\u064a\u0632 \u0639\u0644\u0649 \u0628\u0631\u0627\u0621\u0629 \u0627\u0644\u0637\u0641\u0644\u0629 \u0644\u0625\u0642\u0646\u0627\u0639 \u0627\u0644\u0628\u0627\u0626\u0639."
+    },
+    {
+        "num": "9",
+        "dialogue": "\u0627\u0644\u0628\u0627\u0626\u0639 \u0628\u0646\u0628\u0631\u0629 \u062a\u0633\u0627\u0624\u0644 \u0645\u0645\u0632\u0648\u062c\u0629 \u0628\u0627\u0644\u0634\u0643: \u201c\u0647\u0644 \u064a\u0648\u062c\u062f \u0644\u062f\u064a\u0643 \u0646\u0642\u0648\u062f\u061f\u201d",
+        "description": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u0633\u062a\u0645\u0639 \u0625\u0644\u064a\u0647\u0627\u060c \u062b\u0645 \u064a\u062a\u0643\u0626 \u0639\u0644\u0649 \u0627\u0644\u0637\u0627\u0648\u0644\u0629 \u0648\u064a\u0646\u0638\u0631 \u0625\u0644\u064a\u0647\u0627 \u0645\u062a\u0633\u0627\u0626\u0644\u0627\u064b \u0639\u0646 \u0645\u0642\u062f\u0631\u062a\u0647\u0627 \u0627\u0644\u0645\u0627\u0644\u064a\u0629.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0648\u0633\u0637\u0629 (Medium Shot)",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:37] - [00:42]",
+        "notes": "\u0625\u0638\u0647\u0627\u0631 \u0627\u0644\u0641\u0627\u0631\u0642 \u0627\u0644\u0639\u0645\u0631\u064a \u0648\u0627\u0644\u0639\u0645\u0644\u064a \u0628\u064a\u0646 \u0627\u0644\u0631\u062c\u0644 \u0648\u0627\u0644\u0637\u0641\u0644\u0629."
+    },
+    {
+        "num": "10",
+        "dialogue": "\u0635\u0648\u062a \u0642\u0639\u0642\u0639\u0629 \u0627\u0644\u0646\u0642\u0648\u062f \u0627\u0644\u0645\u0639\u062f\u0646\u064a\u0629 \u0639\u0644\u0649 \u0627\u0644\u0637\u0627\u0648\u0644\u0629.",
+        "description": "\u0627\u0644\u0637\u0641\u0644\u0629 \u062a\u062e\u0631\u062c \u0645\u0646 \u062c\u064a\u0628\u0647\u0627 \u0645\u0646\u062f\u064a\u0644\u0627\u064b \u0623\u0648 \u0642\u0637\u0639\u0629 \u0642\u0645\u0627\u0634 \u0648\u062a\u0641\u0631\u063a \u0628\u0636\u0639 \u0639\u0645\u0644\u0627\u062a \u0645\u0639\u062f\u0646\u064a\u0629 \u0628\u0633\u064a\u0637\u0629 \u062c\u062f\u0627\u064b \u0639\u0644\u0649 \u0627\u0644\u0637\u0627\u0648\u0644\u0629 \u0623\u0645\u0627\u0645 \u0627\u0644\u0631\u062c\u0644.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 (Close-up) \u0639\u0644\u0649 \u0627\u0644\u064a\u062f\u064a\u0646 \u0648\u0627\u0644\u0637\u0627\u0648\u0644\u0629",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:43] - [00:44]",
+        "notes": "\u0625\u0628\u0631\u0627\u0632 \u0642\u0644\u0629 \u0627\u0644\u062d\u064a\u0644\u0629 \u0627\u0644\u0645\u0627\u062f\u064a\u0629 \u0644\u0644\u0637\u0641\u0644\u0629 \u0645\u0646 \u062e\u0644\u0627\u0644 \u062d\u062c\u0645 \u0627\u0644\u0639\u0645\u0644\u0627\u062a \u0627\u0644\u0628\u0633\u064a\u0637\u0629."
+    },
+    {
+        "num": "11",
+        "dialogue": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u062a\u0623\u0645\u0644 \u0627\u0644\u0646\u0642\u0648\u062f \u0635\u0627\u0645\u062a\u0627\u064b. \u0627\u0644\u0637\u0641\u0644\u0629: \u201c\u0647\u0644 \u0647\u0630\u0627 \u064a\u0643\u0641\u064a\u061f\u201d",
+        "description": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u0642\u0644\u0628 \u0627\u0644\u0646\u0642\u0648\u062f \u0627\u0644\u0645\u0639\u062f\u0646\u064a\u0629 \u0628\u0625\u0635\u0628\u0639\u0647 \u0628\u0623\u0633\u0649\u060c \u0648\u0627\u0644\u0637\u0641\u0644\u0629 \u062a\u0646\u0638\u0631 \u0625\u0644\u064a\u0647 \u0628\u062a\u0631\u0642\u0628 \u0628\u0645\u0644\u0627\u0645\u062d \u064a\u0645\u0644\u0624\u0647\u0627 \u0627\u0644\u0623\u0645\u0644.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0628\u0627\u062f\u0644\u0629 (Shot-Reverse Shot)",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:45] - [00:52]",
+        "notes": "\u062e\u0644\u0642 \u062d\u0627\u0644\u0629 \u0645\u0646 \u0627\u0644\u062a\u0631\u0642\u0628 \u0627\u0644\u062f\u0631\u0627\u0645\u064a \u0644\u062f\u0649 \u0627\u0644\u0645\u0634\u0627\u0647\u062f."
+    },
+    {
+        "num": "12",
+        "dialogue": "\u0627\u0644\u0637\u0641\u0644\u0629: \u201c\u0623\u0631\u064a\u062f \u0623\u0646 \u0623\u0647\u062f\u064a \u0647\u0630\u0647 \u0627\u0644\u0642\u0644\u0627\u062f\u0629 \u0644\u0634\u0642\u064a\u0642\u062a\u064a \u0627\u0644\u0643\u0628\u0631\u0649\u060c \u0644\u0623\u0646\u0647\u0627 \u0648\u062e\u0627\u0635\u0629 \u0628\u0639\u062f \u0648\u0641\u0627\u0629 \u0623\u0645\u0646\u0627 \u0647\u064a \u0645\u0646 \u062a\u0642\u0648\u0645 \u0628\u062a\u0631\u0628\u064a\u062a\u0646\u0627 \u0648\u0645\u0633\u0627\u0639\u062f\u062a\u0646\u0627.. \u0648\u0644\u0647\u0630\u0627 \u0623\u0631\u064a\u062f \u0648\u0628\u0634\u062f\u0629 \u0623\u0646 \u0623\u0647\u062f\u064a\u0647\u0627 \u0634\u064a\u0626\u0627\u064b \u062c\u0645\u064a\u0644\u0627\u064b \u0644\u0643\u064a \u062a\u0628\u062a\u0633\u0645 \u0645\u0646 \u062c\u062f\u064a\u062f.\u201d",
+        "description": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 \u0639\u0644\u0649 \u0627\u0644\u0637\u0641\u0644\u0629 \u0648\u0647\u064a \u062a\u0634\u0631\u062d \u062f\u0627\u0641\u0639\u0647\u0627 \u0627\u0644\u0625\u0646\u0633\u0627\u0646\u064a \u0628\u062d\u0632\u0646 \u0648\u0623\u0645\u0644\u060c \u0648\u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627 \u062a\u0646\u062a\u0642\u0644 \u0644\u0645\u0644\u0627\u0645\u062d \u0627\u0644\u0628\u0627\u0626\u0639 \u0627\u0644\u0630\u064a \u064a\u0628\u062f\u0623 \u0641\u064a \u0627\u0644\u062a\u0623\u062b\u0631 \u0627\u0644\u0634\u062f\u064a\u062f \u0628\u0643\u0644\u0627\u0645\u0647\u0627.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 (Close-up)",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[00:53] - [01:10]",
+        "notes": "\u0630\u0631\u0648\u0629 \u0627\u0644\u0639\u0627\u0637\u0641\u0629 \u0641\u064a \u0627\u0644\u0646\u0635\u0641 \u0627\u0644\u0623\u0648\u0644 \u0645\u0646 \u0627\u0644\u0641\u064a\u0644\u0645\u061b \u062d\u064a\u062b \u064a\u062a\u063a\u064a\u0631 \u0645\u0648\u0642\u0641 \u0627\u0644\u0628\u0627\u0626\u0639 \u062a\u0645\u0627\u0645\u0627\u064b."
+    },
+    {
+        "num": "13",
+        "dialogue": "\u0627\u0644\u0637\u0641\u0644\u0629: \u201c\u0647\u0630\u0627 \u0643\u0644 \u0645\u0627 \u0623\u0645\u0644\u0643.\u201d",
+        "description": "\u0627\u0644\u0637\u0641\u0644\u0629 \u062a\u062e\u062a\u0645 \u0643\u0644\u0627\u0645\u0647\u0627 \u0628\u0627\u0644\u0625\u0634\u0627\u0631\u0629 \u0644\u0644\u0646\u0642\u0648\u062f\u060c \u0648\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u062a\u062e\u0630 \u0642\u0631\u0627\u0631\u0627\u064b \u0625\u0646\u0633\u0627\u0646\u064a\u0627\u064b\u060c \u0641\u064a\u0623\u062e\u0630 \u0627\u0644\u0642\u0644\u0627\u062f\u0629 \u0648\u064a\u0636\u0639\u0647\u0627 \u0641\u064a \u0639\u0644\u0628\u0629 \u062d\u0645\u0631\u0627\u0621 \u0648\u064a\u0631\u0628\u0637\u0647\u0627 \u0628\u0634\u0631\u064a\u0637 \u0623\u0632\u0631\u0642.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0648\u0633\u0637\u0629 \u0644\u0642\u0627\u0637\u0639 \u0627\u0644\u0637\u0627\u0648\u0644\u0629 \u0648\u0627\u0644\u0639\u0644\u0628\u0629",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[01:11] - [01:17]",
+        "notes": "\u0625\u0628\u0631\u0627\u0632 \u0643\u0631\u0645 \u0627\u0644\u0628\u0627\u0626\u0639 \u0648\u062a\u0623\u062b\u0631\u0647 \u0628\u0627\u0644\u0628\u0631\u0627\u0621\u0629."
+    },
+    {
+        "num": "14",
+        "dialogue": "\u0627\u0644\u0628\u0627\u0626\u0639: \u201c\u062e\u0630\u064a.. \u0644\u0643\u0646 \u0627\u062d\u0645\u0644\u064a\u0647\u0627 \u0628\u062d\u0630\u0631.\u201d",
+        "description": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u0628\u062a\u0633\u0645 \u0627\u0628\u062a\u0633\u0627\u0645\u0629 \u062e\u0641\u064a\u0641\u0629 \u0648\u064a\u0633\u0644\u0645 \u0627\u0644\u0639\u0644\u0628\u0629 \u0627\u0644\u0645\u063a\u0644\u0641\u0629 \u0644\u0644\u0637\u0641\u0644\u0629\u060c \u0631\u0627\u0641\u0639\u0627\u064b \u0625\u0635\u0628\u0639\u0647 \u0628\u062a\u0648\u062c\u064a\u0647 \u062d\u0646\u0648\u0646. \u0627\u0644\u0637\u0641\u0644\u0629 \u062a\u0628\u062a\u0647\u062c \u0648\u062a\u0623\u062e\u0630\u0647\u0627 \u0628\u0633\u0639\u0627\u062f\u0629 \u063a\u0627\u0645\u0631\u0629.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0628\u0627\u062f\u0644\u0629 \u0642\u0631\u064a\u0628\u0629",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[01:18] - [01:24]",
+        "notes": "\u0644\u062d\u0638\u0629 \u0627\u0644\u0641\u0631\u062d \u0648\u0627\u0644\u0631\u0636\u0627 \u0627\u0644\u0645\u062a\u0628\u0627\u062f\u0644."
+    },
+    {
+        "num": "15",
+        "dialogue": "\u0645\u0648\u0633\u064a\u0642\u0649 \u0645\u0628\u0647\u062c\u0629 \u0648\u0633\u0631\u064a\u0639\u0629.",
+        "description": "\u0627\u0644\u0637\u0641\u0644\u0629 \u062a\u062e\u0631\u062c \u0645\u0646 \u0628\u0627\u0628 \u0627\u0644\u0645\u062a\u062c\u0631 \u0631\u0643\u0636\u0627\u064b \u0648\u0647\u064a \u062a\u062d\u0645\u0644 \u0627\u0644\u0647\u062f\u064a\u0629 \u0628\u0633\u0639\u0627\u062f\u0629\u060c \u0645\u0627\u0631\u0629\u064b \u0628\u062c\u0627\u0646\u0628 \u0631\u062c\u0644 \u064a\u0642\u0631\u0623 \u0627\u0644\u062c\u0631\u064a\u062f\u0629 \u0641\u064a \u0627\u0644\u0634\u0627\u0631\u0639.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0648\u0633\u0637\u0629 \u0648\u0627\u0633\u0639\u0629 (Medium Wide)",
+        "location": "\u062e\u0627\u0631\u062c\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[01:25] - [01:30]",
+        "notes": "\u062a\u0639\u0628\u064a\u0631 \u062d\u0631\u0643\u064a \u0639\u0646 \u0627\u0644\u0641\u0631\u062d \u0627\u0644\u0639\u0627\u0631\u0645 \u0644\u0644\u0637\u0641\u0644\u0629."
+    },
+    {
+        "num": "16",
+        "dialogue": "\u0635\u0648\u062a \u0641\u062a\u062d \u0627\u0644\u0628\u0627\u0628 \u0648\u062c\u0631\u0633 \u0627\u0644\u0645\u062a\u062c\u0631. \u0627\u0644\u0623\u062e\u062a \u0627\u0644\u0643\u0628\u0631\u0649: \u201c\u0645\u0631\u062d\u0628\u0627\u064b.\u201d \u0627\u0644\u0628\u0627\u0626\u0639: \u201c\u0645\u0631\u062d\u0628\u0627\u064b.\u201d",
+        "description": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u0631\u062a\u0628 \u0627\u0644\u062f\u0641\u0627\u062a\u0631\u060c \u0648\u062a\u062f\u062e\u0644 \u0641\u062a\u0627\u0629 \u0634\u0627\u0628\u0629 (\u0627\u0644\u0623\u062e\u062a \u0627\u0644\u0643\u0628\u0631\u0649) \u062a\u062d\u0645\u0644 \u0627\u0644\u0639\u0644\u0628\u0629 \u0627\u0644\u062d\u0645\u0631\u0627\u0621 \u0646\u0641\u0633\u0647\u0627 \u0648\u0639\u0644\u0627\u0645\u0627\u062a \u0627\u0644\u062d\u064a\u0631\u0629 \u0648\u0627\u0644\u062a\u0639\u062c\u0628 \u062a\u0645\u0644\u0623 \u0648\u062c\u0647\u0647\u0627.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0648\u0627\u0633\u0639\u0629 \u062b\u0645 \u0645\u062a\u0648\u0633\u0637\u0629",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[01:31] - [01:36]",
+        "notes": "\u0627\u0646\u062a\u0642\u0627\u0644 \u0632\u0645\u0646\u064a \u0628\u0633\u064a\u0637 (\u0641\u064a \u0648\u0642\u062a \u0644\u0627\u062d\u0642 \u0645\u0646 \u0627\u0644\u064a\u0648\u0645 \u0646\u0641\u0633\u0647)."
+    },
+    {
+        "num": "17",
+        "dialogue": "\u0627\u0644\u0623\u062e\u062a \u0627\u0644\u0643\u0628\u0631\u0649: \u201c\u0647\u0630\u0647 \u0627\u0644\u0642\u0644\u0627\u062f\u0629 \u0634\u064f\u0631\u064a\u062a \u0645\u0646 \u0647\u0646\u0627\u061f\u201d \u0627\u0644\u0628\u0627\u0626\u0639: \u201c\u0646\u0639\u0645.\u201d \u0627\u0644\u0623\u062e\u062a: \u201c\u0648\u0643\u0645 \u0643\u0627\u0646 \u062b\u0645\u0646\u0647\u0627\u061f\u201d",
+        "description": "\u0627\u0644\u0623\u062e\u062a \u062a\u0641\u062a\u062d \u0627\u0644\u0639\u0644\u0628\u0629 \u0648\u062a\u0636\u0639\u0647\u0627 \u0639\u0644\u0649 \u0627\u0644\u0637\u0627\u0648\u0644\u0629 \u0623\u0645\u0627\u0645 \u0627\u0644\u0628\u0627\u0626\u0639 \u0648\u062a\u0633\u0623\u0644\u0647 \u0628\u062c\u062f\u064a\u0629\u060c \u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u062c\u064a\u0628 \u0628\u0647\u062f\u0648\u0621 \u0648\u062b\u0642\u0629.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0628\u0627\u062f\u0644\u0629 (Shot-Reverse Shot)",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[01:37] - [01:42]",
+        "notes": "\u0628\u062f\u0627\u064a\u0629 \u0643\u0634\u0641 \u0627\u0644\u062d\u0642\u064a\u0642\u0629 \u0648\u0628\u0646\u0627\u0621 \u0627\u0644\u062d\u0628\u0643\u0629 \u0627\u0644\u062e\u062a\u0627\u0645\u064a\u0629."
+    },
+    {
+        "num": "18",
+        "dialogue": "\u0627\u0644\u0628\u0627\u0626\u0639: \u201c\u0623\u064a \u0635\u0641\u0642\u0629 \u062a\u062a\u0645 \u0647\u0646\u0627 \u062a\u0639\u062a\u0628\u0631 \u0628\u0645\u062b\u0627\u0628\u0629 \u0639\u0642\u062f \u0628\u064a\u0646\u064a \u0648\u0628\u064a\u0646 \u0632\u0628\u0648\u0646\u064a \u0644\u0627 \u064a\u0639\u0644\u0645\u0647 \u0623\u062d\u062f.\u201d",
+        "description": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u062a\u062d\u062f\u062b \u0628\u062d\u0643\u0645\u0629 \u0648\u0645\u0647\u0646\u064a\u0629 \u0639\u0627\u0644\u064a\u0629 \u062a\u0633\u062a\u0631 \u0639\u0644\u0649 \u0627\u0644\u0639\u0627\u0637\u0641\u0629 \u0627\u0644\u0646\u0628\u064a\u0644\u0629\u060c \u0645\u0644\u0627\u0645\u062d\u0647 \u0647\u0627\u062f\u0626\u0629 \u0648\u0635\u0627\u062f\u0642\u0629.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 (Close-up) \u0644\u0644\u0628\u0627\u0626\u0639",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[01:43] - [01:49]",
+        "notes": "\u0625\u0628\u0631\u0627\u0632 \u0634\u0647\u0627\u0645\u0629 \u0627\u0644\u0628\u0627\u0626\u0639 \u0648\u0627\u062d\u062a\u0631\u0627\u0645\u0647 \u0644\u062e\u0635\u0648\u0635\u064a\u0629 \u0627\u0644\u0637\u0641\u0644\u0629."
+    },
+    {
+        "num": "19",
+        "dialogue": "\u0627\u0644\u0623\u062e\u062a \u0627\u0644\u0643\u0628\u0631\u0649: \u201c\u0644\u0643\u0646 \u0634\u0642\u064a\u0642\u062a\u064a \u0643\u0627\u0646\u062a \u062a\u0645\u0644\u0643 \u0645\u0628\u0644\u063a\u0627\u064b \u0635\u063a\u064a\u0631\u0627\u064b \u062c\u062f\u0627\u064b \u0645\u0646 \u0627\u0644\u0646\u0642\u0648\u062f.. \u0648\u0647\u0630\u0647 \u0642\u0644\u0627\u062f\u0629 \u0628\u0627\u0644\u063a\u0629 \u0627\u0644\u062b\u0645\u0646\u060c \u0644\u0627 \u0646\u0642\u062f\u0631 \u0639\u0644\u0649 \u062a\u062d\u0645\u0644 \u062b\u0645\u0646\u0647\u0627.\u201d",
+        "description": "\u0627\u0644\u0623\u062e\u062a \u062a\u0634\u064a\u0631 \u0625\u0644\u0649 \u0627\u0644\u0639\u0644\u0628\u0629 \u0628\u062d\u0631\u062c \u0648\u062a\u0623\u0643\u064a\u062f \u0639\u0644\u0649 \u0648\u0636\u0639\u0647\u0645\u0627 \u0627\u0644\u0645\u0627\u062f\u064a\u060c \u0645\u0624\u0643\u062f\u0629 \u0623\u0646 \u0627\u0644\u0642\u0644\u0627\u062f\u0629 \u0645\u0646 \u0627\u0644\u0641\u064a\u0631\u0648\u0632 \u0627\u0644\u0623\u0635\u0644\u064a.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0648\u0633\u0637\u0629 \u0645\u062a\u0628\u0627\u062f\u0644\u0629",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[01:50] - [01:56]",
+        "notes": "\u062a\u0628\u064a\u0627\u0646 \u0623\u0645\u0627\u0646\u0629 \u0627\u0644\u0623\u062e\u062a \u0627\u0644\u0643\u0628\u0631\u0649 \u0648\u0631\u063a\u0628\u062a\u0647\u0627 \u0641\u064a \u0625\u0631\u062c\u0627\u0639 \u0627\u0644\u062d\u0642 \u0644\u0623\u0635\u062d\u0627\u0628\u0647."
+    },
+    {
+        "num": "20",
+        "dialogue": "\u0627\u0644\u0628\u0627\u0626\u0639: \u201c\u0623\u062e\u062a\u0643 \u0627\u0644\u0635\u063a\u064a\u0631\u0629 \u062f\u0641\u0639\u062a \u062b\u0645\u0646\u0627\u064b \u0643\u0628\u064a\u0631\u0627\u064b \u0644\u0627 \u064a\u0633\u062a\u0637\u064a\u0639 \u062d\u062a\u0649 \u0627\u0644\u0643\u0628\u0627\u0631 \u062f\u0641\u0639\u0647.. \u0647\u064a \u0623\u0639\u0637\u062a\u0646\u064a \u0643\u0644 \u0645\u0627 \u062a\u0645\u0644\u0643.\u201d",
+        "description": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u0646\u0638\u0631 \u0641\u064a \u0639\u064a\u0646\u064a \u0627\u0644\u0623\u062e\u062a \u0628\u0639\u0645\u0642 \u0648\u064a\u062a\u062d\u062f\u062b \u0628\u0648\u0642\u0627\u0631 \u0634\u062f\u064a\u062f \u0645\u0628\u064a\u0646\u0627\u064b \u0627\u0644\u0642\u064a\u0645\u0629 \u0627\u0644\u062d\u0642\u064a\u0642\u064a\u0629 \u0648\u0631\u0627\u0621 \u062a\u0635\u0631\u0641 \u0627\u0644\u0637\u0641\u0644\u0629.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 \u0639\u0644\u0649 \u0648\u062c\u0647 \u0627\u0644\u0628\u0627\u0626\u0639",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[01:57] - [02:05]",
+        "notes": "\u0625\u064a\u0635\u0627\u0644 \u0627\u0644\u062d\u0643\u0645\u0629 \u0648\u0627\u0644\u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0623\u062e\u0644\u0627\u0642\u064a\u0629 \u0627\u0644\u0639\u0645\u064a\u0642\u0629 \u0644\u0644\u0641\u064a\u0644\u0645."
+    },
+    {
+        "num": "21",
+        "dialogue": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u063a\u0644\u0642 \u0627\u0644\u062f\u0641\u062a\u0631 \u0648\u064a\u0636\u0639 \u0644\u0627\u0641\u062a\u0629 \u201c\u0645\u063a\u0644\u0642\u201d \u0639\u0644\u0649 \u0627\u0644\u0637\u0627\u0648\u0644\u0629.",
+        "description": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u0633\u062a\u062f\u064a\u0631 \u0644\u064a\u0623\u062e\u0630 \u0645\u0639\u0637\u0641\u0647 \u0644\u064a\u0639\u0644\u0646 \u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u0645\u062d\u0644 \u062a\u0641\u0627\u062f\u064a\u0627\u064b \u0644\u0623\u064a \u0646\u0642\u0627\u0634 \u0622\u062e\u0631 \u0648\u0625\u0643\u0631\u0627\u0645\u0627\u064b \u0644\u0647\u0645\u0627.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0645\u062a\u0648\u0633\u0637\u0629",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[02:06] - [02:11]",
+        "notes": "\u062d\u0631\u0643\u0629 \u0631\u0645\u0632\u064a\u0629 \u062a\u0646\u0647\u064a \u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0629 \u0627\u0644\u062a\u062c\u0627\u0631\u064a\u0629 \u0648\u062a\u062b\u0628\u062a \u0627\u0644\u0639\u0637\u0627\u0621 \u0627\u0644\u0625\u0646\u0633\u0627\u0646\u064a."
+    },
+    {
+        "num": "22",
+        "dialogue": "\u0627\u0644\u0628\u0627\u0626\u0639: \u201c\u0643\u0644 \u0645\u0627 \u0623\u0631\u0627\u062f\u062a\u0647.. \u0647\u0648 \u0623\u0646 \u062a\u0628\u062a\u0633\u0645\u064a.\u201d",
+        "description": "\u0627\u0644\u0628\u0627\u0626\u0639 \u064a\u0644\u062a\u0641\u062a \u0625\u0644\u064a\u0647\u0627 \u0644\u0644\u0645\u0631\u0629 \u0627\u0644\u0623\u062e\u064a\u0631\u0629 \u0642\u0628\u0644 \u0627\u0644\u0645\u063a\u0627\u062f\u0631\u0629 \u0648\u064a\u0642\u0648\u0644 \u0643\u0644\u0645\u0627\u062a\u0647 \u0627\u0644\u062e\u062a\u0627\u0645\u064a\u0629 \u0627\u0644\u0645\u0624\u062b\u0631\u0629\u060c \u0627\u0644\u0623\u062e\u062a \u062a\u0628\u062f\u0623 \u0639\u064a\u0646\u0627\u0647\u0627 \u0628\u0627\u0644\u062f\u0645\u0648\u0639 \u0645\u062a\u0623\u062b\u0631\u0629\u064b \u0628\u0646\u0628\u0644 \u0623\u062e\u062a\u0647\u0627 \u0648\u0627\u0644\u0628\u0627\u0626\u0639.",
+        "shot": "\u0644\u0642\u0637\u0629 \u0642\u0631\u064a\u0628\u0629 \u0639\u0644\u0649 \u0648\u062c\u0647 \u0627\u0644\u0623\u062e\u062a \u0627\u0644\u0643\u0628\u0631\u0649",
+        "location": "\u062f\u0627\u062e\u0644\u064a",
+        "time": "\u0646\u0647\u0627\u0631\u064a",
+        "duration": "[02:12] - [02:20]",
+        "notes": "\u0645\u0634\u0647\u062f \u0627\u0644\u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u0639\u0627\u0637\u0641\u064a \u0648\u0627\u0644\u062a\u0631\u0643\u064a\u0632 \u0639\u0644\u0649 \u0627\u0644\u0627\u0628\u062a\u0633\u0627\u0645\u0629 \u0627\u0644\u0645\u0645\u0632\u0648\u062c\u0629 \u0628\u062f\u0645\u0648\u0639 \u0627\u0644\u062a\u0623\u062b\u0631 \u0648\u0627\u0644\u0627\u0645\u062a\u0646\u0627\u0646."
+    }
+]
+
+# ===========================================================================
+# 3. Build the PDF
+# ===========================================================================
+OUTPUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "shooting_script.pdf")
+PAGE_W, PAGE_H = A4  # portrait
+
+doc = SimpleDocTemplate(
+    OUTPUT,
+    pagesize=A4,
+    leftMargin=8*mm,
+    rightMargin=8*mm,
+    topMargin=10*mm,
+    bottomMargin=10*mm,
+)
+
+# Column widths (total = PAGE_W - margins = 210mm - 16mm = 194mm)
+col_widths = [
+    12*mm,   # Scene Number
+    40*mm,   # Dialogue
+    44*mm,   # Scene Description
+    26*mm,   # Shot Type
+    20*mm,   # Location
+    12*mm,   # Time
+    16*mm,   # Duration
+    24*mm,   # Notes
+]
+
+# Header labels
+headers = [
+    "\u0631\u0642\u0645 \u0627\u0644\u0645\u0634\u0647\u062f",
+    "\u0627\u0644\u0635\u0648\u062a (\u0627\u0644\u062d\u0648\u0627\u0631)",
+    "\u0648\u0635\u0641 \u0627\u0644\u0645\u0634\u0647\u062f",
+    "\u0646\u0648\u0639 \u0627\u0644\u0644\u0642\u0637\u0629",
+    "\u0627\u0644\u0645\u0643\u0627\u0646",
+    "\u0627\u0644\u0632\u0645\u0627\u0646",
+    "\u0627\u0644\u0632\u0645\u0646",
+    "\u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a",
+]
+
+# Styles
+header_style = ParagraphStyle(
+    "HeaderRTL",
+    fontName=AR_BOLD,
+    fontSize=7,
+    leading=10,
+    alignment=TA_CENTER,
+    textColor=colors.white,
+)
+
+cell_style = ParagraphStyle(
+    "CellRTL",
+    fontName=AR_FONT,
+    fontSize=6.5,
+    leading=9,
+    alignment=TA_LEFT,
+)
+
+scene_number_style = ParagraphStyle(
+    "SceneNum",
+    fontName=AR_BOLD,
+    fontSize=8,
+    leading=10,
+    alignment=TA_CENTER,
+    textColor=colors.HexColor("#1a3a5c"),
+)
+
+dialogue_style = ParagraphStyle(
+    "Dialogue",
+    fontName=AR_FONT,
+    fontSize=6.5,
+    leading=9,
+    alignment=TA_LEFT,
+)
+
+# Helper to build cell content with proper RTL
+def make_cell(text, style, is_dialogue=False):
+    if not text:
+        text = ""
+    display_text = str(text)
+    # Reshape Arabic text
+    if has_arabic(display_text):
+        try:
+            display_text = reshape(display_text)
+        except:
+            pass
+    display_text = display_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    display_text = display_text.replace("\n", "<br/>")
+    # For dialogue, add visual distinction with a light background marker
+    font_name = style.fontName
+    font_size = style.fontSize
+    leading_v = style.leading
+    color_hex = "#1a3a5c" if is_dialogue else "black"
+    return f'<para autoLeading="off" leading={leading_v}><font face="{font_name}" size="{font_size}" color="{color_hex}">{display_text}</font></para>'
+
+# ---- Build table data ----
+table_data = []
+
+# Header row with styled labels
+header_row = []
+for h in headers:
+    display_h = h
+    try:
+        display_h = reshape(h)
+    except:
+        pass
+    display_h = display_h.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    header_row.append(
+        f'<para autoLeading="off" leading=10 align="center">'
+        f'<font face="{AR_BOLD}" size="7" color="white"><b>{display_h}</b></font></para>'
+    )
+table_data.append(header_row)
+
+# Data rows
+for scene in scenes:
+    row = []
+    
+    # Scene Number - bold, centered, colored background
+    num_text = scene["num"]
+    try:
+        num_text = reshape(num_text)
+    except:
+        pass
+    row.append(
+        f'<para autoLeading="off" leading=12 align="center">'
+        f'<font face="{AR_BOLD}" size="9" color="#1a3a5c"><b>{num_text}</b></font></para>'
+    )
+    
+    # Dialogue
+    d_text = scene["dialogue"]
+    try:
+        d_text = reshape(d_text)
+    except:
+        pass
+    d_text = d_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    row.append(
+        f'<para autoLeading="off" leading=9>'
+        f'<font face="{AR_FONT}" size="6.5" color="#1a3a5c"><i>{d_text}</i></font></para>'
+    )
+    
+    # Scene Description
+    desc_text = scene["description"]
+    try:
+        desc_text = reshape(desc_text)
+    except:
+        pass
+    desc_text = desc_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    row.append(
+        f'<para autoLeading="off" leading=9>'
+        f'<font face="{AR_FONT}" size="6.5" color="black">{desc_text}</font></para>'
+    )
+    
+    # Shot Type
+    shot_text = scene["shot"]
+    try:
+        shot_text = reshape(shot_text)
+    except:
+        pass
+    shot_text = shot_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    row.append(
+        f'<para autoLeading="off" leading=9 align="center">'
+        f'<font face="{AR_FONT}" size="6" color="black">{shot_text}</font></para>'
+    )
+    
+    # Location
+    loc_text = scene["location"]
+    try:
+        loc_text = reshape(loc_text)
+    except:
+        pass
+    loc_text = loc_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    row.append(
+        f'<para autoLeading="off" leading=9 align="center">'
+        f'<font face="{AR_FONT}" size="6" color="black">{loc_text}</font></para>'
+    )
+    
+    # Time
+    time_text = scene["time"]
+    try:
+        time_text = reshape(time_text)
+    except:
+        pass
+    time_text = time_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    row.append(
+        f'<para autoLeading="off" leading=9 align="center">'
+        f'<font face="{AR_FONT}" size="6" color="black">{time_text}</font></para>'
+    )
+    
+    # Duration
+    dur_text = scene["duration"]
+    row.append(
+        f'<para autoLeading="off" leading=9 align="center">'
+        f'<font face="{AR_FONT}" size="6" color="black">{dur_text}</font></para>'
+    )
+    
+    # Notes
+    notes_text = scene["notes"]
+    try:
+        notes_text = reshape(notes_text)
+    except:
+        pass
+    notes_text = notes_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    row.append(
+        f'<para autoLeading="off" leading=9>'
+        f'<font face="{AR_FONT}" size="6" color="gray">{notes_text}</font></para>'
+    )
+    
+    table_data.append(row)
+
+# ---- Create the table ----
+table = Table(table_data, colWidths=col_widths, repeatRows=1)
+
+# Table style
+TABLE_STYLE = TableStyle([
+    # Header
+    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1a3a5c")),
+    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+    ('FONTNAME', (0, 0), (-1, 0), AR_BOLD),
+    ('FONTSIZE', (0, 0), (-1, 0), 7),
+    ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+    ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+    
+    # Grid - all cells
+    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#2c5f8a")),
+    ('BOX', (0, 0), (-1, -1), 1.2, colors.HexColor("#1a3a5c")),
+    
+    # Row backgrounds - alternating for readability
+    ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#fafbfd")),
+    ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.HexColor("#fafbfd"), colors.HexColor("#eef3f8")]),
+    
+    # Cell padding
+    ('TOPPADDING', (0, 0), (-1, -1), 3),
+    ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+    ('LEFTPADDING', (0, 0), (-1, -1), 3),
+    ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+    
+    # Vertical alignment
+    ('VALIGN', (0, 1), (-1, -1), 'TOP'),
+    
+    # Scene number column styling
+    ('BACKGROUND', (0, 1), (0, -1), colors.HexColor("#d6e4f0")),
+    ('ALIGN', (0, 1), (0, -1), 'CENTER'),
+    
+    # Dialogue column - light background tint
+    ('BACKGROUND', (1, 1), (1, -1), colors.HexColor("#e8f0fa")),
+    
+    # Notes column - lighter text
+    ('TEXTCOLOR', (7, 1), (7, -1), colors.HexColor("#555555")),
+    
+    # Duration column - monospace style
+    ('ALIGN', (6, 1), (6, -1), 'CENTER'),
+    
+    # Location & Time centered
+    ('ALIGN', (4, 1), (5, -1), 'CENTER'),
+])
+
+table.setStyle(TABLE_STYLE)
+
+# Set row heights for header
+from reportlab.platypus import TableStyle as TS
+# We cannot directly set row heights during creation, but we can set minimum row height
+# Let's set a minimum height for the header row
+
+# Build the document
+elements = []
+
+# Title
+title_style = ParagraphStyle(
+    "TitleRTL",
+    fontName=AR_BOLD,
+    fontSize=16,
+    leading=22,
+    alignment=TA_CENTER,
+    textColor=colors.HexColor("#1a3a5c"),
+)
+
+subtitle_style = ParagraphStyle(
+    "SubtitleRTL",
+    fontName=AR_FONT,
+    fontSize=10,
+    leading=14,
+    alignment=TA_CENTER,
+    textColor=colors.HexColor("#4a6a8a"),
+)
+
+# Title area
+title_text = "\u0633\u0646\u0627\u0631\u064a\u0648 \u0627\u0644\u0641\u064a\u0644\u0645 \u0627\u0644\u0642\u0635\u064a\u0631"
+elements.append(Spacer(1, 5*mm))
+elements.append(Paragraph(
+    f'<para align="center"><font face="{AR_BOLD}" size="16" color="#1a3a5c"><b>{reshape(title_text)}</b></font></para>',
+    title_style
+))
+
+subtitle_text = "\u0627\u0644\u0642\u0644\u0627\u062f\u0629 \u0627\u0644\u0632\u0631\u0642\u0627\u0621"
+elements.append(Spacer(1, 2*mm))
+elements.append(Paragraph(
+    f'<para align="center"><font face="{AR_FONT}" size="10" color="#4a6a8a"><i>{reshape(subtitle_text)}</i></font></para>',
+    subtitle_style
+))
+
+author_text = "\u0625\u0639\u062f\u0627\u062f: \u0625\u0633\u0644\u0627\u0645 \u0634\u0645\u0639\u0629"
+elements.append(Spacer(1, 1*mm))
+elements.append(Paragraph(
+    f'<para align="center"><font face="{AR_FONT}" size="8" color="#666666">{reshape(author_text)}</font></para>',
+    subtitle_style
+))
+
+elements.append(Spacer(1, 4*mm))
+
+# Add the table
+elements.append(table)
+
+# Build PDF
+doc.build(elements)
+print(f"PDF generated successfully: {OUTPUT}")

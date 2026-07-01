@@ -26,7 +26,7 @@ public class DashboardController : ControllerBase
         var now = DateTime.Today;
         var members = _db.Members.AsNoTracking().Where(m => m.TenantId == TenantId);
 
-        var aggregatesTask = members
+        var aggregates = await members
             .GroupBy(m => 1)
             .Select(g => new DashboardResponse
             {
@@ -40,7 +40,7 @@ public class DashboardController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        var recentTask = members
+        var recent = await members
             .OrderByDescending(m => m.CreatedAt)
             .Take(10)
             .Select(m => new RecentRegistration
@@ -52,9 +52,6 @@ public class DashboardController : ControllerBase
                 MonthlyFee = m.MonthlyFee
             })
             .ToListAsync();
-
-        var aggregates = await aggregatesTask;
-        var recent = await recentTask;
 
         if (aggregates != null) aggregates.RecentRegistrations = recent;
 

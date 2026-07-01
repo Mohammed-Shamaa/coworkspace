@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 import DashboardCard from '@/components/dashboard-card'
@@ -65,13 +65,13 @@ export default function DashboardHome() {
     }
   }, [authLoading, refreshKey])
 
-  const cards: { label: string; value: string | number; bgColor: string; textColor: string; prefix?: string }[] = dashboard ? [
+  const cards: { label: string; value: string | number; bgColor: string; textColor: string; prefix?: string }[] = useMemo(() => dashboard ? [
     { label: t('dashboard.students'), value: dashboard.studentCount, bgColor: '#E3F2FD', textColor: '#1565C0' },
     { label: t('dashboard.remoteWorkers'), value: dashboard.remoteWorkerCount, bgColor: '#E8F5E9', textColor: '#2E7D32' },
     { label: t('dashboard.unpaidMembers'), value: dashboard.unpaidMembers, bgColor: '#FFF3E0', textColor: '#E65100' },
     { label: t('dashboard.monthlyIncome'), value: dashboard.monthlyIncome?.toFixed(2) ?? '—', bgColor: '#F3E5F5', textColor: '#6A1B9A', prefix: '$' },
     { label: t('dashboard.expiredMembers'), value: dashboard.expiredMembers, bgColor: '#FFEBEE', textColor: '#C62828' },
-  ] : []
+  ] : [], [dashboard])
 
   if (loading) {
     return (

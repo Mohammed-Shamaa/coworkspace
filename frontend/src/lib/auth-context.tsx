@@ -27,32 +27,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
 
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined') {
+    let redirected = false
+
+    const init = async () => {
+      try {
+        if (typeof window === 'undefined') return
+
         const token = localStorage.getItem('token')
         const expiresAt = localStorage.getItem('expiresAt')
-        if (token && expiresAt) {
-          const exp = new Date(expiresAt)
-          if (!isNaN(exp.getTime()) && exp <= new Date()) {
-            localStorage.clear()
-            window.location.href = '/auth/login'
-            return
+
+        if (!token || !expiresAt) return
+
+        const exp = new Date(expiresAt)
+        const isExpired = !isNaN(exp.getTime()) && exp <= new Date()
+
+        if (isExpired) {
+          const refreshToken = localStorage.getItem('refreshToken')
+          if (refreshToken) {
+            try {
+              const res = await api.post('/auth/refresh', { refreshToken })
+              const { token: newToken, expiresAt: newExpiresAt, user: newUser, tenant: newTenant } = res.data
+              localStorage.setItem('token', newToken)
+              localStorage.setItem('expiresAt', newExpiresAt)
+              if (newUser) {
+                localStorage.setItem('user', JSON.stringify(newUser))
+                setUser(newUser)
+              }
+              if (newTenant) {
+                localStorage.setItem('tenant', JSON.stringify(newTenant))
+                setTenant(newTenant)
+              }
+              return
+            } catch {
+              // refresh failed
+            }
           }
-          const storedUser = localStorage.getItem('user')
-          if (storedUser) {
-            try { setUser(JSON.parse(storedUser)) } catch { /* ignore */ }
-          }
-          const storedTenant = localStorage.getItem('tenant')
-          if (storedTenant) {
-            try { setTenant(JSON.parse(storedTenant)) } catch { /* ignore */ }
-          }
+
+          redirected = true
+          localStorage.clear()
+          window.location.href = '/auth/login'
+          return
         }
+
+        const storedUser = localStorage.getItem('user')
+        if (storedUser) {
+          try { setUser(JSON.parse(storedUser)) } catch { /* ignore */ }
+        }
+        const storedTenant = localStorage.getItem('tenant')
+        if (storedTenant) {
+          try { setTenant(JSON.parse(storedTenant)) } catch { /* ignore */ }
+        }
+      } catch (e) {
+        console.warn('[AuthProvider] localStorage access failed during init:', e)
+      } finally {
+        if (!redirected) setLoading(false)
       }
-    } catch (e) {
-      console.warn('[AuthProvider] localStorage access failed during init:', e)
-    } finally {
-      setLoading(false)
     }
+
+    init()
   }, [])
 
   const checkOnboardingStatus = useCallback(async () => {
