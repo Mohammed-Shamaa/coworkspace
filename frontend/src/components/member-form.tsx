@@ -84,7 +84,7 @@ export default function MemberForm({ onSuccess, initialData, memberId }: MemberF
       } else {
         await membersApi.create(data)
       }
-      setSuccess(memberId ? t('memberForm.memberUpdated') : t('memberForm.memberRegistered'))
+      setSuccess(memberId ? t('memberForm.memberUpdated') : t('members.add.success'))
       if (!memberId) {
         setFullName(''); setPhoneNumber(''); setNationalId(''); setDeskNumber('')
         setMonthlyFee(''); setEndDate(''); setNoEndDate(false)

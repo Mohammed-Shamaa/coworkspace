@@ -73,22 +73,17 @@ export default function DashboardHome() {
     { label: t('dashboard.expiredMembers'), value: dashboard.expiredMembers, bgColor: '#FFEBEE', textColor: '#C62828' },
   ] : [], [dashboard])
 
-  if (loading) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">{t('dashboard.title')}</h1>
-        <p className="text-[var(--text-secondary)] mb-6">{t('dashboard.subtitle')}</p>
-        <div className="text-center py-8 text-[var(--text-secondary)]">{t('common.loading')}</div>
-      </div>
-    )
-  }
+  return (
+    <div>
+      <h1 className="text-3xl font-bold text-[var(--text-primary)]">{t('dashboard.title')}</h1>
+      <p className="text-[var(--text-secondary)] mb-6">{t('dashboard.subtitle')}</p>
 
-  if (error) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">{t('dashboard.title')}</h1>
-        <p className="text-[var(--text-secondary)] mb-6">{t('dashboard.subtitle')}</p>
-        <div className="bg-[var(--error-bg)] text-[var(--error-text)] p-4 rounded-lg border border-red-200">
+      {loading && (
+        <div className="text-center py-8 text-[var(--text-secondary)]">{t('common.loading')}</div>
+      )}
+
+      {error && (
+        <div className="bg-[var(--error-bg)] text-[var(--error-text)] p-4 rounded-lg border border-red-200 mb-6">
           <p className="font-semibold">{t('dashboard.error') || 'Failed to load dashboard'}</p>
           <p className="text-sm mt-1">{error}</p>
           <button
@@ -98,23 +93,18 @@ export default function DashboardHome() {
             {t('common.retry') || 'Retry'}
           </button>
         </div>
-      </div>
-    )
-  }
+      )}
 
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-[var(--text-primary)]">{t('dashboard.title')}</h1>
-      <p className="text-[var(--text-secondary)] mb-6">{t('dashboard.subtitle')}</p>
-
-      <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-5 mb-6">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">{t('dashboard.overview')}</h2>
-        <div className="grid grid-cols-5 gap-4">
-          {cards.map((card, i) => (
-            <DashboardCard key={i} {...card} />
-          ))}
+      {dashboard && (
+        <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-5 mb-6">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">{t('dashboard.overview')}</h2>
+          <div className="grid grid-cols-5 gap-4">
+            {cards.map((card, i) => (
+              <DashboardCard key={i} {...card} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-6">
         <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-5">{t('dashboard.registerNewMember')}</h2>

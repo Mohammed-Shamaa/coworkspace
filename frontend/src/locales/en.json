@@ -84,7 +84,10 @@
     "amount": "Amount",
     "paidMonth": "Month",
     "recordedBy": "Recorded By",
-    "confirmDelete": "Are you sure you want to delete '{{name}}'? This action cannot be undone."
+    "confirmDelete": "Are you sure you want to delete '{{name}}'? This action cannot be undone.",
+    "add": {
+      "success": "Member added successfully."
+    }
   },
   "memberForm": {
     "student": "Student",
