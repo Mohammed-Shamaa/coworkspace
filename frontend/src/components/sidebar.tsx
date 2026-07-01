@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth-context'
@@ -18,19 +19,21 @@ export default function Sidebar() {
   const { t, i18n } = useTranslation()
   const { theme, toggleTheme } = useTheme()
 
-  const navItems = [
-    { href: '/', labelKey: 'sidebar.home', icon: LayoutDashboard },
-    { href: '/members', labelKey: 'sidebar.members', icon: Users },
-    { href: '/unpaid', labelKey: 'sidebar.unpaid', icon: CreditCard },
-    { href: '/students', labelKey: 'sidebar.students', icon: GraduationCap },
-    { href: '/workers', labelKey: 'sidebar.workers', icon: Briefcase },
-    { href: '/expired', labelKey: 'sidebar.expired', icon: Clock },
-    { href: '/settings', labelKey: 'sidebar.settings', icon: Settings },
-  ]
-
-  if (tenant?.hasMeetingRoom) {
-    navItems.splice(3, 0, { href: '/meeting-room', labelKey: 'sidebar.meetingRoom', icon: Presentation })
-  }
+  const navItems = useMemo(() => {
+    const items = [
+      { href: '/', labelKey: 'sidebar.home', icon: LayoutDashboard },
+      { href: '/members', labelKey: 'sidebar.members', icon: Users },
+      { href: '/unpaid', labelKey: 'sidebar.unpaid', icon: CreditCard },
+      { href: '/students', labelKey: 'sidebar.students', icon: GraduationCap },
+      { href: '/workers', labelKey: 'sidebar.workers', icon: Briefcase },
+      { href: '/expired', labelKey: 'sidebar.expired', icon: Clock },
+      { href: '/settings', labelKey: 'sidebar.settings', icon: Settings },
+    ]
+    if (tenant?.hasMeetingRoom) {
+      items.splice(3, 0, { href: '/meeting-room', labelKey: 'sidebar.meetingRoom', icon: Presentation })
+    }
+    return items
+  }, [tenant?.hasMeetingRoom])
 
   return (
     <aside className="w-64 min-h-screen bg-[#1A237E] text-white flex flex-col shrink-0">

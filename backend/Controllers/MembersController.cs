@@ -297,14 +297,23 @@ public class MembersController : ControllerBase
         var query = _db.Members.Where(m => m.TenantId == TenantId);
         if (excludeId.HasValue) query = query.Where(m => m.Id != excludeId.Value);
 
-        var nameExists = await query.AnyAsync(m => m.FullName.ToLower() == fullName.ToLower());
-        if (nameExists) return BadRequest(new { message = "A member with this Full Name already exists." });
+        // Single query to check name, phone, and national ID duplicates simultaneously
+        var duplicate = await query
+            .Where(m => m.FullName.ToLower() == fullName.ToLower()
+                     || m.PhoneNumber == phoneNumber
+                     || m.NationalId == nationalId)
+            .Select(m => new { m.FullName, m.PhoneNumber, m.NationalId })
+            .FirstOrDefaultAsync();
 
-        var phoneExists = await query.AnyAsync(m => m.PhoneNumber == phoneNumber);
-        if (phoneExists) return BadRequest(new { message = "A member with this Phone Number already exists." });
-
-        var nationalIdExists = await query.AnyAsync(m => m.NationalId == nationalId);
-        if (nationalIdExists) return BadRequest(new { message = "A member with this National ID already exists." });
+        if (duplicate != null)
+        {
+            if (duplicate.FullName.ToLower() == fullName.ToLower())
+                return BadRequest(new { message = "A member with this Full Name already exists." });
+            if (duplicate.PhoneNumber == phoneNumber)
+                return BadRequest(new { message = "A member with this Phone Number already exists." });
+            if (duplicate.NationalId == nationalId)
+                return BadRequest(new { message = "A member with this National ID already exists." });
+        }
 
         if (!string.IsNullOrEmpty(deskNumber) && startTime.HasValue && endTime.HasValue)
         {

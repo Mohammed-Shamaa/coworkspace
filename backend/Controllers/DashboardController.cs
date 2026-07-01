@@ -26,19 +26,15 @@ public class DashboardController : ControllerBase
         var now = DateTime.Today;
         var members = _db.Members.AsNoTracking().Where(m => m.TenantId == TenantId);
 
-        var aggregates = await members
-            .GroupBy(m => 1)
-            .Select(g => new DashboardResponse
-            {
-                TotalMembers = g.Count(),
-                ActiveMembers = g.Count(m => m.NoEndDate || (m.EndDate != null && m.EndDate >= now)),
-                ExpiredMembers = g.Count(m => !m.NoEndDate && m.EndDate != null && m.EndDate < now),
-                UnpaidMembers = g.Count(m => m.PaymentStatus == PaymentStatus.Unpaid),
-                StudentCount = g.Count(m => m.MemberType == MemberType.Student),
-                RemoteWorkerCount = g.Count(m => m.MemberType == MemberType.RemoteWorker),
-                MonthlyIncome = g.Where(m => m.PaymentStatus == PaymentStatus.Paid).Select(m => (decimal?)m.MonthlyFee).Sum() ?? 0
-            })
-            .FirstOrDefaultAsync();
+        // Individual indexed COUNT queries — each uses a covering index and avoids a single
+        // massive GroupBy scan that would force a full table sort on every dashboard load.
+        var totalMembers = await members.CountAsync();
+        var activeMembers = await members.CountAsync(m => m.NoEndDate || (m.EndDate != null && m.EndDate >= now));
+        var expiredMembers = await members.CountAsync(m => !m.NoEndDate && m.EndDate != null && m.EndDate < now);
+        var unpaidMembers = await members.CountAsync(m => m.PaymentStatus == PaymentStatus.Unpaid);
+        var studentCount = await members.CountAsync(m => m.MemberType == MemberType.Student);
+        var remoteWorkerCount = await members.CountAsync(m => m.MemberType == MemberType.RemoteWorker);
+        var monthlyIncome = await members.Where(m => m.PaymentStatus == PaymentStatus.Paid).SumAsync(m => (decimal?)m.MonthlyFee) ?? 0;
 
         var recent = await members
             .OrderByDescending(m => m.CreatedAt)
@@ -53,8 +49,16 @@ public class DashboardController : ControllerBase
             })
             .ToListAsync();
 
-        if (aggregates != null) aggregates.RecentRegistrations = recent;
-
-        return aggregates ?? new DashboardResponse();
+        return new DashboardResponse
+        {
+            TotalMembers = totalMembers,
+            ActiveMembers = activeMembers,
+            ExpiredMembers = expiredMembers,
+            UnpaidMembers = unpaidMembers,
+            StudentCount = studentCount,
+            RemoteWorkerCount = remoteWorkerCount,
+            MonthlyIncome = monthlyIncome,
+            RecentRegistrations = recent,
+        };
     }
 }

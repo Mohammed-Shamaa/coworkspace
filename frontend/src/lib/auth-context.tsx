@@ -1,5 +1,5 @@
 'use client'
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import api from './api'
 import type { User, Tenant, AuthResponse } from '@/types'
@@ -151,8 +151,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/auth/login')
   }
 
+  const value = useMemo(() => ({
+    user,
+    tenant,
+    loading,
+    onboardingCompleted,
+    checkOnboardingStatus,
+    refreshTenant,
+    login,
+    register,
+    logout,
+    isAuthenticated: !!user,
+  }), [user, tenant, loading, onboardingCompleted, checkOnboardingStatus, refreshTenant, login, register, logout])
+
   return (
-    <AuthContext.Provider value={{ user, tenant, loading, onboardingCompleted, checkOnboardingStatus, refreshTenant, login, register, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

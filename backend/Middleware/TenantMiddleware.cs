@@ -21,9 +21,9 @@ public class TenantMiddleware
             }
         }
 
-        // Also check header for subdomain-based routing
+        // Subdomain-based routing header — only query DB if no JWT claim
         var subdomain = context.Request.Headers["X-Tenant-Subdomain"].FirstOrDefault();
-        if (!string.IsNullOrEmpty(subdomain))
+        if (!string.IsNullOrEmpty(subdomain) && context.Items["TenantId"] == null)
         {
             var tenant = await db.Tenants.FirstOrDefaultAsync(t => t.Subdomain == subdomain);
             if (tenant != null)
