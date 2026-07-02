@@ -4,6 +4,7 @@ import { Providers } from "./providers"
 import "./globals.css"
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://coworkspace-pied.vercel.app'),
   title: "Coworkspace - Membership Management",
   description: "Multi-tenant coworking space membership management platform",
 }
