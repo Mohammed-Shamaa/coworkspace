@@ -1,15 +1,23 @@
 import type { MetadataRoute } from 'next'
 
+const BASE_URL = 'https://coworkspace-pied.vercel.app'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: 'https://coworkspace-pied.vercel.app/auth/login',
+      url: BASE_URL,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 1,
+    },
+    {
+      url: `${BASE_URL}/auth/login`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: 'https://coworkspace-pied.vercel.app/auth/register',
+      url: `${BASE_URL}/auth/register`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
