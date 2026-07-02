@@ -7,6 +7,26 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://coworkspace-pied.vercel.app'),
   title: "Coworkspace - Membership Management",
   description: "Multi-tenant coworking space membership management platform",
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
+  openGraph: {
+    title: "Coworkspace - Membership Management",
+    description: "Multi-tenant coworking space membership management platform",
+    url: "https://coworkspace-pied.vercel.app",
+    siteName: "Coworkspace",
+    images: [{ url: '/logo.png', width: 1024, height: 1024 }],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Coworkspace - Membership Management",
+    description: "Multi-tenant coworking space membership management platform",
+    images: ['/logo.png'],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
