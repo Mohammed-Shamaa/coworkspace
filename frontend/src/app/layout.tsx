@@ -8,9 +8,13 @@ export const metadata: Metadata = {
   title: "Coworkspace - Membership Management",
   description: "Multi-tenant coworking space membership management platform",
   icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
+    icon: [
+      { url: '/logo-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/logo-96.png', type: 'image/png', sizes: '96x96' },
+      { url: '/logo-48.png', type: 'image/png', sizes: '48x48' },
+    ],
+    shortcut: '/logo-48.png',
+    apple: [{ url: '/logo.png', type: 'image/png', sizes: '1024x1024' }],
   },
   openGraph: {
     title: "Coworkspace - Membership Management",
