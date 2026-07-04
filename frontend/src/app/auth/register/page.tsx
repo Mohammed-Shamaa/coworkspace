@@ -120,7 +120,7 @@ function RegisterForm() {
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[var(--page-bg)] p-4">
       <AuthBackground />
-      <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-8 w-full max-w-md">
+      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-2xl border border-white/30 dark:border-white/10 shadow-xl shadow-black/5 p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('auth.registerTitle')}</h1>
           <p className="text-[var(--text-secondary)] text-sm">{t('auth.registerSubtitle')}</p>

@@ -65,7 +65,7 @@ function LoginForm() {
           About Us
         </Link>
       </nav>
-      <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-8 w-96">
+      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-2xl border border-white/30 dark:border-white/10 shadow-xl shadow-black/5 p-8 w-96">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('auth.loginTitle')}</h1>
           <p className="text-[var(--text-secondary)] text-sm">{t('auth.loginSubtitle')}</p>
