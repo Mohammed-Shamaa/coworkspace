@@ -1,4 +1,5 @@
 'use client'
+import { useScrollDirection } from '@/lib/use-scroll-direction'
 import Navbar from './navbar'
 import Hero from './hero'
 import Features from './features'
@@ -9,15 +10,17 @@ import CTASection from './cta-section'
 import Footer from './footer'
 
 export default function LandingPage() {
+  const dir = useScrollDirection()
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       <Navbar />
-      <Hero />
-      <Features />
-      <HowItWorks />
-      <DashboardPreview />
-      <Benefits />
-      <CTASection />
+      <Hero dir={dir} />
+      <Features dir={dir} />
+      <HowItWorks dir={dir} />
+      <DashboardPreview dir={dir} />
+      <Benefits dir={dir} />
+      <CTASection dir={dir} />
       <Footer />
     </div>
   )

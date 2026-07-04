@@ -1,6 +1,8 @@
 'use client'
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
+import type { MutableRefObject } from 'react'
+import { byDirection, scaleIn } from '@/lib/animation-variants'
 import { Clock, CreditCard, HeadphonesIcon, RefreshCw, Globe, Smartphone } from 'lucide-react'
 
 const benefits = [
@@ -14,44 +16,46 @@ const benefits = [
 
 function BenefitCard({ icon: Icon, title, description, index }: { icon: typeof benefits[0]['icon']; title: string; description: string; index: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-60px' })
+  const isInView = useInView(ref, { once: false, margin: '-60px' })
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{ duration: 0.4, delay: index * 0.08, ease: 'easeOut' }}
-      className="flex gap-5 rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-md"
+      variants={scaleIn}
+      initial="hidden"
+      animate={isInView ? 'visible' : 'hidden'}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      className="flex gap-5 rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-900"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#1565C0]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#1565C0] dark:bg-blue-950 dark:text-blue-400">
         <Icon size={20} />
       </div>
       <div>
-        <h3 className="font-bold text-gray-900">{title}</h3>
-        <p className="mt-1 text-sm leading-relaxed text-gray-500">{description}</p>
+        <h3 className="font-bold text-gray-900 dark:text-gray-100">{title}</h3>
+        <p className="mt-1 text-sm leading-relaxed text-gray-500 dark:text-gray-400">{description}</p>
       </div>
     </motion.div>
   )
 }
 
-export default function Benefits() {
+export default function Benefits({ dir }: { dir: MutableRefObject<'down' | 'up'> }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const isInView = useInView(ref, { once: false, margin: '-100px' })
 
   return (
     <section className="py-20 md:py-28" id="benefits">
       <div className="mx-auto max-w-7xl px-6">
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          variants={byDirection(dir.current)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">Benefits</span>
-          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl">Why coworking spaces choose us</h2>
-          <p className="mt-4 text-lg text-gray-500">Built for real workspaces. Trusted by growing teams.</p>
+          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0] dark:bg-blue-950">Benefits</span>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-gray-100">Why coworking spaces choose us</h2>
+          <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">Built for real workspaces. Trusted by growing teams.</p>
         </motion.div>
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

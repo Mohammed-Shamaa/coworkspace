@@ -2,19 +2,22 @@
 import Link from 'next/link'
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
+import type { MutableRefObject } from 'react'
+import { byDirection } from '@/lib/animation-variants'
 
-export default function CTASection() {
+export default function CTASection({ dir }: { dir: MutableRefObject<'down' | 'up'> }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const isInView = useInView(ref, { once: false, margin: '-100px' })
 
   return (
-    <section className="border-t border-gray-100 py-20 md:py-28">
+    <section className="border-t border-gray-100 py-20 md:py-28 dark:border-gray-800">
       <div className="mx-auto max-w-7xl px-6">
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 30, scale: 0.98 }}
-          animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 30, scale: 0.98 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          variants={byDirection(dir.current)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          transition={{ duration: 0.6 }}
           className="relative overflow-hidden rounded-3xl bg-[#0d1b3e] px-8 py-16 text-center md:px-16 md:py-20"
         >
           <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[#1565C0]/20 blur-3xl" />
