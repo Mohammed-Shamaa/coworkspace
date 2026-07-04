@@ -38,7 +38,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Hero */}
-      <section className="relative h-[50vh] min-h-[350px] w-full overflow-hidden md:h-[80vh] md:min-h-[500px]">
+      <section className="relative h-[35vh] min-h-[260px] w-full overflow-hidden md:h-[55vh] md:min-h-[360px]">
         <Image
           src="/hero-bg.png"
           alt="Coworkspace - Global coworking platform"
