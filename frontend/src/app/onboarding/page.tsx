@@ -97,7 +97,7 @@ export default function OnboardingPage() {
         await checkOnboardingStatus()
         await refreshTenant()
         setTimeout(() => {
-          router.push('/')
+          router.push('/dashboard')
         }, 2000)
         return
       }

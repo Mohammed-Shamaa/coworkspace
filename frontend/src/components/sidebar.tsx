@@ -21,7 +21,7 @@ export default function Sidebar() {
 
   const navItems = useMemo(() => {
     const items = [
-      { href: '/', labelKey: 'sidebar.home', icon: LayoutDashboard },
+      { href: '/dashboard', labelKey: 'sidebar.home', icon: LayoutDashboard },
       { href: '/members', labelKey: 'sidebar.members', icon: Users },
       { href: '/unpaid', labelKey: 'sidebar.unpaid', icon: CreditCard },
       { href: '/students', labelKey: 'sidebar.students', icon: GraduationCap },
@@ -45,7 +45,7 @@ export default function Sidebar() {
       <nav className="flex-1 py-4">
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
           return (
             <Link
               key={item.href}

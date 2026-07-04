@@ -54,7 +54,7 @@ function RegisterForm() {
     setLoading(true)
     try {
       await register({ email, password, fullName, companyName, subdomain: subdomain.toLowerCase() })
-      router.push('/')
+      router.push('/dashboard')
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string; title?: string; errors?: Record<string, string[]> } }; message?: string }
       const data = axiosErr.response?.data
