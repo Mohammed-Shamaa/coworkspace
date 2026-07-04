@@ -25,7 +25,7 @@ function BenefitCard({ icon: Icon, title, description, index }: { icon: typeof b
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
       transition={{ duration: 0.4, delay: index * 0.08 }}
-      className="flex gap-5 rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-900"
+      className="flex gap-5 rounded-2xl border border-gray-100 bg-blue-50 p-6 transition-all hover:border-blue-100 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-900"
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#1565C0] dark:bg-blue-950 dark:text-blue-400">
         <Icon size={20} />

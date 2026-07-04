@@ -42,8 +42,8 @@ export default function DashboardPreview({ dir }: { dir: MutableRefObject<'down'
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-14"
         >
-          <div className="rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-gray-950/50">
-            <div className="rounded-xl bg-white p-6 dark:bg-gray-900">
+          <div className="rounded-2xl border border-gray-100 bg-blue-50 p-2 shadow-2xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-gray-950/50">
+            <div className="rounded-xl bg-blue-50 p-6 dark:bg-gray-900">
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Revenue Overview</h3>

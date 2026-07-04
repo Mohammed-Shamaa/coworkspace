@@ -29,7 +29,7 @@ function FeatureCard({ icon: Icon, title, description, index }: { icon: typeof f
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
       transition={{ duration: 0.5, delay: index * 0.08 }}
-      className="group rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-lg hover:shadow-blue-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-900 dark:hover:shadow-blue-950"
+      className="group rounded-2xl border border-gray-100 bg-blue-50 p-6 transition-all hover:border-blue-100 hover:shadow-lg hover:shadow-blue-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-900 dark:hover:shadow-blue-950"
     >
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#1565C0] transition-colors group-hover:bg-[#1565C0] group-hover:text-white dark:bg-blue-950 dark:text-blue-400 dark:group-hover:bg-[#1565C0] dark:group-hover:text-white">
         <Icon size={24} />
