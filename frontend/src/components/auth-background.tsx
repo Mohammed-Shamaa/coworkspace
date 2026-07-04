@@ -9,7 +9,7 @@ export default function AuthBackground() {
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="absolute -right-8 top-8 h-64 w-64 animate-float-slow text-gray-500 opacity-[0.08] dark:text-gray-500"
+          className="absolute -right-8 top-8 h-64 w-64 animate-float-slow text-gray-500 opacity-[0.10] dark:text-gray-500"
           style={{ animationDelay: '0s' }}
           aria-hidden="true"
         >
@@ -18,7 +18,7 @@ export default function AuthBackground() {
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="absolute -bottom-20 -left-16 h-80 w-80 animate-float-medium text-gray-500 opacity-[0.07] dark:text-gray-500"
+          className="absolute -bottom-20 -left-16 h-80 w-80 animate-float-medium text-gray-500 opacity-[0.09] dark:text-gray-500"
           style={{ animationDelay: '-3s' }}
           aria-hidden="true"
         >
@@ -27,7 +27,7 @@ export default function AuthBackground() {
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="absolute left-1/4 top-1/4 h-40 w-40 animate-float-fast blur-sm text-gray-500 opacity-[0.06] dark:text-gray-500"
+          className="absolute left-1/4 top-1/4 h-40 w-40 animate-float-fast blur-sm text-gray-500 opacity-[0.08] dark:text-gray-500"
           style={{ animationDelay: '-7s' }}
           aria-hidden="true"
         >
@@ -36,7 +36,7 @@ export default function AuthBackground() {
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="absolute bottom-1/3 right-1/4 h-48 w-48 animate-float-slow text-gray-500 opacity-[0.06] dark:text-gray-500"
+          className="absolute bottom-1/3 right-1/4 h-48 w-48 animate-float-slow text-gray-500 opacity-[0.08] dark:text-gray-500"
           style={{ animationDelay: '-11s' }}
           aria-hidden="true"
         >
@@ -45,7 +45,7 @@ export default function AuthBackground() {
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="absolute left-10 top-1/3 h-36 w-36 animate-float-medium blur-sm text-gray-500 opacity-[0.07] dark:text-gray-500"
+          className="absolute left-10 top-1/3 h-36 w-36 animate-float-medium blur-sm text-gray-500 opacity-[0.09] dark:text-gray-500"
           style={{ animationDelay: '-5s' }}
           aria-hidden="true"
         >
@@ -54,7 +54,7 @@ export default function AuthBackground() {
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="absolute right-10 top-1/2 h-32 w-32 animate-float-fast text-gray-500 opacity-[0.05] dark:text-gray-500"
+          className="absolute right-10 top-1/2 h-32 w-32 animate-float-fast text-gray-500 opacity-[0.07] dark:text-gray-500"
           style={{ animationDelay: '-2s' }}
           aria-hidden="true"
         >
@@ -63,7 +63,7 @@ export default function AuthBackground() {
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="absolute left-1/3 -bottom-10 h-44 w-44 animate-float-medium text-gray-500 opacity-[0.05] dark:text-gray-500"
+          className="absolute left-1/3 -bottom-10 h-44 w-44 animate-float-medium text-gray-500 opacity-[0.07] dark:text-gray-500"
           style={{ animationDelay: '-9s' }}
           aria-hidden="true"
         >
@@ -72,7 +72,7 @@ export default function AuthBackground() {
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="absolute right-1/4 top-3/4 h-40 w-40 animate-float-slow blur-sm text-gray-500 opacity-[0.06] dark:text-gray-500"
+          className="absolute right-1/4 top-3/4 h-40 w-40 animate-float-slow blur-sm text-gray-500 opacity-[0.08] dark:text-gray-500"
           style={{ animationDelay: '-15s' }}
           aria-hidden="true"
         >
