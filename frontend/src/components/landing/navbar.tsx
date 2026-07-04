@@ -18,8 +18,8 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
-          <img src="/logo-48.png" alt="Coworkspace" className="h-8 w-8" />
-          <span className="text-lg font-bold text-gray-900 dark:text-gray-100">Coworkspace</span>
+          <img src="/logo-48.png" alt="Deskora" className="h-8 w-8" />
+          <span className="text-lg font-bold text-gray-900 dark:text-gray-100">Deskora</span>
         </Link>
         <nav className="flex items-center gap-2">
           <button

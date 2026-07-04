@@ -26,7 +26,7 @@ export default function CTASection({ dir }: { dir: MutableRefObject<'down' | 'up
           <div className="relative z-10">
             <h2 className="text-3xl font-bold text-white md:text-4xl">Ready to transform your coworking space?</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-blue-200">
-              Join hundreds of workspace managers who trust Coworkspace to run their business.
+              Join hundreds of workspace managers who trust Deskora to run their business.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link

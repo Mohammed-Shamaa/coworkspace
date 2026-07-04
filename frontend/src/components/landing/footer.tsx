@@ -8,8 +8,8 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
           <div className="flex items-center gap-3">
-            <img src="/logo-48.png" alt="Coworkspace" className="h-8 w-8" />
-            <span className="text-lg font-bold text-gray-900 dark:text-gray-100">Coworkspace</span>
+            <img src="/logo-48.png" alt="Deskora" className="h-8 w-8" />
+            <span className="text-lg font-bold text-gray-900 dark:text-gray-100">Deskora</span>
           </div>
 
           <nav className="flex items-center gap-6 text-sm">
@@ -20,7 +20,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 border-t border-gray-100 pt-8 text-center text-sm text-gray-400 dark:border-gray-800 dark:text-gray-500">
-          &copy; {year} Coworkspace. All rights reserved.
+          &copy; {year} Deskora. All rights reserved.
         </div>
       </div>
     </footer>

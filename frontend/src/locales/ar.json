@@ -30,7 +30,7 @@
     "membershipManager": "إدارة العضويات"
   },
   "dashboard": {
-    "title": "كاوورك سبيس",
+    "title": "Deskora",
     "subtitle": "لوحة إدارة مساحة العمل",
     "overview": "نظرة عامة",
     "students": "الطلاب",
@@ -152,7 +152,7 @@
     "logoPlaceholder": "https://example.com/logo.png"
   },
   "auth": {
-    "loginTitle": "كاوورك سبيس",
+    "loginTitle": "Deskora",
     "loginSubtitle": "تسجيل الدخول إلى حسابك",
     "subdomain": "النطاق الفرعي",
     "email": "البريد الإلكتروني",
@@ -166,7 +166,7 @@
     "registerSubtitle": "سجل مساحة العمل الخاصة بك",
     "companyName": "اسم الشركة *",
     "subdomainLabel": "النطاق الفرعي *",
-    "subdomainHint": "(your-company.coworkspace.com)",
+    "subdomainHint": "(your-company.deskora.com)",
     "fullName": "الاسم الكامل *",
     "emailLabel": "البريد الإلكتروني *",
     "passwordLabel": "كلمة المرور *",

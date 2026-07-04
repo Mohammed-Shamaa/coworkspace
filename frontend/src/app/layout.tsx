@@ -5,7 +5,7 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://coworkspace-pied.vercel.app'),
-  title: "Coworkspace - Membership Management",
+  title: "Deskora - Membership Management",
   description: "Multi-tenant coworking space membership management platform",
   icons: {
     icon: [
@@ -17,17 +17,17 @@ export const metadata: Metadata = {
     apple: [{ url: '/logo.png', type: 'image/png', sizes: '1024x1024' }],
   },
   openGraph: {
-    title: "Coworkspace - Membership Management",
+    title: "Deskora - Membership Management",
     description: "Multi-tenant coworking space membership management platform",
     url: "https://coworkspace-pied.vercel.app",
-    siteName: "Coworkspace",
+    siteName: "Deskora",
     images: [{ url: '/logo.png', width: 1024, height: 1024 }],
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Coworkspace - Membership Management",
+    title: "Deskora - Membership Management",
     description: "Multi-tenant coworking space membership management platform",
     images: ['/logo.png'],
   },

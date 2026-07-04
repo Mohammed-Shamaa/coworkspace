@@ -287,7 +287,7 @@ public class MembersController : ControllerBase
         var member = await _db.Members.AsNoTracking().AsSplitQuery().Include(m => m.Payments).Include(m => m.Tenant).FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);
         if (member == null) return NotFound();
 
-        var pdfBytes = _pdf.GenerateMemberPdf(member, member.Payments.ToList(), member.Tenant?.CompanyName ?? "Coworkspace");
+        var pdfBytes = _pdf.GenerateMemberPdf(member, member.Payments.ToList(), member.Tenant?.CompanyName ?? "Deskora");
 
         return File(pdfBytes, "application/pdf", $"Member_{member.FullName}_{DateTime.Now:yyyy-MM-dd}.pdf");
     }

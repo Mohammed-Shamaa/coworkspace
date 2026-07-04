@@ -72,7 +72,7 @@ export default function AboutPage() {
         </Link>
         <Image
           src="/PIC.png"
-          alt="Coworkspace - Global coworking platform"
+          alt="Deskora - Global coworking platform"
           fill
           className="object-cover"
           priority

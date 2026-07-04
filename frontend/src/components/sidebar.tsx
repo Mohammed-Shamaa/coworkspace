@@ -38,7 +38,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 min-h-screen bg-[#1A237E] text-white flex flex-col shrink-0">
       <div className="p-6 border-b border-[#283593]">
-        <h1 className="text-xl font-bold">{tenant?.companyName || 'Coworkspace'}</h1>
+        <h1 className="text-xl font-bold">{tenant?.companyName || 'Deskora'}</h1>
         <p className="text-xs text-blue-200 mt-1">{t('sidebar.membershipManager')}</p>
       </div>
 

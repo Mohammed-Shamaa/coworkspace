@@ -24,7 +24,7 @@ var keysDir = "/tmp/keys";
 Directory.CreateDirectory(keysDir);
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysDir))
-    .SetApplicationName("Coworkspace");
+    .SetApplicationName("Deskora");
 
 // Database
 var connString = builder.Configuration["DATABASE_URL"]
