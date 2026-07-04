@@ -1,11 +1,13 @@
 'use client'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useTheme } from '@/lib/theme-provider'
 import { Sun, Moon } from 'lucide-react'
 
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme()
+  const pathname = usePathname()
 
   return (
     <motion.header
@@ -27,6 +29,17 @@ export default function Navbar() {
           >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
+
+          <Link
+            href="/about"
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              pathname === '/about'
+                ? 'text-[#1565C0] dark:text-blue-400'
+                : 'text-gray-600 hover:bg-blue-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
+            }`}
+          >
+            About Us
+          </Link>
 
           <Link
             href="/auth/login"
