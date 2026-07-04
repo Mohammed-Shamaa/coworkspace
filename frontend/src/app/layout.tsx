@@ -6,7 +6,7 @@ import "./globals.css"
 export const metadata: Metadata = {
   metadataBase: new URL('https://coworkspace-pied.vercel.app'),
   title: "Deskora - Membership Management",
-  description: "Multi-tenant coworking space membership management platform",
+  description: "Deskora is a coworking space management platform for businesses, startups, freelancers, and remote teams. Manage workspaces, meeting rooms, and memberships.",
   alternates: {
     canonical: 'https://coworkspace-pied.vercel.app',
   },
