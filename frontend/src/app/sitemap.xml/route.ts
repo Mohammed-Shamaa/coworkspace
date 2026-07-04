@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-static'
+
 const BASE_URL = 'https://coworkspace-pied.vercel.app'
 
 export async function GET() {
