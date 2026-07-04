@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'About Us - Coworkspace',
     description: 'Building a global coworking platform from Gaza, connecting people, ideas, and opportunities worldwide.',
+    url: 'https://coworkspace-pied.vercel.app/about',
+    siteName: 'Coworkspace',
+    images: [{ url: '/logo.png', width: 1024, height: 1024 }],
   },
 }
 
