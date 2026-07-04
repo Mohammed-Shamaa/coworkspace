@@ -71,7 +71,7 @@ export default function Hero({ dir }: { dir: MutableRefObject<'down' | 'up'> }) 
             className="relative hidden md:block"
           >
             <div className="relative">
-              <div className="rounded-2xl border border-gray-100 bg-blue-50 p-2 shadow-2xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-gray-950/50">
+              <div className="rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-gray-950/50">
                 <div className="rounded-xl bg-gradient-to-br from-[#1565C0]/5 to-blue-50 p-6 dark:from-blue-950/30 dark:to-gray-900">
                   <div className="mb-4 flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full bg-red-400" />
@@ -82,23 +82,23 @@ export default function Hero({ dir }: { dir: MutableRefObject<'down' | 'up'> }) 
                     <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
                     <div className="h-4 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
                     <div className="mt-4 grid grid-cols-3 gap-3">
-                      <div className="rounded-lg border border-gray-200 bg-blue-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                      <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
                         <div className="mb-2 h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-900" />
                         <div className="h-3 w-full rounded bg-gray-200" />
                         <div className="mt-1 h-5 w-10 rounded bg-gray-300" />
                       </div>
-                      <div className="rounded-lg border border-gray-200 bg-blue-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                      <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
                         <div className="mb-2 h-8 w-8 rounded-lg bg-green-100 dark:bg-green-900" />
                         <div className="h-3 w-full rounded bg-gray-200" />
                         <div className="mt-1 h-5 w-10 rounded bg-gray-300" />
                       </div>
-                      <div className="rounded-lg border border-gray-200 bg-blue-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                      <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
                         <div className="mb-2 h-8 w-8 rounded-lg bg-yellow-100 dark:bg-yellow-900" />
                         <div className="h-3 w-full rounded bg-gray-200" />
                         <div className="mt-1 h-5 w-10 rounded bg-gray-300" />
                       </div>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-blue-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
                       <div className="flex items-center justify-between">
                         <div className="h-3 w-24 rounded bg-gray-200" />
                         <div className="h-3 w-16 rounded bg-gray-200" />
