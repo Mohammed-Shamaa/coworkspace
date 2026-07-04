@@ -1,15 +1,13 @@
-'use client'
-import { LanguageProvider } from '@/lib/language-provider'
-import { AuthGuard } from '@/components/auth-guard'
+import type { Metadata } from 'next'
+import OnboardingShell from './onboarding-shell'
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthGuard>
-      <LanguageProvider>
-        <div className="min-h-screen bg-[var(--page-bg)]">
-          {children}
-        </div>
-      </LanguageProvider>
-    </AuthGuard>
-  )
+  return <OnboardingShell>{children}</OnboardingShell>
 }

@@ -1,12 +1,4 @@
-import type { Metadata } from 'next'
 import AppShell from './app-shell'
-
-export const metadata: Metadata = {
-  robots: {
-    index: false,
-    follow: false,
-  },
-}
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   return <AppShell>{children}</AppShell>
