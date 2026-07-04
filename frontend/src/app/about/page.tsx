@@ -1,7 +1,10 @@
 'use client'
+import { useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
+import { useScrollDirection } from '@/lib/use-scroll-direction'
+import { byDirection } from '@/lib/animation-variants'
 import { Globe, Users, Monitor, HeartHandshake } from 'lucide-react'
 
 const missions = [
@@ -35,6 +38,10 @@ function SectionHeading({ label, title }: { label: string; title: string }) {
 }
 
 export default function AboutPage() {
+  const dir = useScrollDirection()
+  const textRef = useRef(null)
+  const isTextInView = useInView(textRef, { once: false })
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Hero */}
@@ -48,9 +55,18 @@ export default function AboutPage() {
           priority
         />
         <div className="absolute inset-0 z-20 flex items-center justify-center px-6">
-          <h1 className="max-w-4xl text-center text-2xl font-bold leading-tight text-white drop-shadow-lg md:text-4xl lg:text-5xl">
+          <motion.h1
+            ref={textRef}
+            variants={byDirection(dir.current)}
+            initial="hidden"
+            animate={isTextInView ? 'visible' : 'hidden'}
+            whileHover={{
+              textShadow: '0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(59, 130, 246, 0.3)',
+            }}
+            className="max-w-4xl text-center text-2xl font-bold leading-tight text-white drop-shadow-lg md:text-4xl lg:text-5xl"
+          >
             Building the Future of Workspaces from Gaza to the World
-          </h1>
+          </motion.h1>
         </div>
         <div className="absolute inset-x-0 bottom-0 z-10 h-1/2 bg-gradient-to-t from-white via-white/60 to-transparent dark:from-gray-950 dark:via-gray-950/60" />
       </section>
