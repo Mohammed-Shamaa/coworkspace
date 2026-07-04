@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 import { LanguageProvider } from '@/lib/language-provider'
+import AuthBackground from '@/components/auth-background'
 import { AlertCircle } from 'lucide-react'
 
 interface FieldErrors {
@@ -117,7 +118,8 @@ function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--page-bg)] p-4">
+    <div className="relative min-h-screen flex items-center justify-center bg-[var(--page-bg)] p-4">
+      <AuthBackground />
       <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('auth.registerTitle')}</h1>

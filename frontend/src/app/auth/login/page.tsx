@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 import { LanguageProvider } from '@/lib/language-provider'
+import AuthBackground from '@/components/auth-background'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -49,6 +50,7 @@ function LoginForm() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[var(--page-bg)]">
+      <AuthBackground />
       <nav className="absolute left-6 top-6 flex items-center gap-2">
         <Link
           href="/"
