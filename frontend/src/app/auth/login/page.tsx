@@ -48,7 +48,21 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--page-bg)]">
+    <div className="relative min-h-screen flex items-center justify-center bg-[var(--page-bg)]">
+      <nav className="absolute left-6 top-6 flex items-center gap-2">
+        <Link
+          href="/"
+          className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:scale-[1.02] hover:bg-blue-50 hover:text-[#1565C0] dark:text-gray-400 dark:hover:bg-blue-950 dark:hover:text-blue-400"
+        >
+          Home
+        </Link>
+        <Link
+          href="/about"
+          className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:scale-[1.02] hover:bg-blue-50 hover:text-[#1565C0] dark:text-gray-400 dark:hover:bg-blue-950 dark:hover:text-blue-400"
+        >
+          About Us
+        </Link>
+      </nav>
       <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-8 w-96">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('auth.loginTitle')}</h1>
