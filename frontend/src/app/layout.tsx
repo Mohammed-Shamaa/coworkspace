@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://coworkspace-pied.vercel.app'),
   title: "Deskora - Membership Management",
   description: "Multi-tenant coworking space membership management platform",
+  alternates: {
+    canonical: 'https://coworkspace-pied.vercel.app',
+  },
   icons: {
     icon: [
       { url: '/logo-192.png', type: 'image/png', sizes: '192x192' },
@@ -39,6 +42,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{
           __html: `(function(){try{var e=localStorage.getItem("theme");if(e==="dark"||(!e&&window.matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
+        }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Deskora",
+            "url": "https://coworkspace-pied.vercel.app",
+          }),
         }} />
       </head>
       <body><ErrorBoundary><Providers>{children}</Providers></ErrorBoundary></body>
