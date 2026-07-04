@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion, useInView } from 'framer-motion'
 import { useScrollDirection } from '@/lib/use-scroll-direction'
 import { byDirection } from '@/lib/animation-variants'
-import { Globe, Users, Monitor, HeartHandshake } from 'lucide-react'
+import { ArrowLeft, Globe, Users, Monitor, HeartHandshake } from 'lucide-react'
 
 const missions = [
   { icon: Globe, title: 'Global Access', description: 'Build a coworking platform accessible to everyone, everywhere.' },
@@ -47,6 +47,13 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="relative h-[45vh] min-h-[320px] w-full overflow-hidden md:h-[65vh] md:min-h-[420px]">
         <div className="absolute inset-0 z-10 bg-black/30" />
+        <Link
+          href="/"
+          className="absolute left-4 top-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20 md:left-6 md:top-6 md:gap-2 md:px-4 md:text-sm"
+        >
+          <ArrowLeft size={16} />
+          Back to Home
+        </Link>
         <Image
           src="/PIC.png"
           alt="Coworkspace - Global coworking platform"
