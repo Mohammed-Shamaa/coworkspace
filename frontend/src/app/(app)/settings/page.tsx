@@ -48,11 +48,11 @@ function SettingsContent({ tenant }: { tenant: { companyName?: string; name?: st
 
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('settings.companyName')}</label>
-            <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="e.g., Acme Coworkspace" />
+            <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="e.g., Acme Deskora" />
           </div>
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('settings.displayName')}</label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., My Coworkspace" />
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., My Deskora" />
           </div>
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('settings.primaryColor')}</label>
