@@ -42,6 +42,31 @@ function WhatsAppIcon({ size = 28 }: { size?: number }) {
   )
 }
 
+function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: false })
+
+  return (
+    <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-gray-800 dark:bg-gray-950/50">
+      <div className="mx-auto max-w-5xl px-6">
+        <motion.div
+          ref={ref}
+          variants={byDirection(dir.current)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          whileHover={{
+            scale: 1.02,
+            textShadow: '0 0 30px rgba(59,130,246,0.5), 0 0 60px rgba(59,130,246,0.2)',
+          }}
+          className="text-center text-2xl font-bold leading-snug text-gray-900 md:text-3xl lg:text-4xl dark:text-gray-100"
+        >
+          &ldquo;Deskora transformed how we manage our coworking space&rdquo;
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
 function SectionHeading({ label, title }: { label: string; title: string }) {
   return (
     <div className="mb-12 text-center">
@@ -140,6 +165,9 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      {/* Quote */}
+      <QuoteSection dir={dir} />
 
       {/* Contact */}
       <section className="py-20 md:py-28">
