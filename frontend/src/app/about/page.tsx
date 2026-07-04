@@ -38,7 +38,8 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] w-full overflow-hidden md:h-[55vh] md:min-h-[360px]">
+      <section className="relative h-[45vh] min-h-[320px] w-full overflow-hidden md:h-[65vh] md:min-h-[420px]">
+        <div className="absolute inset-0 z-10 bg-black/30" />
         <Image
           src="/PIC.png"
           alt="Coworkspace - Global coworking platform"
@@ -46,7 +47,12 @@ export default function AboutPage() {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white via-white/60 to-transparent dark:from-gray-950 dark:via-gray-950/60" />
+        <div className="absolute inset-0 z-20 flex items-center justify-center px-6">
+          <h1 className="max-w-4xl text-center text-2xl font-bold leading-tight text-white drop-shadow-lg md:text-4xl lg:text-5xl">
+            Building the Future of Workspaces from Gaza to the World
+          </h1>
+        </div>
+        <div className="absolute inset-x-0 bottom-0 z-10 h-1/2 bg-gradient-to-t from-white via-white/60 to-transparent dark:from-gray-950 dark:via-gray-950/60" />
       </section>
 
       {/* Personal Story */}
