@@ -20,7 +20,7 @@ const features = [
 
 function FeatureCard({ icon: Icon, title, description, index }: { icon: typeof features[0]['icon']; title: string; description: string; index: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, margin: '-80px' })
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
     <motion.div
@@ -42,7 +42,7 @@ function FeatureCard({ icon: Icon, title, description, index }: { icon: typeof f
 
 export default function Features({ dir }: { dir: MutableRefObject<'down' | 'up'> }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, margin: '-100px' })
+  const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
     <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-gray-800 dark:bg-gray-950/50" id="features">

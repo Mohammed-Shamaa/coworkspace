@@ -17,7 +17,7 @@ const data = [
 
 export default function DashboardPreview({ dir }: { dir: MutableRefObject<'down' | 'up'> }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, margin: '-100px' })
+  const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
     <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-gray-800 dark:bg-gray-950/50">

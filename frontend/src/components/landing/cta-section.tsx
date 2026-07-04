@@ -7,7 +7,7 @@ import { byDirection } from '@/lib/animation-variants'
 
 export default function CTASection({ dir }: { dir: MutableRefObject<'down' | 'up'> }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, margin: '-100px' })
+  const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
     <section className="border-t border-gray-100 py-20 md:py-28 dark:border-gray-800">

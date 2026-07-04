@@ -17,14 +17,14 @@ export const metadata: Metadata = {
       { url: '/logo-48.png', type: 'image/png', sizes: '48x48' },
     ],
     shortcut: '/logo-48.png',
-    apple: [{ url: '/logo.png', type: 'image/png', sizes: '1024x1024' }],
+    apple: [{ url: '/logo.webp', type: 'image/webp', sizes: '1024x1024' }],
   },
   openGraph: {
     title: "Deskora - Membership Management",
     description: "Multi-tenant coworking space membership management platform",
     url: "https://coworkspace-pied.vercel.app",
     siteName: "Deskora",
-    images: [{ url: '/logo.png', width: 1024, height: 1024 }],
+    images: [{ url: '/logo.webp', width: 1024, height: 1024 }],
     locale: "en_US",
     type: "website",
   },
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Deskora - Membership Management",
     description: "Multi-tenant coworking space membership management platform",
-    images: ['/logo.png'],
+    images: ['/logo.webp'],
   },
 }
 

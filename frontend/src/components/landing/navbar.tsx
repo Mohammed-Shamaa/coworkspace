@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { useTheme } from '@/lib/theme-provider'
 import { Sun, Moon } from 'lucide-react'
 
@@ -10,15 +10,10 @@ export default function Navbar() {
   const pathname = usePathname()
 
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 border-b border-blue-100/30 bg-blue-50/60 shadow-sm shadow-blue-500/5 backdrop-blur-xl dark:border-blue-900/20 dark:bg-gray-950/70 dark:shadow-none"
-    >
+    <header className="fixed top-0 left-0 right-0 z-50 animate-navbar border-b border-blue-100/30 bg-blue-50/60 shadow-sm shadow-blue-500/5 backdrop-blur-xl dark:border-blue-900/20 dark:bg-gray-950/70 dark:shadow-none">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
-          <img src="/logo-48.png" alt="Deskora" className="h-8 w-8" />
+          <Image src="/logo-48.png" alt="Deskora" width={32} height={32} className="h-8 w-8" />
           <span className="text-lg font-bold text-gray-900 dark:text-gray-100">Deskora</span>
         </Link>
         <nav className="flex items-center gap-2">
@@ -55,6 +50,6 @@ export default function Navbar() {
           </Link>
         </nav>
       </div>
-    </motion.header>
+    </header>
   )
 }

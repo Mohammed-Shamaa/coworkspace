@@ -44,7 +44,7 @@ function WhatsAppIcon({ size = 28 }: { size?: number }) {
 
 function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: false })
+  const isInView = useInView(ref, { once: true })
 
   return (
     <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-gray-800 dark:bg-gray-950/50">
@@ -96,7 +96,7 @@ export default function AboutPage() {
           Back to Home
         </Link>
         <Image
-          src="/PIC.png"
+          src="/PIC.webp"
           alt="Deskora - Global coworking platform"
           fill
           className="object-cover"

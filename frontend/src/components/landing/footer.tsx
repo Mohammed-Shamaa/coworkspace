@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 export default function Footer() {
@@ -8,7 +9,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
           <div className="flex items-center gap-3">
-            <img src="/logo-48.png" alt="Deskora" className="h-8 w-8" />
+            <Image src="/logo-48.png" alt="Deskora" width={32} height={32} className="h-8 w-8" />
             <span className="text-lg font-bold text-gray-900 dark:text-gray-100">Deskora</span>
           </div>
 

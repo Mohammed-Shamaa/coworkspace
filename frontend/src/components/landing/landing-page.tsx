@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 import { useScrollDirection } from '@/lib/use-scroll-direction'
 import Navbar from './navbar'
 import Hero from './hero'
-import Footer from './footer'
+const Footer = dynamic(() => import('./footer'))
 
 const Features = dynamic(() => import('./features'), { ssr: false })
 const HowItWorks = dynamic(() => import('./how-it-works'), { ssr: false })

@@ -16,7 +16,7 @@ const benefits = [
 
 function BenefitCard({ icon: Icon, title, description, index }: { icon: typeof benefits[0]['icon']; title: string; description: string; index: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, margin: '-60px' })
+  const isInView = useInView(ref, { once: true, margin: '-60px' })
 
   return (
     <motion.div
@@ -40,7 +40,7 @@ function BenefitCard({ icon: Icon, title, description, index }: { icon: typeof b
 
 export default function Benefits({ dir }: { dir: MutableRefObject<'down' | 'up'> }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, margin: '-100px' })
+  const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
     <section className="py-20 md:py-28" id="benefits">

@@ -14,7 +14,7 @@ const steps = [
 
 function StepCard({ icon: Icon, title, description, index }: { icon: typeof steps[0]['icon']; title: string; description: string; index: number }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, margin: '-80px' })
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
     <motion.div
@@ -43,7 +43,7 @@ function StepCard({ icon: Icon, title, description, index }: { icon: typeof step
 
 export default function HowItWorks({ dir }: { dir: MutableRefObject<'down' | 'up'> }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, margin: '-100px' })
+  const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
     <section className="py-20 md:py-28">

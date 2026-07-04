@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     description: 'Building a global coworking platform from Gaza, connecting people, ideas, and opportunities worldwide.',
     url: 'https://coworkspace-pied.vercel.app/about',
     siteName: 'Deskora',
-    images: [{ url: '/logo.png', width: 1024, height: 1024 }],
+    images: [{ url: '/logo.webp', width: 1024, height: 1024 }],
   },
 }
 
