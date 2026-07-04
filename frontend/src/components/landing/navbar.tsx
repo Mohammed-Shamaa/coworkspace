@@ -12,7 +12,7 @@ export default function Navbar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 border-b border-blue-100/30 bg-white/70 shadow-sm shadow-blue-500/5 backdrop-blur-xl dark:border-blue-900/20 dark:bg-gray-950/70 dark:shadow-none"
+      className="fixed top-0 left-0 right-0 z-50 border-b border-blue-100/30 bg-blue-50/60 shadow-sm shadow-blue-500/5 backdrop-blur-xl dark:border-blue-900/20 dark:bg-gray-950/70 dark:shadow-none"
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
