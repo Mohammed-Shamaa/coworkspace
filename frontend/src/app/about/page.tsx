@@ -58,7 +58,7 @@ function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
             scale: 1.02,
             textShadow: '0 0 30px rgba(59,130,246,0.5), 0 0 60px rgba(59,130,246,0.2)',
           }}
-          className="text-center text-2xl font-bold leading-snug text-gray-900 md:text-3xl lg:text-4xl dark:text-gray-100"
+          className="whitespace-nowrap text-center text-xl font-bold leading-snug text-gray-900 md:text-2xl lg:text-3xl dark:text-gray-100"
         >
           &ldquo;Deskora transformed how we manage our coworking space&rdquo;
         </motion.div>
