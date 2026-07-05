@@ -31,27 +31,27 @@
   }
 
   .dark {
-    --page-bg: #121212;
-    --card-bg: #1E1E2E;
-    --card-border: #2D2D3D;
-    --text-primary: #C0C0E0;
-    --text-secondary: #9999BB;
-    --input-bg: #2A2A3A;
-    --input-border: #3A3A4A;
-    --datagrid-header: #1565C0;
-    --datagrid-alt: #252535;
-    --success-bg: #1B3A1B;
+    --page-bg: #0a0e27;
+    --card-bg: #111432;
+    --card-border: #1a1f4a;
+    --text-primary: #e0e0f0;
+    --text-secondary: #9098c0;
+    --input-bg: #111432;
+    --input-border: #1a1f4a;
+    --datagrid-header: #0d47a1;
+    --datagrid-alt: #0f1230;
+    --success-bg: #0a2e1a;
     --success-text: #81C784;
-    --error-bg: #3A1B1B;
+    --error-bg: #2e0a0a;
     --error-text: #EF9A9A;
     --navy: #5C6BC0;
     --green: #81C784;
     --purple: #CE93D8;
     --red: #EF9A9A;
     --orange: #FFB74D;
-    --sidebar-bg: #0D0D1A;
-    --sidebar-hover: #1A1A3A;
-    --sidebar-active: #1A1A3A;
+    --sidebar-bg: #080c20;
+    --sidebar-hover: #0f1435;
+    --sidebar-active: #0f1435;
     --sidebar-text: #ffffff;
     --sidebar-text-muted: #90CAF9;
   }

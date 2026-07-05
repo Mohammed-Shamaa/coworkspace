@@ -22,7 +22,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-              className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl"
+              className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-[var(--text-primary)]"
             >
               Manage Your Coworking Space{' '}
               <span className="text-[#1565C0]">Efficiently</span>
@@ -32,7 +32,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-              className="mt-6 text-lg leading-relaxed text-gray-500 md:text-xl"
+              className="mt-6 text-lg leading-relaxed text-gray-500 md:text-xl dark:text-[var(--text-secondary)]"
             >
               Streamline member management, track attendance, handle reservations, and grow your coworking business — all from one powerful platform.
             </motion.p>
@@ -51,7 +51,7 @@ export default function Hero() {
               </Link>
               <Link
                 href="/auth/login"
-                className="rounded-xl border border-gray-200 bg-white px-8 py-3.5 text-base font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
+                className="rounded-xl border border-gray-200 bg-white px-8 py-3.5 text-base font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)] dark:hover:border-blue-900"
               >
                 Sign In
               </Link>
@@ -65,8 +65,8 @@ export default function Hero() {
             className="relative hidden md:block"
           >
             <div className="relative">
-              <div className="rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl shadow-gray-200/50">
-                <div className="rounded-xl bg-gradient-to-br from-[#1565C0]/5 to-blue-50 p-6">
+              <div className="rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl shadow-gray-200/50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:shadow-gray-950/50">
+                <div className="rounded-xl bg-gradient-to-br from-[#1565C0]/5 to-blue-50 p-6 dark:from-[#1565C0]/10 dark:to-blue-950/30">
                   <div className="mb-4 flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full bg-red-400" />
                     <div className="h-3 w-3 rounded-full bg-yellow-400" />

@@ -8,7 +8,7 @@ export default function CTASection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section className="border-t border-gray-100 py-20 md:py-28">
+    <section className="border-t border-gray-100 py-20 md:py-28 dark:border-[var(--card-border)]">
       <div className="mx-auto max-w-7xl px-6">
         <motion.div
           ref={ref}

@@ -27,12 +27,12 @@ function StepCard({ icon: Icon, title, description, index }: { icon: typeof step
           <Icon size={22} />
         </div>
         {index < steps.length - 1 && (
-          <div className="mt-2 w-0.5 flex-1 bg-gradient-to-b from-blue-200 to-transparent" />
+          <div className="mt-2 w-0.5 flex-1 bg-gradient-to-b from-blue-200 to-transparent dark:from-blue-800" />
         )}
       </div>
       <div className="pb-12 pt-1">
-        <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-gray-500">{description}</p>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{title}</h3>
+        <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-[var(--text-secondary)]">{description}</p>
       </div>
     </motion.div>
   )
@@ -53,8 +53,8 @@ export default function HowItWorks() {
           className="mx-auto max-w-2xl text-center"
         >
           <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">How It Works</span>
-          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl">Get started in four simple steps</h2>
-          <p className="mt-4 text-lg text-gray-500">From setup to full operation — fast and frictionless.</p>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">Get started in four simple steps</h2>
+          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">From setup to full operation — fast and frictionless.</p>
         </motion.div>
 
         <div className="mx-auto mt-16 max-w-2xl">

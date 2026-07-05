@@ -22,14 +22,14 @@ function BenefitCard({ icon: Icon, title, description, index }: { icon: typeof b
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       transition={{ duration: 0.4, delay: index * 0.08, ease: 'easeOut' }}
-      className="flex gap-5 rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-md"
+      className="flex gap-5 rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-md dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:hover:border-blue-900"
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#1565C0]">
         <Icon size={20} />
       </div>
       <div>
-        <h3 className="font-bold text-gray-900">{title}</h3>
-        <p className="mt-1 text-sm leading-relaxed text-gray-500">{description}</p>
+        <h3 className="font-bold text-gray-900 dark:text-[var(--text-primary)]">{title}</h3>
+        <p className="mt-1 text-sm leading-relaxed text-gray-500 dark:text-[var(--text-secondary)]">{description}</p>
       </div>
     </motion.div>
   )
@@ -50,8 +50,8 @@ export default function Benefits() {
           className="mx-auto max-w-2xl text-center"
         >
           <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">Benefits</span>
-          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl">Why coworking spaces choose us</h2>
-          <p className="mt-4 text-lg text-gray-500">Built for real workspaces. Trusted by growing teams.</p>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">Why coworking spaces choose us</h2>
+          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">Built for real workspaces. Trusted by growing teams.</p>
         </motion.div>
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

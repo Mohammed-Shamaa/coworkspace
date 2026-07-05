@@ -47,7 +47,7 @@ function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
   const isInView = useInView(ref, { once: true })
 
   return (
-    <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-gray-800 dark:bg-gray-950/50">
+      <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
       <div className="mx-auto max-w-5xl px-6">
         <motion.div
           ref={ref}
@@ -58,7 +58,7 @@ function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
             scale: 1.02,
             textShadow: '0 0 30px rgba(59,130,246,0.5), 0 0 60px rgba(59,130,246,0.2)',
           }}
-          className="whitespace-nowrap text-center text-xl font-bold leading-snug text-gray-900 md:text-2xl lg:text-3xl dark:text-gray-100"
+          className="whitespace-nowrap text-center text-xl font-bold leading-snug text-gray-900 md:text-2xl lg:text-3xl dark:text-[var(--text-primary)]"
         >
           &ldquo;Deskora transformed how we manage our coworking space&rdquo;
         </motion.div>
@@ -73,7 +73,7 @@ function SectionHeading({ label, title }: { label: string; title: string }) {
       <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0] dark:bg-blue-950">
         {label}
       </span>
-      <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-gray-100">{title}</h2>
+      <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{title}</h2>
     </div>
   )
 }
@@ -84,7 +84,7 @@ export default function AboutPage() {
   const isTextInView = useInView(textRef, { once: false })
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-[var(--page-bg)]">
       {/* Hero */}
       <section className="relative h-[45vh] min-h-[320px] w-full overflow-hidden md:h-[65vh] md:min-h-[420px]">
         <div className="absolute inset-0 z-10 bg-black/30" />
@@ -96,7 +96,7 @@ export default function AboutPage() {
           Back to Home
         </Link>
         <Image
-          src="/PIC.webp"
+          src="/hero-bg-no-text_1.png"
           alt="Deskora - Global coworking platform"
           fill
           className="object-cover"
@@ -116,7 +116,7 @@ export default function AboutPage() {
             Building the Future of Workspaces from Gaza to the World
           </motion.h1>
         </div>
-        <div className="absolute inset-x-0 bottom-0 z-10 h-1/2 bg-gradient-to-t from-white via-white/60 to-transparent dark:from-gray-950 dark:via-gray-950/60" />
+        <div className="absolute inset-x-0 bottom-0 z-10 h-1/2 bg-gradient-to-t from-white via-white/60 to-transparent dark:from-[var(--page-bg)] dark:via-[var(--page-bg)]/60" />
       </section>
 
       {/* Personal Story */}
@@ -126,16 +126,16 @@ export default function AboutPage() {
             <SectionHeading label="My Story" title="A journey of resilience and vision" />
           </FadeIn>
           <FadeIn delay={0.1}>
-            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10 dark:border-gray-800 dark:bg-gray-900">
-              <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
+            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)]">
+              <p className="text-lg leading-relaxed text-gray-700 dark:text-[var(--text-primary)]">
                 I am a Software Engineer from Gaza, 22 years old, passionate about building scalable digital products
                 that solve real-world problems.
               </p>
-              <p className="mt-5 text-lg leading-relaxed text-gray-600 dark:text-gray-400">
+              <p className="mt-5 text-lg leading-relaxed text-gray-600 dark:text-[var(--text-secondary)]">
                 This platform is built with a vision to create a global coworking ecosystem that empowers freelancers,
                 teams, and entrepreneurs to collaborate seamlessly from anywhere in the world.
               </p>
-              <p className="mt-5 text-lg leading-relaxed text-gray-600 dark:text-gray-400">
+              <p className="mt-5 text-lg leading-relaxed text-gray-600 dark:text-[var(--text-secondary)]">
                 Despite the challenges, I believe in technology as a bridge between people, and this project represents
                 my journey toward that vision.
               </p>
@@ -145,7 +145,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission */}
-      <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-gray-800 dark:bg-gray-950/50">
+    <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
         <div className="mx-auto max-w-6xl px-6">
           <FadeIn>
             <SectionHeading label="Mission" title="What drives this platform" />
@@ -153,12 +153,12 @@ export default function AboutPage() {
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {missions.map((mission, i) => (
               <FadeIn key={mission.title} delay={0.05 * i}>
-                <div className="group rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-lg hover:shadow-blue-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-900">
+                <div className="group rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-lg hover:shadow-blue-50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:hover:border-blue-900">
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#1565C0] transition-colors group-hover:bg-[#1565C0] group-hover:text-white dark:bg-blue-950 dark:text-blue-400">
                     <mission.icon size={24} />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{mission.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">{mission.description}</p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{mission.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-[var(--text-secondary)]">{mission.description}</p>
                 </div>
               </FadeIn>
             ))}
@@ -177,12 +177,12 @@ export default function AboutPage() {
           </FadeIn>
           <div className="mt-14 grid gap-6 md:grid-cols-2">
             <FadeIn delay={0.1}>
-              <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
+              <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm transition-all hover:shadow-md dark:border-[var(--card-border)] dark:bg-[var(--card-bg)]">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#0A66C2]/10 text-[#0A66C2]">
                   <LinkedInIcon size={28} />
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-gray-100">LinkedIn</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Let's connect professionally</p>
+                <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">LinkedIn</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-[var(--text-secondary)]">Let's connect professionally</p>
                 <a
                   href="https://www.linkedin.com/in/mohammed-sham3a/"
                   target="_blank"
@@ -196,12 +196,12 @@ export default function AboutPage() {
             </FadeIn>
 
             <FadeIn delay={0.2}>
-              <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
+              <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm transition-all hover:shadow-md dark:border-[var(--card-border)] dark:bg-[var(--card-bg)]">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#25D366]/10 text-[#25D366]">
                   <WhatsAppIcon size={28} />
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-gray-100">WhatsApp</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">+972597744476</p>
+                <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">WhatsApp</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-[var(--text-secondary)]">+972597744476</p>
                 <a
                   href="https://wa.me/972597744476"
                   target="_blank"
