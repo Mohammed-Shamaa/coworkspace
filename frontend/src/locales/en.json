@@ -175,7 +175,8 @@
     "hasAccount": "Already have an account?",
     "signInLink": "Sign In",
     "registrationFailed": "Registration failed",
-    "subdomainPlaceholder": "your-company"
+    "subdomainPlaceholder": "your-company",
+    "redirecting": "Redirecting..."
   },
   "notifications": {
     "memberCreated": "Member registered successfully!",

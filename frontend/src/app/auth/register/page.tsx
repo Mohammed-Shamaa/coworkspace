@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 import { LanguageProvider } from '@/lib/language-provider'
+import AuthBackground from '@/components/auth-background'
 import { AlertCircle } from 'lucide-react'
 
 interface FieldErrors {
@@ -26,6 +27,15 @@ function RegisterForm() {
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [subdomain, setSubdomain] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [country, setCountry] = useState('')
+  const [city, setCity] = useState('')
+  const [fullAddress, setFullAddress] = useState('')
+  const [workspaceCapacity, setWorkspaceCapacity] = useState('')
+  const [numberOfOffices, setNumberOfOffices] = useState('')
+  const [numberOfMeetingRooms, setNumberOfMeetingRooms] = useState('')
+  const [numberOfDesks, setNumberOfDesks] = useState('')
+  const [workspaceDescription, setWorkspaceDescription] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [loading, setLoading] = useState(false)
@@ -53,7 +63,18 @@ function RegisterForm() {
 
     setLoading(true)
     try {
-      await register({ email, password, fullName, companyName, subdomain: subdomain.toLowerCase() })
+      await register({
+        email, password, fullName, companyName, subdomain: subdomain.toLowerCase(),
+        phoneNumber: phoneNumber || undefined,
+        country: country || undefined,
+        city: city || undefined,
+        fullAddress: fullAddress || undefined,
+        workspaceCapacity: workspaceCapacity ? parseInt(workspaceCapacity) : undefined,
+        numberOfOffices: numberOfOffices ? parseInt(numberOfOffices) : undefined,
+        numberOfMeetingRooms: numberOfMeetingRooms ? parseInt(numberOfMeetingRooms) : undefined,
+        numberOfDesks: numberOfDesks ? parseInt(numberOfDesks) : undefined,
+        workspaceDescription: workspaceDescription || undefined,
+      })
       router.push('/dashboard')
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string; title?: string; errors?: Record<string, string[]> } }; message?: string }
@@ -117,8 +138,23 @@ function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--page-bg)] p-4">
-      <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-8 w-full max-w-md">
+    <div className="relative min-h-screen flex items-center justify-center bg-[var(--page-bg)] p-4">
+      <AuthBackground />
+      <nav className="absolute left-6 top-6 flex items-center gap-2">
+        <Link
+          href="/"
+          className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:scale-[1.02] hover:bg-blue-50 hover:text-[#1565C0] dark:text-gray-400 dark:hover:bg-blue-950 dark:hover:text-blue-400"
+        >
+          Home
+        </Link>
+        <Link
+          href="/about"
+          className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:scale-[1.02] hover:bg-blue-50 hover:text-[#1565C0] dark:text-gray-400 dark:hover:bg-blue-950 dark:hover:text-blue-400"
+        >
+          About Us
+        </Link>
+      </nav>
+      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-2xl border border-white/30 dark:border-white/10 shadow-xl shadow-black/5 p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('auth.registerTitle')}</h1>
           <p className="text-[var(--text-secondary)] text-sm">{t('auth.registerSubtitle')}</p>
@@ -137,6 +173,31 @@ function RegisterForm() {
           {renderField('fullName', t('auth.fullName'), 'text', fullName, setFullName, 'John Doe')}
           {renderField('email', t('auth.emailLabel'), 'email', email, setEmail, 'name@example.com')}
           {renderField('password', t('auth.passwordLabel'), 'password', password, setPassword, 'Create a strong password', { minLength: 6 })}
+
+          <details className="group">
+            <summary className="cursor-pointer text-sm font-medium text-[#1565C0] hover:text-[#1976D2] dark:text-blue-400 dark:hover:text-blue-300 select-none">
+              Company Details (Optional)
+            </summary>
+            <div className="mt-3 space-y-4">
+              {renderField('phoneNumber', 'Phone Number', 'tel', phoneNumber, setPhoneNumber, '+1 (555) 123-4567')}
+              <div className="grid grid-cols-2 gap-3">
+                {renderField('country', 'Country', 'text', country, setCountry, 'Country')}
+                {renderField('city', 'City', 'text', city, setCity, 'City')}
+              </div>
+              <div className="col-span-2">
+                {renderField('fullAddress', 'Full Address', 'text', fullAddress, setFullAddress, '123 Business Street')}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {renderField('workspaceCapacity', 'Workspace Capacity', 'number', workspaceCapacity, setWorkspaceCapacity, 'e.g. 50')}
+                {renderField('numberOfOffices', 'Offices', 'number', numberOfOffices, setNumberOfOffices, 'e.g. 5')}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {renderField('numberOfMeetingRooms', 'Meeting Rooms', 'number', numberOfMeetingRooms, setNumberOfMeetingRooms, 'e.g. 3')}
+                {renderField('numberOfDesks', 'Desks', 'number', numberOfDesks, setNumberOfDesks, 'e.g. 30')}
+              </div>
+              {renderField('workspaceDescription', 'Description', 'text', workspaceDescription, setWorkspaceDescription, 'Brief description of your workspace...')}
+            </div>
+          </details>
 
           {fieldErrors.general && fieldErrors.general.length > 0 && (
             <div className="bg-[#FFEBEE] dark:bg-[#3A1B1B] p-3 rounded text-sm text-[#C62828] dark:text-[#EF9A9A]">

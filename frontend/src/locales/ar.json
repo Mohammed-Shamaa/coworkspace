@@ -175,7 +175,8 @@
     "hasAccount": "لديك حساب بالفعل؟",
     "signInLink": "تسجيل الدخول",
     "registrationFailed": "فشل التسجيل",
-    "subdomainPlaceholder": "your-company"
+    "subdomainPlaceholder": "your-company",
+    "redirecting": "جارٍ التحويل..."
   },
   "notifications": {
     "memberCreated": "تم تسجيل العضو بنجاح!",

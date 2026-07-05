@@ -142,3 +142,5 @@ export interface CreateMemberRequest {
   deskNumber: string
   monthlyFee: number
 }
+
+

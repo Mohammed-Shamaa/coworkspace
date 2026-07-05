@@ -209,7 +209,7 @@ export default api
 export const authApi = {
   login: (email: string, password: string) =>
     api.post('/auth/login', { email, password }),
-  register: (data: { email: string; password: string; fullName: string; companyName: string; subdomain: string }) =>
+  register: (data: Record<string, unknown>) =>
     api.post('/auth/register', data),
   getMe: () => api.get('/auth/me'),
 }
@@ -258,3 +258,4 @@ export const meetingRoomApi = {
   getStats: () => api.get('/meetingroom/stats'),
   getUpcoming: () => api.get('/meetingroom/upcoming'),
 }
+

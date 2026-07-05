@@ -11,8 +11,8 @@ interface AuthContextType {
   onboardingCompleted: boolean | null
   checkOnboardingStatus: () => Promise<void>
   refreshTenant: () => Promise<void>
-  login: (email: string, password: string) => Promise<void>
-  register: (data: { email: string; password: string; fullName: string; companyName: string; subdomain: string }) => Promise<void>
+  login: (email: string, password: string) => Promise<AuthResponse>
+  register: (data: Record<string, unknown>) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
 }
@@ -133,9 +133,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const res = await api.post('/auth/login', { email: email.trim(), password })
     handleAuthResponse(res.data)
+    return res.data
   }
 
-  const register = async (data: { email: string; password: string; fullName: string; companyName: string; subdomain: string }) => {
+  const register = async (data: Record<string, unknown>) => {
     const res = await api.post('/auth/register', data)
     handleAuthResponse(res.data)
   }
