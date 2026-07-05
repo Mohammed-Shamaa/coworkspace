@@ -87,7 +87,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white dark:bg-[var(--page-bg)]">
       {/* Hero */}
       <section className="relative h-[45vh] min-h-[320px] w-full overflow-hidden md:h-[65vh] md:min-h-[420px]">
-        <div className="absolute inset-0 z-10 bg-black/30" />
+        <div className="absolute inset-0 z-10 bg-black/10" />
         <Link
           href="/"
           className="absolute left-4 top-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20 md:left-6 md:top-6 md:gap-2 md:px-4 md:text-sm"
