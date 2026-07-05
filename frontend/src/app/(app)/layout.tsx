@@ -52,7 +52,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <OnboardingCheck>
           <div className="flex min-h-screen bg-[var(--page-bg)]">
             <Sidebar />
-            <main className="flex-1 p-6 overflow-auto">
+            <main className="flex-1 p-3 md:p-6 overflow-auto">
               <ErrorBoundary>
                 <AnimatePresence mode="popLayout">
                   <motion.div

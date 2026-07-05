@@ -51,7 +51,7 @@ function LoginForm() {
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[var(--page-bg)]">
       <AuthBackground />
-      <nav className="absolute left-6 top-6 flex items-center gap-2">
+      <nav className="absolute left-2 md:left-6 top-3 md:top-6 flex items-center gap-1 md:gap-2">
         <Link
           href="/"
           className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:scale-[1.02] hover:bg-blue-50 hover:text-[#1565C0] dark:text-gray-400 dark:hover:bg-blue-950 dark:hover:text-blue-400"
@@ -65,7 +65,7 @@ function LoginForm() {
           About Us
         </Link>
       </nav>
-      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-2xl border border-white/30 dark:border-white/10 shadow-xl shadow-black/5 p-8 w-96">
+      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-2xl border border-white/30 dark:border-white/10 shadow-xl shadow-black/5 p-6 md:p-8 w-full max-w-sm mx-4">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('auth.loginTitle')}</h1>
           <p className="text-[var(--text-secondary)] text-sm">{t('auth.loginSubtitle')}</p>
@@ -91,7 +91,7 @@ function LoginForm() {
 
         <p className="text-center text-sm text-[var(--text-secondary)] mt-4">
           {t('auth.noAccount')}{' '}
-          <Link href="/auth/register" className="text-[#1565C0] font-semibold hover:underline">
+          <Link href="/auth/register" className="text-[#1565C0] font-semibold hover:underline whitespace-nowrap">
             {t('auth.register')}
           </Link>
         </p>

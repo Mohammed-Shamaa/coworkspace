@@ -114,7 +114,7 @@ export default function DashboardHome() {
       {dashboard && (
         <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-5 mb-6">
           <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">{t('dashboard.overview')}</h2>
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {cards.map((card, i) => (
               <DashboardCard key={i} {...card} />
             ))}
@@ -132,14 +132,14 @@ export default function DashboardHome() {
           <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">{t('dashboard.recentRegistrations')}</h2>
           <div className="space-y-2">
             {dashboard.recentRegistrations.slice(0, 5).map((reg) => (
-              <div key={reg.id} className="flex items-center justify-between py-2 border-b border-[var(--card-border)] last:border-0">
-                <div>
-                  <span className="font-medium text-[var(--text-primary)]">{reg.fullName}</span>
-                  <span className="text-xs text-[var(--text-secondary)] ml-2">
+              <div key={reg.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-[var(--card-border)] last:border-0 gap-1">
+                <div className="min-w-0">
+                  <span className="font-medium text-[var(--text-primary)] truncate block">{reg.fullName}</span>
+                  <span className="text-xs text-[var(--text-secondary)]">
                     ({reg.memberType === 'RemoteWorker' ? t('dashboard.worker') : reg.memberType})
                   </span>
                 </div>
-                <div className="text-sm text-[var(--text-secondary)]">
+                <div className="text-sm text-[var(--text-secondary)] shrink-0">
                   {formatDate(reg.registrationDate)} - {formatCurrency(reg.monthlyFee)}{t('dashboard.perMonth')}
                 </div>
               </div>

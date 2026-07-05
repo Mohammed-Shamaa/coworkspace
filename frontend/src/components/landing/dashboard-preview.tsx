@@ -68,7 +68,7 @@ export default function DashboardPreview() {
                 </ResponsiveContainer>
               </div>
 
-              <div className="mt-6 grid grid-cols-3 gap-4 border-t border-gray-100 pt-6 dark:border-[var(--card-border)]">
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-gray-100 pt-6 dark:border-[var(--card-border)]">
                 <div>
                   <p className="text-xs font-medium text-gray-400">Total Revenue</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-[var(--text-primary)]">$10,100</p>

@@ -36,13 +36,13 @@ export default function Sidebar() {
   }, [tenant?.hasMeetingRoom])
 
   return (
-    <aside className="w-64 min-h-screen bg-[#1A237E] text-white flex flex-col shrink-0">
-      <div className="p-6 border-b border-[#283593]">
-        <h1 className="text-xl font-bold">{tenant?.companyName || 'Coworkspace'}</h1>
-        <p className="text-xs text-blue-200 mt-1">{t('sidebar.membershipManager')}</p>
+    <aside className="w-16 md:w-64 min-h-screen bg-[#1A237E] text-white flex flex-col shrink-0">
+      <div className="p-3 md:p-6 border-b border-[#283593]">
+        <h1 className="text-xs md:text-xl font-bold text-center md:text-left truncate">{tenant?.companyName?.[0] || 'C'}</h1>
+        <p className="hidden md:block text-xs text-blue-200 mt-1">{t('sidebar.membershipManager')}</p>
       </div>
 
-      <nav className="flex-1 py-4">
+      <nav className="flex-1 py-2 md:py-4">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
@@ -51,39 +51,39 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors',
+                'flex items-center justify-center md:justify-start gap-3 px-2 md:px-6 py-3 text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-[#283593] text-white border-r-4 border-[#1565C0]'
+                  ? 'bg-[#283593] text-white md:border-r-4 md:border-[#1565C0]'
                   : 'text-blue-200 hover:bg-[#283593] hover:text-white'
               )}
             >
               <Icon size={18} />
-              {t(item.labelKey)}
+              <span className="hidden md:inline">{t(item.labelKey)}</span>
             </Link>
           )
         })}
       </nav>
 
-      <div className="p-4 border-t border-[#283593]">
-        <div className="text-xs text-blue-200 mb-2">{tenant?.companyName}</div>
+      <div className="p-2 md:p-4 border-t border-[#283593]">
+        <div className="hidden md:block text-xs text-blue-200 mb-2">{tenant?.companyName}</div>
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer"
+          className="flex items-center justify-center md:justify-start gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer"
         >
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          {t('common.' + (theme === 'dark' ? 'lightMode' : 'darkMode'))}
+          <span className="hidden md:inline">{t('common.' + (theme === 'dark' ? 'lightMode' : 'darkMode'))}</span>
         </button>
         <button
           onClick={() => i18n.changeLanguage(i18n.language === 'ar' ? 'en' : 'ar')}
-          className="flex items-center gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer mt-2"
+          className="flex items-center justify-center md:justify-start gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer mt-2"
         >
-          <Globe size={16} /> {i18n.language === 'ar' ? 'English' : 'العربية'}
+          <Globe size={16} /> <span className="hidden md:inline">{i18n.language === 'ar' ? 'English' : 'العربية'}</span>
         </button>
         <button
           onClick={logout}
-          className="flex items-center gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer mt-2"
+          className="flex items-center justify-center md:justify-start gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer mt-2"
         >
-          <LogOut size={16} /> {t('sidebar.signOut')}
+          <LogOut size={16} /> <span className="hidden md:inline">{t('sidebar.signOut')}</span>
         </button>
       </div>
     </aside>
