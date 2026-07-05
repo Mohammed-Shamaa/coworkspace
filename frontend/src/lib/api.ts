@@ -209,7 +209,7 @@ export default api
 export const authApi = {
   login: (email: string, password: string) =>
     api.post('/auth/login', { email, password }),
-  register: (data: { email: string; password: string; fullName: string; companyName: string; subdomain: string }) =>
+  register: (data: Record<string, unknown>) =>
     api.post('/auth/register', data),
   getMe: () => api.get('/auth/me'),
 }
@@ -257,4 +257,23 @@ export const meetingRoomApi = {
   delete: (id: number) => api.delete(`/meetingroom/${id}`),
   getStats: () => api.get('/meetingroom/stats'),
   getUpcoming: () => api.get('/meetingroom/upcoming'),
+}
+
+export const adminApi = {
+  getDashboard: () => api.get('/admin/dashboard'),
+  getPendingCompanies: () => api.get('/admin/companies/pending'),
+  getApprovedCompanies: () => api.get('/admin/companies/approved'),
+  getRejectedCompanies: () => api.get('/admin/companies/rejected'),
+  getCompanyDetail: (id: number) => api.get(`/admin/companies/${id}`),
+  approveCompany: (id: number) => api.post(`/admin/companies/${id}/approve`),
+  rejectCompany: (id: number, data?: { reason?: string }) => api.post(`/admin/companies/${id}/reject`, data),
+  suspendCompany: (id: number) => api.post(`/admin/companies/${id}/suspend`),
+  activateCompany: (id: number) => api.post(`/admin/companies/${id}/activate`),
+  editCompany: (id: number, data: Record<string, unknown>) => api.put(`/admin/companies/${id}`, data),
+  deleteCompany: (id: number) => api.delete(`/admin/companies/${id}`),
+  getPayments: () => api.get('/admin/payments'),
+  updatePaymentStatus: (id: number, data: { paymentStatus: string }) => api.put(`/admin/payments/${id}/status`, data),
+  getAuditLogs: (params?: { page?: number; pageSize?: number; action?: string; search?: string }) =>
+    api.get('/admin/audit-logs', { params }),
+  getAuditLogActions: () => api.get('/admin/audit-logs/actions'),
 }

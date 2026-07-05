@@ -13,6 +13,17 @@ public class RegisterRequest
     [Required] [MaxLength(200)] public string FullName { get; set; } = string.Empty;
     [Required] [MaxLength(200)] public string CompanyName { get; set; } = string.Empty;
     [Required] [MaxLength(100)] public string Subdomain { get; set; } = string.Empty;
+    [MaxLength(50)] public string? PhoneNumber { get; set; }
+    [MaxLength(100)] public string? Country { get; set; }
+    [MaxLength(100)] public string? City { get; set; }
+    [MaxLength(500)] public string? FullAddress { get; set; }
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
+    public int? WorkspaceCapacity { get; set; }
+    public int? NumberOfOffices { get; set; }
+    public int? NumberOfMeetingRooms { get; set; }
+    public int? NumberOfDesks { get; set; }
+    [MaxLength(2000)] public string? WorkspaceDescription { get; set; }
 }
 
 public class LoginRequest
@@ -60,4 +71,5 @@ public class TenantInfo
     public string PrimaryColor { get; set; } = "#1565C0";
     public string CompanyName { get; set; } = string.Empty;
     public bool HasMeetingRoom { get; set; }
+    public string Status { get; set; } = "Pending";
 }

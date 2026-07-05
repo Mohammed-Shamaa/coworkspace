@@ -28,8 +28,12 @@ function LoginForm() {
     }
     setLoading(true)
     try {
-      await login(email, password)
-      router.push('/dashboard')
+      const data = await login(email, password)
+      if (data.tenant?.status === 'Pending') {
+        router.push('/pending-approval')
+      } else {
+        router.push('/dashboard')
+      }
     } catch (err: unknown) {
       const apiErr = err as { apiError?: { status: number; message: string; code?: string }; code?: string; response?: { status?: number; data?: { message?: string; title?: string } } }
       if (apiErr.apiError) {

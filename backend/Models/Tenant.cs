@@ -40,6 +40,40 @@ public class Tenant
     public TimeSpan? OpeningTime { get; set; }
     public TimeSpan? ClosingTime { get; set; }
 
+    // Admin registration fields
+    public TenantStatus Status { get; set; } = TenantStatus.Pending;
+    [MaxLength(200)]
+    public string? Email { get; set; }
+    [MaxLength(200)]
+    public string? OwnerName { get; set; }
+    [MaxLength(50)]
+    public string? PhoneNumber { get; set; }
+    [MaxLength(100)]
+    public string? Country { get; set; }
+    [MaxLength(100)]
+    public string? City { get; set; }
+    [MaxLength(500)]
+    public string? FullAddress { get; set; }
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
+    public int? WorkspaceCapacity { get; set; }
+    public int? NumberOfOffices { get; set; }
+    public int? NumberOfMeetingRooms { get; set; }
+    public int? NumberOfDesks { get; set; }
+    [MaxLength(2000)]
+    public string? WorkspaceDescription { get; set; }
+    public DateTime? ApprovalDate { get; set; }
+    public int? ApprovedByUserId { get; set; }
+    public string? RejectionReason { get; set; }
+    [MaxLength(20)]
+    public string? PaymentStatus { get; set; } = "Unpaid";
+    public string? SubscriptionPlan { get; set; }
+    public DateTime? LastPaymentDate { get; set; }
+    public DateTime? NextDueDate { get; set; }
+
+    [ForeignKey(nameof(ApprovedByUserId))]
+    public User? ApprovedByUser { get; set; }
+
     public ICollection<User> Users { get; set; } = new List<User>();
     public ICollection<Member> Members { get; set; } = new List<Member>();
     public ICollection<MeetingRoomReservation> MeetingRoomReservations { get; set; } = new List<MeetingRoomReservation>();

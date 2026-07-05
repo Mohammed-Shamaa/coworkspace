@@ -10,12 +10,12 @@ import '@/lib/i18n'
 import {
   LayoutDashboard, Users, CreditCard, GraduationCap,
   Briefcase, Clock, Settings, LogOut, Globe, Sun, Moon,
-  Presentation
+  Presentation, Shield
 } from 'lucide-react'
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const { tenant, logout } = useAuth()
+  const { tenant, logout, isSuperAdmin } = useAuth()
   const { t, i18n } = useTranslation()
   const { theme, toggleTheme } = useTheme()
 
@@ -32,8 +32,11 @@ export default function Sidebar() {
     if (tenant?.hasMeetingRoom) {
       items.splice(3, 0, { href: '/meeting-room', labelKey: 'sidebar.meetingRoom', icon: Presentation })
     }
+    if (isSuperAdmin) {
+      items.push({ href: '/admin', labelKey: 'Admin Panel', icon: Shield })
+    }
     return items
-  }, [tenant?.hasMeetingRoom])
+  }, [tenant?.hasMeetingRoom, isSuperAdmin])
 
   return (
     <aside className="w-64 min-h-screen bg-[#1A237E] text-white flex flex-col shrink-0">

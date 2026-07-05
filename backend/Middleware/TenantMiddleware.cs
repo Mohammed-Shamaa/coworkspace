@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Coworkspace.API.Data;
+using Coworkspace.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Coworkspace.API.Middleware;
@@ -14,14 +15,24 @@ public class TenantMiddleware
     {
         if (context.User.Identity?.IsAuthenticated == true)
         {
-            var tenantIdClaim = context.User.FindFirst("TenantId")?.Value;
-            if (!string.IsNullOrEmpty(tenantIdClaim) && int.TryParse(tenantIdClaim, out var tenantId))
+            var roleClaim = context.User.FindFirst(ClaimTypes.Role)?.Value;
+            var isSuperAdmin = roleClaim == "SuperAdmin";
+
+            if (isSuperAdmin)
             {
-                context.Items["TenantId"] = tenantId;
+                context.Items["TenantId"] = -1;
+                context.Items["IsSuperAdmin"] = true;
+            }
+            else
+            {
+                var tenantIdClaim = context.User.FindFirst("TenantId")?.Value;
+                if (!string.IsNullOrEmpty(tenantIdClaim) && int.TryParse(tenantIdClaim, out var tenantId))
+                {
+                    context.Items["TenantId"] = tenantId;
+                }
             }
         }
 
-        // Subdomain-based routing header — only query DB if no JWT claim
         var subdomain = context.Request.Headers["X-Tenant-Subdomain"].FirstOrDefault();
         if (!string.IsNullOrEmpty(subdomain) && context.Items["TenantId"] == null)
         {
