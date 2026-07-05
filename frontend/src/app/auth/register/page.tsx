@@ -27,15 +27,6 @@ function RegisterForm() {
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [subdomain, setSubdomain] = useState('')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [country, setCountry] = useState('')
-  const [city, setCity] = useState('')
-  const [fullAddress, setFullAddress] = useState('')
-  const [workspaceCapacity, setWorkspaceCapacity] = useState('')
-  const [numberOfOffices, setNumberOfOffices] = useState('')
-  const [numberOfMeetingRooms, setNumberOfMeetingRooms] = useState('')
-  const [numberOfDesks, setNumberOfDesks] = useState('')
-  const [workspaceDescription, setWorkspaceDescription] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [loading, setLoading] = useState(false)
@@ -65,15 +56,6 @@ function RegisterForm() {
     try {
       await register({
         email, password, fullName, companyName, subdomain: subdomain.toLowerCase(),
-        phoneNumber: phoneNumber || undefined,
-        country: country || undefined,
-        city: city || undefined,
-        fullAddress: fullAddress || undefined,
-        workspaceCapacity: workspaceCapacity ? parseInt(workspaceCapacity) : undefined,
-        numberOfOffices: numberOfOffices ? parseInt(numberOfOffices) : undefined,
-        numberOfMeetingRooms: numberOfMeetingRooms ? parseInt(numberOfMeetingRooms) : undefined,
-        numberOfDesks: numberOfDesks ? parseInt(numberOfDesks) : undefined,
-        workspaceDescription: workspaceDescription || undefined,
       })
       router.push('/dashboard')
     } catch (err: unknown) {
@@ -173,31 +155,6 @@ function RegisterForm() {
           {renderField('fullName', t('auth.fullName'), 'text', fullName, setFullName, 'John Doe')}
           {renderField('email', t('auth.emailLabel'), 'email', email, setEmail, 'name@example.com')}
           {renderField('password', t('auth.passwordLabel'), 'password', password, setPassword, 'Create a strong password', { minLength: 6 })}
-
-          <details className="group">
-            <summary className="cursor-pointer text-sm font-medium text-[#1565C0] hover:text-[#1976D2] dark:text-blue-400 dark:hover:text-blue-300 select-none">
-              Company Details (Optional)
-            </summary>
-            <div className="mt-3 space-y-4">
-              {renderField('phoneNumber', 'Phone Number', 'tel', phoneNumber, setPhoneNumber, '+1 (555) 123-4567')}
-              <div className="grid grid-cols-2 gap-3">
-                {renderField('country', 'Country', 'text', country, setCountry, 'Country')}
-                {renderField('city', 'City', 'text', city, setCity, 'City')}
-              </div>
-              <div className="col-span-2">
-                {renderField('fullAddress', 'Full Address', 'text', fullAddress, setFullAddress, '123 Business Street')}
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {renderField('workspaceCapacity', 'Workspace Capacity', 'number', workspaceCapacity, setWorkspaceCapacity, 'e.g. 50')}
-                {renderField('numberOfOffices', 'Offices', 'number', numberOfOffices, setNumberOfOffices, 'e.g. 5')}
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {renderField('numberOfMeetingRooms', 'Meeting Rooms', 'number', numberOfMeetingRooms, setNumberOfMeetingRooms, 'e.g. 3')}
-                {renderField('numberOfDesks', 'Desks', 'number', numberOfDesks, setNumberOfDesks, 'e.g. 30')}
-              </div>
-              {renderField('workspaceDescription', 'Description', 'text', workspaceDescription, setWorkspaceDescription, 'Brief description of your workspace...')}
-            </div>
-          </details>
 
           {fieldErrors.general && fieldErrors.general.length > 0 && (
             <div className="bg-[#FFEBEE] dark:bg-[#3A1B1B] p-3 rounded text-sm text-[#C62828] dark:text-[#EF9A9A]">

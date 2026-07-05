@@ -230,11 +230,6 @@ export const membersApi = {
   exportExcel: () => api.get('/export/members-excel', { responseType: 'blob' }),
 }
 
-export const paymentsApi = {
-  getAll: (params?: { memberId?: number; page?: number; pageSize?: number }) =>
-    api.get('/payments', { params }),
-}
-
 export const tenantsApi = {
   getSettings: () => api.get('/tenants/settings'),
   updateSettings: (data: { companyName: string; name: string; primaryColor: string; logoUrl: string }) => api.put('/tenants/settings', data),

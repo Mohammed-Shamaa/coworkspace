@@ -82,16 +82,6 @@ export interface RecentRegistration {
   monthlyFee: number
 }
 
-export interface OnboardingInfo {
-  onboardingCompleted: boolean
-  totalDesks: number | null
-  maxCapacity: number | null
-  hasMeetingRoom: boolean
-  address: string
-  openingTime: string | null
-  closingTime: string | null
-}
-
 export interface Reservation {
   id: number
   personName: string

@@ -8,7 +8,6 @@ import { Select } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import MembersTable from '@/components/members-table'
 import EditMemberModal from '@/components/edit-member-modal'
-import MemberDetailModal from '@/components/member-detail-modal'
 import { membersApi } from '@/lib/api'
 import type { Member } from '@/types'
 
@@ -29,8 +28,6 @@ function MembersPageContent() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [editMember, setEditMember] = useState<Member | null>(null)
   const [showEdit, setShowEdit] = useState(false)
-  const [showDetail, setShowDetail] = useState(false)
-  const [detailId] = useState<number | null>(null)
 
   const debouncedSearch = useDebounce(search, 300)
 
@@ -145,11 +142,6 @@ function MembersPageContent() {
         onClose={() => setShowEdit(false)}
         member={editMember}
         onSuccess={loadMembers}
-      />
-      <MemberDetailModal
-        isOpen={showDetail}
-        onClose={() => setShowDetail(false)}
-        memberId={detailId}
       />
     </div>
   )
