@@ -8,7 +8,7 @@ export default function AdminSettings() {
   const [copied, setCopied] = useState(false)
 
   const copyEmail = () => {
-    navigator.clipboard.writeText('Admin2004@gmail.com')
+    navigator.clipboard.writeText('admin@deskora.com')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -38,7 +38,7 @@ export default function AdminSettings() {
             <div>
               <p className="text-xs text-[var(--text-secondary)]">Email</p>
               <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-[var(--text-primary)]">Admin2004@gmail.com</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">admin@deskora.com</p>
                 <button onClick={copyEmail} className="text-xs text-[#1565C0] hover:underline">
                   {copied ? 'Copied!' : 'Copy'}
                 </button>

@@ -443,10 +443,19 @@ CREATE INDEX IF NOT EXISTS "IX_Users_RefreshToken" ON "Users" ("RefreshToken");
     // Seed SuperAdmin account
     try
     {
-        var adminEmail = "Admin2004@gmail.com";
+        var adminEmail = "admin@deskora.com";
+        var oldAdminEmail = "admin2004@gmail.com";
         var adminPassword = "Mohammed+-@@^";
 
-        if (!await db.Users.AnyAsync(u => u.Email == adminEmail.ToLowerInvariant()))
+        // Migrate old admin email to new one if needed
+        var existingOldAdmin = await db.Users.FirstOrDefaultAsync(u => u.Email == oldAdminEmail);
+        if (existingOldAdmin != null)
+        {
+            existingOldAdmin.Email = adminEmail;
+            Console.WriteLine("[Startup] Migrated SuperAdmin email from {0} to {1}", oldAdminEmail, adminEmail);
+        }
+
+        if (!await db.Users.AnyAsync(u => u.Email == adminEmail))
         {
             var platformTenant = await db.Tenants.FirstOrDefaultAsync(t => t.Subdomain == "deskora-admin");
             if (platformTenant == null)
@@ -469,7 +478,7 @@ CREATE INDEX IF NOT EXISTS "IX_Users_RefreshToken" ON "Users" ("RefreshToken");
 
             var adminUser = new Coworkspace.API.Models.User
             {
-                Email = adminEmail.ToLowerInvariant(),
+                Email = adminEmail,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
                 FullName = "Deskora Super Admin",
                 Role = Coworkspace.API.Models.UserRole.SuperAdmin,
