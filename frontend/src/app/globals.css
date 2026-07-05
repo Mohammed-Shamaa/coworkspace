@@ -61,64 +61,6 @@
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-@keyframes navbar-fade {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-navbar {
-  animation: navbar-fade 0.5s ease-out;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  25% { transform: translateY(-14px) rotate(1deg); }
-  75% { transform: translateY(8px) rotate(-1deg); }
-}
-
-@keyframes float-medium {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-10px) rotate(-0.5deg); }
-  66% { transform: translateY(6px) rotate(0.5deg); }
-}
-
-@keyframes float-fast {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-}
-
-.animate-gradient-shift {
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-.animate-float-slow {
-  animation: float-slow 20s ease-in-out infinite;
-}
-
-.animate-float-medium {
-  animation: float-medium 14s ease-in-out infinite;
-}
-
-.animate-float-fast {
-  animation: float-fast 8s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-gradient-shift,
-  .animate-float-slow,
-  .animate-float-medium,
-  .animate-float-fast {
-    animation: none;
-  }
-}
-
 body {
   background-color: var(--page-bg);
   color: var(--text-primary);

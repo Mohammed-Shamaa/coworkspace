@@ -13,12 +13,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
-  images: {
-    formats: ['image/avif', 'image/webp'],
-  },
-  experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
-  },
 };
 
 nextConfig.rewrites = async () => [

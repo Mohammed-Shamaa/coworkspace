@@ -11,11 +11,10 @@ interface AuthContextType {
   onboardingCompleted: boolean | null
   checkOnboardingStatus: () => Promise<void>
   refreshTenant: () => Promise<void>
-  login: (email: string, password: string) => Promise<AuthResponse>
-  register: (data: Record<string, unknown>) => Promise<void>
+  login: (email: string, password: string) => Promise<void>
+  register: (data: { email: string; password: string; fullName: string; companyName: string; subdomain: string }) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
-  isSuperAdmin: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -134,10 +133,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const res = await api.post('/auth/login', { email: email.trim(), password })
     handleAuthResponse(res.data)
-    return res.data
   }
 
-  const register = async (data: Record<string, unknown>) => {
+  const register = async (data: { email: string; password: string; fullName: string; companyName: string; subdomain: string }) => {
     const res = await api.post('/auth/register', data)
     handleAuthResponse(res.data)
   }
@@ -153,8 +151,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/auth/login')
   }
 
-  const isSuperAdmin = user?.role === 'SuperAdmin'
-
   const value = useMemo(() => ({
     user,
     tenant,
@@ -166,8 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     isAuthenticated: !!user,
-    isSuperAdmin,
-  }), [user, tenant, loading, onboardingCompleted, checkOnboardingStatus, refreshTenant, login, register, logout, isSuperAdmin])
+  }), [user, tenant, loading, onboardingCompleted, checkOnboardingStatus, refreshTenant, login, register, logout])
 
   return (
     <AuthContext.Provider value={value}>

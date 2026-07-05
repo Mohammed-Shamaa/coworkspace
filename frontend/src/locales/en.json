@@ -30,7 +30,7 @@
     "membershipManager": "Membership Manager"
   },
   "dashboard": {
-    "title": "Deskora",
+    "title": "Coworkspace",
     "subtitle": "Workspace Management Dashboard",
     "overview": "Overview",
     "students": "Students",
@@ -152,7 +152,7 @@
     "logoPlaceholder": "https://example.com/logo.png"
   },
   "auth": {
-    "loginTitle": "Deskora",
+    "loginTitle": "Coworkspace",
     "loginSubtitle": "Sign in to your account",
     "subdomain": "Subdomain",
     "email": "Email",
@@ -166,7 +166,7 @@
     "registerSubtitle": "Register your coworking space",
     "companyName": "Company Name *",
     "subdomainLabel": "Subdomain *",
-    "subdomainHint": "(your-company.deskora.com)",
+    "subdomainHint": "(your-company.coworkspace.com)",
     "fullName": "Full Name *",
     "emailLabel": "Email *",
     "passwordLabel": "Password *",
@@ -207,7 +207,7 @@
     "onboardingRequired": "Please complete workspace setup first."
   },
   "onboarding": {
-    "title": "Welcome to Deskora",
+    "title": "Welcome to Coworkspace",
     "subtitle": "Let's set up your workspace in just a few steps",
     "step1Title": "Workspace Information",
     "step1Description": "Tell us about your coworking space",

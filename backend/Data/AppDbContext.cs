@@ -22,8 +22,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Tenant>(entity =>
         {
             entity.HasIndex(t => t.Subdomain).IsUnique();
-            entity.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
-            entity.HasOne(t => t.ApprovedByUser).WithMany(u => u.ApprovedTenants).HasForeignKey(t => t.ApprovedByUserId).OnDelete(DeleteBehavior.SetNull);
         });
 
         // User

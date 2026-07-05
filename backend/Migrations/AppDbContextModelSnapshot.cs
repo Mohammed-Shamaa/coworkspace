@@ -287,16 +287,6 @@ namespace Coworkspace.API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("ApprovalDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("ApprovedByUserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("City")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
                     b.Property<TimeSpan?>("ClosingTime")
                         .HasColumnType("TEXT");
 
@@ -305,19 +295,7 @@ namespace Coworkspace.API.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Country")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FullAddress")
-                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("HasMeetingRoom")
@@ -326,18 +304,9 @@ namespace Coworkspace.API.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("LastPaymentDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("Latitude")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("LogoUrl")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("Longitude")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("MaxCapacity")
@@ -348,34 +317,10 @@ namespace Coworkspace.API.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("NextDueDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("NumberOfDesks")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("NumberOfMeetingRooms")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("NumberOfOffices")
-                        .HasColumnType("INTEGER");
-
                     b.Property<bool>("OnboardingCompleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<TimeSpan?>("OpeningTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OwnerName")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PaymentStatus")
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PrimaryColor")
@@ -383,20 +328,9 @@ namespace Coworkspace.API.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("RejectionReason")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Subdomain")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SubscriptionPlan")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("TotalDesks")
@@ -405,16 +339,7 @@ namespace Coworkspace.API.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("WorkspaceCapacity")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("WorkspaceDescription")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ApprovedByUserId");
 
                     b.HasIndex("Subdomain")
                         .IsUnique();
@@ -524,16 +449,6 @@ namespace Coworkspace.API.Migrations
                     b.Navigation("RecordedByUser");
                 });
 
-            modelBuilder.Entity("Coworkspace.API.Models.Tenant", b =>
-                {
-                    b.HasOne("Coworkspace.API.Models.User", "ApprovedByUser")
-                        .WithMany("ApprovedTenants")
-                        .HasForeignKey("ApprovedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("ApprovedByUser");
-                });
-
             modelBuilder.Entity("Coworkspace.API.Models.User", b =>
                 {
                     b.HasOne("Coworkspace.API.Models.Tenant", "Tenant")
@@ -561,8 +476,6 @@ namespace Coworkspace.API.Migrations
 
             modelBuilder.Entity("Coworkspace.API.Models.User", b =>
                 {
-                    b.Navigation("ApprovedTenants");
-
                     b.Navigation("AuditLogs");
 
                     b.Navigation("RecordedPayments");

@@ -110,23 +110,9 @@ public class AuthController : ControllerBase
                 {
                     Name = request.CompanyName,
                     CompanyName = request.CompanyName,
-                    Email = normalizedEmail,
                     Subdomain = request.Subdomain.ToLower(),
                     PrimaryColor = "#1565C0",
-                    IsActive = false,
-                    Status = TenantStatus.Pending,
-                    OwnerName = request.FullName,
-                    PhoneNumber = request.PhoneNumber,
-                    Country = request.Country,
-                    City = request.City,
-                    FullAddress = request.FullAddress,
-                    Latitude = request.Latitude,
-                    Longitude = request.Longitude,
-                    WorkspaceCapacity = request.WorkspaceCapacity,
-                    NumberOfOffices = request.NumberOfOffices,
-                    NumberOfMeetingRooms = request.NumberOfMeetingRooms,
-                    NumberOfDesks = request.NumberOfDesks,
-                    WorkspaceDescription = request.WorkspaceDescription,
+                    IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -155,7 +141,7 @@ public class AuthController : ControllerBase
 
                 await transaction.CommitAsync();
 
-                _logger.LogInformation("Registration successful (pending approval): UserId={UserId}, TenantId={TenantId}, Email={Email}",
+                _logger.LogInformation("Registration successful: UserId={UserId}, TenantId={TenantId}, Email={Email}",
                     user.Id, tenant.Id, user.Email);
 
                 return new AuthResponse
@@ -172,8 +158,7 @@ public class AuthController : ControllerBase
                         LogoUrl = tenant.LogoUrl,
                         PrimaryColor = tenant.PrimaryColor,
                         CompanyName = tenant.CompanyName,
-                        HasMeetingRoom = tenant.HasMeetingRoom,
-                        Status = tenant.Status.ToString()
+                        HasMeetingRoom = tenant.HasMeetingRoom
                     }
                 };
             }
@@ -288,8 +273,7 @@ public class AuthController : ControllerBase
                     LogoUrl = tenant.LogoUrl,
                     PrimaryColor = tenant.PrimaryColor,
                     CompanyName = tenant.CompanyName,
-                    HasMeetingRoom = tenant.HasMeetingRoom,
-                    Status = tenant.Status.ToString()
+                    HasMeetingRoom = tenant.HasMeetingRoom
                 }
             };
         }
@@ -352,8 +336,7 @@ public class AuthController : ControllerBase
                     LogoUrl = user.Tenant.LogoUrl,
                     PrimaryColor = user.Tenant.PrimaryColor,
                     CompanyName = user.Tenant.CompanyName,
-                    HasMeetingRoom = user.Tenant.HasMeetingRoom,
-                    Status = user.Tenant.Status.ToString()
+                    HasMeetingRoom = user.Tenant.HasMeetingRoom
                 }
             };
         }

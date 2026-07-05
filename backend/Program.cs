@@ -24,7 +24,7 @@ var keysDir = "/tmp/keys";
 Directory.CreateDirectory(keysDir);
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysDir))
-    .SetApplicationName("Deskora");
+    .SetApplicationName("Coworkspace");
 
 // Database
 var connString = builder.Configuration["DATABASE_URL"]
@@ -120,7 +120,6 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
     options.AddPolicy("RequireManager", policy => policy.RequireRole("Admin", "Manager"));
-    options.AddPolicy("RequireSuperAdmin", policy => policy.RequireRole("SuperAdmin"));
 });
 
 // CORS — environment-aware
@@ -249,27 +248,7 @@ CREATE TABLE IF NOT EXISTS "Tenants" (
     "Address" character varying(500) NOT NULL,
     "OpeningTime" interval NULL,
     "ClosingTime" interval NULL,
-    "Status" character varying(20) NOT NULL DEFAULT 'Pending',
-    "OwnerName" character varying(200) NULL,
-    "PhoneNumber" character varying(50) NULL,
-    "Country" character varying(100) NULL,
-    "City" character varying(100) NULL,
-    "FullAddress" character varying(500) NULL,
-    "Latitude" numeric NULL,
-    "Longitude" numeric NULL,
-    "WorkspaceCapacity" integer NULL,
-    "NumberOfOffices" integer NULL,
-    "NumberOfMeetingRooms" integer NULL,
-    "NumberOfDesks" integer NULL,
-    "WorkspaceDescription" character varying(2000) NULL,
-    "ApprovalDate" timestamp with time zone NULL,
-    "ApprovedByUserId" integer NULL,
-    "RejectionReason" text NULL,
-    "SubscriptionPlan" text NULL,
-    "LastPaymentDate" timestamp with time zone NULL,
-    "NextDueDate" timestamp with time zone NULL,
-    CONSTRAINT "PK_Tenants" PRIMARY KEY ("Id"),
-    CONSTRAINT "FK_Tenants_Users_ApprovedByUserId" FOREIGN KEY ("ApprovedByUserId") REFERENCES "Users" ("Id") ON DELETE SET NULL
+    CONSTRAINT "PK_Tenants" PRIMARY KEY ("Id")
 );
 
 CREATE TABLE IF NOT EXISTS "MeetingRoomReservations" (
@@ -363,7 +342,6 @@ CREATE TABLE IF NOT EXISTS "Payments" (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Tenants_Subdomain" ON "Tenants" ("Subdomain");
-CREATE INDEX IF NOT EXISTS "IX_Tenants_ApprovedByUserId" ON "Tenants" ("ApprovedByUserId");
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Members_TenantId_FullName" ON "Members" ("TenantId", "FullName");
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Members_TenantId_PhoneNumber" ON "Members" ("TenantId", "PhoneNumber");
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Members_TenantId_NationalId" ON "Members" ("TenantId", "NationalId");
@@ -438,66 +416,6 @@ CREATE INDEX IF NOT EXISTS "IX_Users_RefreshToken" ON "Users" ("RefreshToken");
     {
         Console.WriteLine($"[Startup] WARNING: Database initialization error: {ex.Message}");
         Console.WriteLine("[Startup] App will continue starting without database access.");
-    }
-
-    // Seed SuperAdmin account
-    try
-    {
-        var adminEmail = "admin@deskora.com";
-        var oldAdminEmail = "admin2004@gmail.com";
-        var adminPassword = "Mohammed+-@@^";
-
-        // Migrate old admin email to new one if needed
-        var existingOldAdmin = await db.Users.FirstOrDefaultAsync(u => u.Email == oldAdminEmail);
-        if (existingOldAdmin != null)
-        {
-            existingOldAdmin.Email = adminEmail;
-            Console.WriteLine("[Startup] Migrated SuperAdmin email from {0} to {1}", oldAdminEmail, adminEmail);
-        }
-
-        if (!await db.Users.AnyAsync(u => u.Email == adminEmail))
-        {
-            var platformTenant = await db.Tenants.FirstOrDefaultAsync(t => t.Subdomain == "deskora-admin");
-            if (platformTenant == null)
-            {
-                platformTenant = new Coworkspace.API.Models.Tenant
-                {
-                    Name = "Deskora Platform",
-                    CompanyName = "Deskora Platform",
-                    Subdomain = "deskora-admin",
-                    PrimaryColor = "#1565C0",
-                    IsActive = true,
-                    Status = Coworkspace.API.Models.TenantStatus.Approved,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                db.Tenants.Add(platformTenant);
-                await db.SaveChangesAsync();
-                Console.WriteLine("[Startup] Created Deskora Platform tenant (ID={0}).", platformTenant.Id);
-            }
-
-            var adminUser = new Coworkspace.API.Models.User
-            {
-                Email = adminEmail,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
-                FullName = "Deskora Super Admin",
-                Role = Coworkspace.API.Models.UserRole.SuperAdmin,
-                TenantId = platformTenant.Id,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-            db.Users.Add(adminUser);
-            await db.SaveChangesAsync();
-            Console.WriteLine("[Startup] SuperAdmin account seeded: {0}", adminEmail);
-        }
-        else
-        {
-            Console.WriteLine("[Startup] SuperAdmin account already exists.");
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"[Startup] WARNING: SuperAdmin seeding failed: {ex.Message}");
     }
 }
 
