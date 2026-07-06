@@ -9,7 +9,6 @@ public class PdfService
 {
     public byte[] GenerateMemberPdf(Member member, List<Payment> payments, string companyName)
     {
-        QuestPDF.Settings.License = LicenseType.Community;
         return Document.Create(container =>
         {
             container.Page(page =>
@@ -31,7 +30,6 @@ public class PdfService
 
     public byte[] GenerateWorkspaceReport(Tenant tenant, string adminName, string adminEmail, List<Member> members)
     {
-        QuestPDF.Settings.License = LicenseType.Community;
         return Document.Create(container =>
         {
             container.Page(page =>

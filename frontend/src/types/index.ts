@@ -213,11 +213,6 @@ export interface AdminNotification {
   occuredAt: string
 }
 
-export interface AdminNotificationsResponse {
-  notifications: AdminNotification[]
-  totalCount: number
-}
-
 export interface AppNotification {
   id: number
   title: string

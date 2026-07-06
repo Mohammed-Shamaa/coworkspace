@@ -206,14 +206,6 @@ api.interceptors.response.use(
 
 export default api
 
-export const authApi = {
-  login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }),
-  register: (data: Record<string, unknown>) =>
-    api.post('/auth/register', data),
-  getMe: () => api.get('/auth/me'),
-}
-
 export const dashboardApi = {
   get: () => api.get('/dashboard'),
 }
@@ -231,7 +223,6 @@ export const membersApi = {
 }
 
 export const tenantsApi = {
-  getSettings: () => api.get('/tenants/settings'),
   updateSettings: (data: { companyName: string; name: string; primaryColor: string; logoUrl: string }) => api.put('/tenants/settings', data),
 }
 
@@ -252,10 +243,8 @@ export const adminApi = {
   rejectTenant: (id: number) => api.post(`/admin/${id}/reject`),
   getPayments: () => api.get('/admin/payments'),
   updatePaymentStatus: (id: number, paymentStatus: string) => api.post(`/admin/${id}/payment-status`, { paymentStatus }),
-  searchWorkspaces: (q: string) => api.get('/admin/workspaces/search', { params: { q } }),
   getWorkspaceDetail: (id: number) => api.get(`/admin/workspaces/${id}/detail`),
   getNotifications: () => api.get('/admin/notifications'),
-  getWorkspacePdfUrl: (id: number) => `${API_URL}/admin/workspaces/${id}/pdf`,
   downloadWorkspacePdf: (id: number) => api.get(`/admin/workspaces/${id}/pdf`, { responseType: 'blob' }),
 }
 
@@ -268,8 +257,6 @@ export const notificationApi = {
     api.put(`/notifications/${id}/read`),
   markAllAsRead: () =>
     api.put('/notifications/read-all'),
-  delete: (id: number) =>
-    api.delete(`/notifications/${id}`),
   deleteAll: () =>
     api.delete('/notifications/all'),
 }

@@ -1,5 +1,3 @@
-using Coworkspace.API.Models;
-
 namespace Coworkspace.API.DTOs;
 
 public class AdminWorkspaceDetail

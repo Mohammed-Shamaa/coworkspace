@@ -17,16 +17,14 @@ public class AdminController : ControllerBase
     private readonly AppDbContext _db;
     private readonly ILogger<AdminController> _logger;
     private readonly PdfService _pdfService;
-    private readonly EmailService _emailService;
     private readonly NotificationService _notificationService;
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public AdminController(AppDbContext db, ILogger<AdminController> logger, PdfService pdfService, EmailService emailService, NotificationService notificationService, IServiceScopeFactory scopeFactory)
+    public AdminController(AppDbContext db, ILogger<AdminController> logger, PdfService pdfService, NotificationService notificationService, IServiceScopeFactory scopeFactory)
     {
         _db = db;
         _logger = logger;
         _pdfService = pdfService;
-        _emailService = emailService;
         _notificationService = notificationService;
         _scopeFactory = scopeFactory;
     }

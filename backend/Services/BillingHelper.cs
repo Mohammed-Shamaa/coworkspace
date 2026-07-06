@@ -1,6 +1,4 @@
-using Coworkspace.API.Data;
 using Coworkspace.API.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coworkspace.API.Services;
 
@@ -55,13 +53,5 @@ public static class BillingHelper
         if (string.IsNullOrEmpty(datePart)) return timePart;
         return string.IsNullOrEmpty(timePart) ? datePart : $"{datePart}, {timePart}";
     }
-
-    public static bool IsPaymentDue(Member member)
-    {
-        if (member.NextDueDate == null) return true;
-        if (!member.NoEndDate && member.EndDate.HasValue && member.NextDueDate.Value > member.EndDate.Value) return false;
-        return member.NextDueDate.Value <= DateTime.Today;
-    }
-
 
 }
