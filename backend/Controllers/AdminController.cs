@@ -110,26 +110,38 @@ public class AdminController : ControllerBase
 
         _logger.LogInformation("Tenant {TenantId} ({Name}) approved by SuperAdmin", tenantId, tenant.Name);
 
-        // Fire-and-forget approval email (non-blocking)
+        // Send approval email with 5s timeout
+        var emailSent = false;
+        var emailError = "";
         var adminUser = tenant.Users.FirstOrDefault(u => u.Role == UserRole.Admin);
         if (adminUser != null)
         {
-            var email = adminUser.Email;
-            var company = tenant.CompanyName;
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _emailService.SendApprovalEmailAsync(email, company);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to send approval email to {Email} for tenant {TenantId}", email, tenantId);
-                }
-            });
+                using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                await _emailService.SendApprovalEmailAsync(adminUser.Email, tenant.CompanyName).WaitAsync(timeoutCts.Token);
+                emailSent = true;
+            }
+            catch (OperationCanceledException)
+            {
+                emailError = "timeout";
+                _logger.LogWarning("Approval email to {Email} timed out", adminUser.Email);
+            }
+            catch (Exception ex)
+            {
+                emailError = ex.Message;
+                _logger.LogError(ex, "Failed to send approval email to {Email}", adminUser.Email);
+            }
         }
 
-        return Ok(new { success = true, message = "Tenant approved successfully." });
+        return Ok(new
+        {
+            success = true,
+            message = "Tenant approved successfully.",
+            emailSent,
+            emailError = string.IsNullOrEmpty(emailError) ? null : emailError,
+            emailRecipient = adminUser?.Email
+        });
     }
 
     [HttpPost("{tenantId}/reject")]

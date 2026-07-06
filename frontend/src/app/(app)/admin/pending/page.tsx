@@ -32,8 +32,16 @@ export default function PendingRequestsPage() {
   const handleApprove = async (id: number) => {
     setActionLoading(id)
     try {
-      await adminApi.approveTenant(id)
+      const res = await adminApi.approveTenant(id)
       setTenants(prev => prev.filter(t => t.id !== id))
+      const data = res.data
+      if (data.emailSent) {
+        setError('')
+      } else if (data.emailError === 'timeout') {
+        setError('Tenant approved but approval email timed out — Resend might be slow.')
+      } else if (data.emailError) {
+        setError(`Tenant approved but email failed: ${data.emailError}`)
+      }
     } catch {
       setError('Failed to approve tenant')
     } finally {

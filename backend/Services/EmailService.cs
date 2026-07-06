@@ -59,13 +59,16 @@ public class EmailService
             }
             else
             {
-                _logger.LogError("Failed to send approval email to {Email}. Status: {Status}, Body: {Body}",
-                    email, (int)response.StatusCode, body);
+                var msg = $"Resend API error ({response.StatusCode}): {body}";
+                _logger.LogError("Failed to send approval email to {Email}. {Msg}", email, msg);
+                throw new InvalidOperationException(msg);
             }
         }
+        catch (InvalidOperationException) { throw; }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Exception sending approval email to {Email}", email);
+            throw;
         }
     }
 
