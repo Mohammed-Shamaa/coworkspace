@@ -156,6 +156,68 @@ export interface UpdateReservationRequest {
   notes?: string
 }
 
+export interface AdminWorkspaceDetail {
+  id: number
+  name: string
+  companyName: string
+  subdomain: string
+  whatsappNumber: string
+  address: string
+  totalDesks: number | null
+  maxCapacity: number | null
+  hasMeetingRoom: boolean
+  openingTime: string | null
+  closingTime: string | null
+  status: string
+  paymentStatus: string
+  trialStartDate: string | null
+  subscriptionExpiryDate: string | null
+  approvalDate: string | null
+  createdAt: string
+  updatedAt: string
+  adminEmail: string
+  adminName: string
+  memberCount: number
+  meetingRoomReservationCount: number
+  recentMembers: AdminMemberSummary[]
+}
+
+export interface AdminMemberSummary {
+  id: number
+  fullName: string
+  phoneNumber: string
+  memberType: string
+  paymentStatus: string
+  registrationDate: string
+}
+
+export interface AdminWorkspaceSearchResult {
+  id: number
+  name: string
+  companyName: string
+  subdomain: string
+  status: string
+  paymentStatus: string
+  adminEmail: string
+  adminName: string
+  trialStartDate: string | null
+  subscriptionExpiryDate: string | null
+  memberCount: number
+}
+
+export interface AdminNotification {
+  type: string
+  message: string
+  tenantId: number
+  tenantName: string
+  occuredAt: string
+}
+
+export interface AdminNotificationsResponse {
+  notifications: AdminNotification[]
+  totalCount: number
+}
+
 export interface CreateMemberRequest {
   fullName: string
   phoneNumber: string

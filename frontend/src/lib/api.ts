@@ -252,6 +252,11 @@ export const adminApi = {
   rejectTenant: (id: number) => api.post(`/admin/${id}/reject`),
   getPayments: () => api.get('/admin/payments'),
   updatePaymentStatus: (id: number, paymentStatus: string) => api.post(`/admin/${id}/payment-status`, { paymentStatus }),
+  searchWorkspaces: (q: string) => api.get('/admin/workspaces/search', { params: { q } }),
+  getWorkspaceDetail: (id: number) => api.get(`/admin/workspaces/${id}/detail`),
+  getNotifications: () => api.get('/admin/notifications'),
+  getWorkspacePdfUrl: (id: number) => `${API_URL}/admin/workspaces/${id}/pdf`,
+  downloadWorkspacePdf: (id: number) => api.get(`/admin/workspaces/${id}/pdf`, { responseType: 'blob' }),
 }
 
 export const meetingRoomApi = {
