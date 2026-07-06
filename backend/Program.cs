@@ -183,63 +183,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Seed SuperAdmin account
-try
-{
-    using var seedScope = app.Services.CreateScope();
-    var seedDb = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    var superAdminEmail = "admin@deskora.com";
-    var existingSuperAdmin = await seedDb.Users.FirstOrDefaultAsync(u => u.Email == superAdminEmail);
-
-    if (existingSuperAdmin == null)
-    {
-        var superAdminTenant = new Coworkspace.API.Models.Tenant
-        {
-            Name = "Deskora",
-            CompanyName = "Deskora",
-            Subdomain = "admin",
-            PrimaryColor = "#1565C0",
-            IsActive = true,
-            Status = Coworkspace.API.Models.TenantStatus.Approved,
-            OnboardingCompleted = true,
-            TotalDesks = 0,
-            MaxCapacity = 0,
-            HasMeetingRoom = false,
-            Address = "Deskora HQ",
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        seedDb.Tenants.Add(superAdminTenant);
-        await seedDb.SaveChangesAsync();
-
-        var superAdmin = new Coworkspace.API.Models.User
-        {
-            Email = superAdminEmail,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Mohammed+-@@^"),
-            FullName = "Super Admin",
-            Role = Coworkspace.API.Models.UserRole.SuperAdmin,
-            TenantId = superAdminTenant.Id,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        seedDb.Users.Add(superAdmin);
-        await seedDb.SaveChangesAsync();
-
-        Console.WriteLine("[Startup] SuperAdmin account seeded successfully.");
-    }
-    else
-    {
-        Console.WriteLine("[Startup] SuperAdmin account already exists.");
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"[Startup] WARNING: SuperAdmin seeding failed: {ex.Message}");
-}
-
 // QuestPDF license
 try
 {
@@ -405,6 +348,14 @@ CREATE TABLE IF NOT EXISTS "Payments" (
     CONSTRAINT "FK_Payments_Users_RecordedByUserId" FOREIGN KEY ("RecordedByUserId") REFERENCES "Users" ("Id") ON DELETE SET NULL
 );
 
+-- Ensure new columns exist on existing tables (safe to re-run)
+ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "Status" integer NOT NULL DEFAULT 0;
+ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "PaymentStatus" integer NOT NULL DEFAULT 0;
+ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "ApprovalDate" timestamp with time zone NULL;
+ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "TrialStartDate" timestamp with time zone NULL;
+ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "SubscriptionExpiryDate" timestamp with time zone NULL;
+ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "WhatsappNumber" character varying(50) NOT NULL DEFAULT '';
+
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Tenants_Subdomain" ON "Tenants" ("Subdomain");
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Members_TenantId_FullName" ON "Members" ("TenantId", "FullName");
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Members_TenantId_PhoneNumber" ON "Members" ("TenantId", "PhoneNumber");
@@ -481,6 +432,71 @@ CREATE INDEX IF NOT EXISTS "IX_Users_RefreshToken" ON "Users" ("RefreshToken");
         Console.WriteLine($"[Startup] WARNING: Database initialization error: {ex.Message}");
         Console.WriteLine("[Startup] App will continue starting without database access.");
     }
+}
+
+// Seed SuperAdmin account (must run AFTER migrations so tables exist)
+try
+{
+    using var seedScope = app.Services.CreateScope();
+    var seedDb = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var superAdminEmail = "admin@deskora.com";
+    var existingSuperAdmin = await seedDb.Users.FirstOrDefaultAsync(u => u.Email == superAdminEmail);
+
+    if (existingSuperAdmin == null)
+    {
+        // Check if subdomain "admin" already exists to avoid constraint violation
+        if (await seedDb.Tenants.AnyAsync(t => t.Subdomain == "admin"))
+        {
+            Console.WriteLine("[Startup] WARNING: Subdomain 'admin' already taken. SuperAdmin tenant cannot be created.");
+        }
+        else
+        {
+            var superAdminTenant = new Coworkspace.API.Models.Tenant
+            {
+                Name = "Deskora",
+                CompanyName = "Deskora",
+                Subdomain = "admin",
+                PrimaryColor = "#1565C0",
+                IsActive = true,
+                Status = Coworkspace.API.Models.TenantStatus.Approved,
+                OnboardingCompleted = true,
+                TotalDesks = 0,
+                MaxCapacity = 0,
+                HasMeetingRoom = false,
+                Address = "Deskora HQ",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            seedDb.Tenants.Add(superAdminTenant);
+            await seedDb.SaveChangesAsync();
+
+            var superAdmin = new Coworkspace.API.Models.User
+            {
+                Email = superAdminEmail,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Mohammed+-@@^"),
+                FullName = "Super Admin",
+                Role = Coworkspace.API.Models.UserRole.SuperAdmin,
+                TenantId = superAdminTenant.Id,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            seedDb.Users.Add(superAdmin);
+            await seedDb.SaveChangesAsync();
+
+            Console.WriteLine("[Startup] SuperAdmin account seeded successfully.");
+        }
+    }
+    else
+    {
+        Console.WriteLine("[Startup] SuperAdmin account already exists.");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"[Startup] WARNING: SuperAdmin seeding failed: {ex.Message}");
 }
 
 // Configure pipeline
