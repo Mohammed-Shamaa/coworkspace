@@ -486,5 +486,18 @@
       "register": "إنشاء حساب",
       "copyright": "\u00a9 {{year}} كاوورك سبيس. جميع الحقوق محفوظة."
     }
+  },
+  "appNotifications": {
+    "title": "الإشعارات",
+    "noNotifications": "لا توجد إشعارات بعد",
+    "markAllAsRead": "تحديد الكل كمقروء",
+    "deleteAll": "حذف الكل",
+    "workspace_approved": "تمت الموافقة على مساحة العمل",
+    "member_added": "عضو جديد",
+    "member_removed": "تم حذف عضو",
+    "trial_ending_soon": "التجربة تنتهي قريباً",
+    "trial_ended": "انتهت الفترة التجريبية",
+    "subscription_expiring_soon": "الاشتراك سينتهي قريباً",
+    "subscription_expired": "انتهى الاشتراك"
   }
 }

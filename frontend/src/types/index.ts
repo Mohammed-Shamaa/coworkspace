@@ -218,6 +218,25 @@ export interface AdminNotificationsResponse {
   totalCount: number
 }
 
+export interface AppNotification {
+  id: number
+  title: string
+  message: string
+  type: string
+  isRead: boolean
+  createdAt: string
+  relatedEntityId: number | null
+  relatedEntityType: string | null
+}
+
+export interface NotificationsResponse {
+  notifications: AppNotification[]
+  totalCount: number
+  unreadCount: number
+  page: number
+  pageSize: number
+}
+
 export interface CreateMemberRequest {
   fullName: string
   phoneNumber: string

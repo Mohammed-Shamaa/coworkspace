@@ -17,12 +17,14 @@ public class MembersController : ControllerBase
     private readonly AppDbContext _db;
     private readonly AuditService _audit;
     private readonly PdfService _pdf;
+    private readonly NotificationService _notificationService;
 
-    public MembersController(AppDbContext db, AuditService audit, PdfService pdf)
+    public MembersController(AppDbContext db, AuditService audit, PdfService pdf, NotificationService notificationService)
     {
         _db = db;
         _audit = audit;
         _pdf = pdf;
+        _notificationService = notificationService;
     }
 
     private int TenantId => int.Parse(User.FindFirst("TenantId")?.Value ?? throw new UnauthorizedAccessException("Missing TenantId"));
@@ -158,6 +160,14 @@ public class MembersController : ControllerBase
         await _audit.LogAsync(TenantId, UserId, "Create", "Member", member.Id, $"Created member: {member.FullName}");
         await tx.CommitAsync();
 
+        await _notificationService.CreateForTenantAdminsAsync(
+            TenantId,
+            "New Member Added",
+            $"New member \"{member.FullName}\" has been added to your workspace.",
+            "member_added",
+            member.Id,
+            "Member");
+
         return CreatedAtAction(nameof(GetById), new { id = member.Id }, MapToResponse(member));
     }
 
@@ -241,6 +251,14 @@ public class MembersController : ControllerBase
         await _db.SaveChangesAsync();
         await _audit.LogAsync(TenantId, UserId, "Delete", "Member", id, $"Deleted member: {name}");
         await tx.CommitAsync();
+
+        await _notificationService.CreateForTenantAdminsAsync(
+            TenantId,
+            "Member Removed",
+            $"Member \"{name}\" has been removed from your workspace.",
+            "member_removed",
+            id,
+            "Member");
 
         return NoContent();
     }

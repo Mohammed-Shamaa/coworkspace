@@ -38,4 +38,5 @@ public class User
 
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     public ICollection<Payment> RecordedPayments { get; set; } = new List<Payment>();
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

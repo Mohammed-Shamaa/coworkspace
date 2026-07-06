@@ -8,6 +8,7 @@ import ErrorBoundary from '@/components/error-boundary'
 import { AnimatePresence, motion } from 'framer-motion'
 import { usePathname, useRouter } from 'next/navigation'
 import { setupApi } from '@/lib/api'
+import NotificationBell from '@/components/notification-bell'
 
 function OnboardingCheck({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading, user, tenant } = useAuth()
@@ -73,7 +74,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <OnboardingCheck>
           <div className="flex min-h-screen bg-[var(--page-bg)]">
             <Sidebar />
-            <main className="flex-1 p-3 md:p-6 overflow-auto">
+            <main className="flex-1 p-3 md:p-6 overflow-auto relative">
+              <div className="absolute top-3 md:top-6 right-3 md:right-6 z-30">
+                <NotificationBell />
+              </div>
               <ErrorBoundary>
                 <AnimatePresence mode="popLayout">
                   <motion.div

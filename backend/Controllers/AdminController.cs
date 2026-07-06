@@ -18,13 +18,15 @@ public class AdminController : ControllerBase
     private readonly ILogger<AdminController> _logger;
     private readonly PdfService _pdfService;
     private readonly EmailService _emailService;
+    private readonly NotificationService _notificationService;
 
-    public AdminController(AppDbContext db, ILogger<AdminController> logger, PdfService pdfService, EmailService emailService)
+    public AdminController(AppDbContext db, ILogger<AdminController> logger, PdfService pdfService, EmailService emailService, NotificationService notificationService)
     {
         _db = db;
         _logger = logger;
         _pdfService = pdfService;
         _emailService = emailService;
+        _notificationService = notificationService;
     }
 
     [HttpGet("pending-tenants")]
@@ -109,6 +111,13 @@ public class AdminController : ControllerBase
         await _db.SaveChangesAsync();
 
         _logger.LogInformation("Tenant {TenantId} ({Name}) approved by SuperAdmin", tenantId, tenant.Name);
+
+        // Notify tenant admins
+        await _notificationService.CreateForTenantAdminsAsync(
+            tenantId,
+            "Workspace Approved",
+            $"Your workspace \"{tenant.CompanyName}\" has been approved! You can now log in and start managing your space.",
+            "workspace_approved");
 
         // Send approval email with 5s timeout
         var emailSent = false;

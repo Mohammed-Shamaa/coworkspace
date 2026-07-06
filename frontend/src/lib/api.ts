@@ -259,6 +259,21 @@ export const adminApi = {
   downloadWorkspacePdf: (id: number) => api.get(`/admin/workspaces/${id}/pdf`, { responseType: 'blob' }),
 }
 
+export const notificationApi = {
+  getAll: (params?: { page?: number; pageSize?: number }) =>
+    api.get('/notifications', { params }),
+  getUnreadCount: () =>
+    api.get('/notifications/unread-count'),
+  markAsRead: (id: number) =>
+    api.put(`/notifications/${id}/read`),
+  markAllAsRead: () =>
+    api.put('/notifications/read-all'),
+  delete: (id: number) =>
+    api.delete(`/notifications/${id}`),
+  deleteAll: () =>
+    api.delete('/notifications/all'),
+}
+
 export const meetingRoomApi = {
   getAll: (params?: { date?: string; search?: string }) => api.get('/meetingroom', { params }),
   getById: (id: number) => api.get(`/meetingroom/${id}`),
