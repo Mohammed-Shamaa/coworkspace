@@ -19,14 +19,16 @@ public class AdminController : ControllerBase
     private readonly PdfService _pdfService;
     private readonly EmailService _emailService;
     private readonly NotificationService _notificationService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public AdminController(AppDbContext db, ILogger<AdminController> logger, PdfService pdfService, EmailService emailService, NotificationService notificationService)
+    public AdminController(AppDbContext db, ILogger<AdminController> logger, PdfService pdfService, EmailService emailService, NotificationService notificationService, IServiceScopeFactory scopeFactory)
     {
         _db = db;
         _logger = logger;
         _pdfService = pdfService;
         _emailService = emailService;
         _notificationService = notificationService;
+        _scopeFactory = scopeFactory;
     }
 
     [HttpGet("pending-tenants")]
@@ -119,37 +121,31 @@ public class AdminController : ControllerBase
             $"Your workspace \"{tenant.CompanyName}\" has been approved! You can now log in and start managing your space.",
             "workspace_approved");
 
-        // Send approval email with 5s timeout
-        var emailSent = false;
-        var emailError = "";
+        // Fire-and-forget approval email — never blocks the HTTP response
         var adminUser = tenant.Users.FirstOrDefault(u => u.Role == UserRole.Admin);
         if (adminUser != null)
         {
-            try
+            var email = adminUser.Email;
+            var name = adminUser.FullName;
+            _ = Task.Run(async () =>
             {
-                using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                await _emailService.SendApprovalEmailAsync(adminUser.Email, tenant.CompanyName).WaitAsync(timeoutCts.Token);
-                emailSent = true;
-            }
-            catch (OperationCanceledException)
-            {
-                emailError = "timeout";
-                _logger.LogWarning("Approval email to {Email} timed out", adminUser.Email);
-            }
-            catch (Exception ex)
-            {
-                emailError = ex.Message;
-                _logger.LogError(ex, "Failed to send approval email to {Email}", adminUser.Email);
-            }
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var emailSvc = scope.ServiceProvider.GetRequiredService<EmailService>();
+                    await emailSvc.SendApprovalEmailAsync(email, name);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Fire-and-forget approval email to {Email} failed", email);
+                }
+            });
         }
 
         return Ok(new
         {
             success = true,
-            message = "Tenant approved successfully.",
-            emailSent,
-            emailError = string.IsNullOrEmpty(emailError) ? null : emailError,
-            emailRecipient = adminUser?.Email
+            message = "Tenant approved successfully."
         });
     }
 

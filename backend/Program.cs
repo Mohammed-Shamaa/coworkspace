@@ -149,13 +149,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddMemoryCache();
 
 // Resend (email)
-var hasResendKey = !string.IsNullOrEmpty(builder.Configuration["Resend:ApiKey"]);
+var hasResendKey = !string.IsNullOrEmpty(builder.Configuration["RESEND_API_KEY"]);
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<EmailService>();
 if (hasResendKey)
     Console.WriteLine("[Startup] Resend email service configured.");
 else
-    Console.WriteLine("[Startup] Warning: Resend:ApiKey not configured. Email notifications disabled.");
+    Console.WriteLine("[Startup] Warning: RESEND_API_KEY environment variable not set. Email notifications disabled.");
 
 // Services
 builder.Services.AddScoped<AuditService>();
