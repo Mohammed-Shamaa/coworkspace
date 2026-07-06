@@ -1,11 +1,14 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 import { CreditCard, AlertCircle } from 'lucide-react'
 
 export default function SubscriptionExpiredPage() {
   const { tenant, logout } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
 
   if (tenant?.paymentStatus === 'Active' || tenant?.paymentStatus === 'Trial') {
     router.push('/dashboard')
@@ -18,24 +21,23 @@ export default function SubscriptionExpiredPage() {
         <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
           <CreditCard className="w-8 h-8 text-red-600 dark:text-red-400" />
         </div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Subscription Expired</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{t('subscriptionExpired.title')}</h1>
         <p className="text-[var(--text-secondary)] mb-6">
-          Your workspace <strong>{tenant?.companyName}</strong> subscription has expired.
-          Please contact support to renew your subscription and restore access.
+          {t('subscriptionExpired.description')} <strong>{tenant?.companyName}</strong> {t('subscriptionExpired.description2')}
         </p>
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 rounded-lg p-4 mb-6 text-left text-sm text-red-800 dark:text-red-200 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
-          <span>Access to your workspace has been suspended. Your team members cannot log in until the subscription is renewed.</span>
+          <span>{t('subscriptionExpired.info')}</span>
         </div>
         <div className="space-y-3">
           <p className="text-xs text-[var(--text-secondary)]">
-            Contact us at <a href="mailto:support@deskora.com" className="text-[#1565C0] hover:underline">support@deskora.com</a> for assistance.
+            {t('subscriptionExpired.contact')} <a href="mailto:support@deskora.com" className="text-[#1565C0] hover:underline">support@deskora.com</a> {t('subscriptionExpired.contact2')}
           </p>
           <button
             onClick={() => { logout(); router.push('/') }}
             className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors underline"
           >
-            Back to Home
+            {t('subscriptionExpired.backToHome')}
           </button>
         </div>
       </div>

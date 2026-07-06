@@ -33,7 +33,7 @@ export default function Sidebar() {
       items.splice(3, 0, { href: '/meeting-room', labelKey: 'sidebar.meetingRoom', icon: Presentation })
     }
     if (isSuperAdmin) {
-      items.unshift({ href: '/admin', labelKey: 'Admin Panel', icon: Shield })
+      items.unshift({ href: '/admin', labelKey: 'sidebar.adminPanel', icon: Shield })
     }
     return items
   }, [tenant?.hasMeetingRoom, isSuperAdmin])

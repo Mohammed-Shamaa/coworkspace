@@ -1,8 +1,11 @@
 'use client'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 
 export default function Hero() {
+  const { t } = useTranslation()
   return (
     <section className="relative overflow-hidden pt-24 pb-16 md:pt-40 md:pb-28">
       <div className="mx-auto max-w-7xl px-6">
@@ -14,7 +17,7 @@ export default function Hero() {
               transition={{ duration: 0.6, ease: 'easeOut' }}
             >
               <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">
-                All-in-one workspace management
+                {t('landing.hero.badge')}
               </span>
             </motion.div>
 
@@ -24,8 +27,8 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
               className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-[var(--text-primary)]"
             >
-              Manage Your Coworking Space{' '}
-              <span className="text-[#1565C0]">Efficiently</span>
+              {t('landing.hero.title1')}{' '}
+              <span className="text-[#1565C0]">{t('landing.hero.title2')}</span>
             </motion.h1>
 
             <motion.p
@@ -34,7 +37,7 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
               className="mt-6 text-lg leading-relaxed text-gray-500 md:text-xl dark:text-[var(--text-secondary)]"
             >
-              Streamline member management, track attendance, handle reservations, and grow your coworking business — all from one powerful platform.
+              {t('landing.hero.subtitle')}
             </motion.p>
 
             <motion.div
@@ -47,13 +50,13 @@ export default function Hero() {
                 href="/auth/register"
                 className="rounded-xl bg-[#1565C0] px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-[#0d47a1] hover:shadow-blue-300"
               >
-                Get Started
+                {t('landing.hero.getStarted')}
               </Link>
               <Link
                 href="/auth/login"
                 className="rounded-xl border border-gray-200 bg-white px-8 py-3.5 text-base font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)] dark:hover:border-blue-900"
               >
-                Sign In
+                {t('landing.hero.signIn')}
               </Link>
             </motion.div>
           </div>

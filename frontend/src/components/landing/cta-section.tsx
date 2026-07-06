@@ -2,10 +2,13 @@
 import Link from 'next/link'
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 
 export default function CTASection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const { t } = useTranslation()
 
   return (
     <section className="border-t border-gray-100 py-20 md:py-28 dark:border-[var(--card-border)]">
@@ -21,22 +24,22 @@ export default function CTASection() {
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
 
           <div className="relative z-10">
-            <h2 className="text-3xl font-bold text-white md:text-4xl">Ready to transform your coworking space?</h2>
+            <h2 className="text-3xl font-bold text-white md:text-4xl">{t('landing.cta.title')}</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-blue-200">
-              Join hundreds of workspace managers who trust Coworkspace to run their business.
+              {t('landing.cta.subtitle')}
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link
                 href="/auth/register"
                 className="rounded-xl bg-white px-8 py-3.5 text-base font-semibold text-[#0d1b3e] transition-all hover:bg-blue-50"
               >
-                Get Started Free
+                {t('landing.cta.getStarted')}
               </Link>
               <Link
                 href="/auth/login"
                 className="rounded-xl border border-blue-400/30 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-white/10"
               >
-                Sign In
+                {t('landing.cta.signIn')}
               </Link>
             </div>
           </div>

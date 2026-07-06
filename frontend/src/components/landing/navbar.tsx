@@ -4,8 +4,11 @@ import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { useTheme } from '@/lib/theme-provider'
 import { Sun, Moon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 
 export default function Navbar() {
+  const { t } = useTranslation()
   const { theme, toggleTheme } = useTheme()
   const pathname = usePathname()
 
@@ -33,20 +36,20 @@ export default function Navbar() {
                 : 'text-gray-600 hover:bg-blue-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
             }`}
           >
-            About
+            {t('landing.navbar.about')}
           </Link>
 
           <Link
             href="/auth/login"
             className="rounded-lg px-2 md:px-4 py-2 text-xs md:text-sm font-medium text-gray-600 transition-colors hover:bg-blue-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
           >
-            Sign In
+            {t('landing.navbar.signIn')}
           </Link>
           <Link
             href="/auth/register"
             className="rounded-lg bg-[#1565C0] px-3 md:px-5 py-2 text-xs md:text-sm font-semibold text-white transition-all hover:bg-[#0d47a1]"
           >
-            Sign Up
+            {t('landing.navbar.signUp')}
           </Link>
         </nav>
       </div>

@@ -2,15 +2,10 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { UserPlus, Users, CalendarCheck, LayoutDashboard } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 
-const steps = [
-  { icon: UserPlus, title: 'Create your workspace', description: 'Set up your coworking space in minutes — configure desks, hours, and meeting rooms.' },
-  { icon: Users, title: 'Add your members', description: 'Register members with their plans, fees, and start dates. Manage renewals effortlessly.' },
-  { icon: CalendarCheck, title: 'Manage reservations', description: 'Members can book desks and meeting rooms. Track usage and availability in real time.' },
-  { icon: LayoutDashboard, title: 'Track everything easily', description: 'Monitor revenue, attendance, and growth from a beautiful analytics dashboard.' },
-]
-
-function StepCard({ icon: Icon, title, description, index }: { icon: typeof steps[0]['icon']; title: string; description: string; index: number }) {
+function StepCard({ icon: Icon, title, description, index, totalSteps }: { icon: typeof UserPlus; title: string; description: string; index: number; totalSteps: number }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
@@ -26,7 +21,7 @@ function StepCard({ icon: Icon, title, description, index }: { icon: typeof step
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1565C0] text-white shadow-md">
           <Icon size={22} />
         </div>
-        {index < steps.length - 1 && (
+        {index < totalSteps - 1 && (
           <div className="mt-2 w-0.5 flex-1 bg-gradient-to-b from-blue-200 to-transparent dark:from-blue-800" />
         )}
       </div>
@@ -39,6 +34,13 @@ function StepCard({ icon: Icon, title, description, index }: { icon: typeof step
 }
 
 export default function HowItWorks() {
+  const { t } = useTranslation()
+  const steps = [
+    { icon: UserPlus, title: t('landing.howItWorks.step1Title'), description: t('landing.howItWorks.step1Desc') },
+    { icon: Users, title: t('landing.howItWorks.step2Title'), description: t('landing.howItWorks.step2Desc') },
+    { icon: CalendarCheck, title: t('landing.howItWorks.step3Title'), description: t('landing.howItWorks.step3Desc') },
+    { icon: LayoutDashboard, title: t('landing.howItWorks.step4Title'), description: t('landing.howItWorks.step4Desc') },
+  ]
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
@@ -52,14 +54,14 @@ export default function HowItWorks() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">How It Works</span>
-          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">Get started in four simple steps</h2>
-          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">From setup to full operation — fast and frictionless.</p>
+          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.howItWorks.badge')}</span>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.howItWorks.title')}</h2>
+          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.howItWorks.subtitle')}</p>
         </motion.div>
 
         <div className="mx-auto mt-16 max-w-2xl">
           {steps.map((step, i) => (
-            <StepCard key={step.title} {...step} index={i} />
+            <StepCard key={step.title} {...step} index={i} totalSteps={steps.length} />
           ))}
         </div>
       </div>

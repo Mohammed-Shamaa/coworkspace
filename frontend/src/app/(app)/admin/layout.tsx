@@ -1,4 +1,6 @@
 'use client'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 import { useState, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { adminApi } from '@/lib/api'
@@ -8,6 +10,7 @@ import type { AdminNotification } from '@/types'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isSuperAdmin } = useAuth()
+  const { t } = useTranslation()
   const [notifications, setNotifications] = useState<AdminNotification[]>([])
   const [notificationCount, setNotificationCount] = useState(0)
   const [showDropdown, setShowDropdown] = useState(false)
@@ -39,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="relative">
       {isSuperAdmin && (
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed top-4 right-4 md:right-6 z-50">
           <button
             onClick={() => setShowDropdown(!showDropdown)}
             className="relative p-2 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[#1565C0]/50 transition-colors"
@@ -58,13 +61,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
               <div className="absolute right-0 mt-2 w-80 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto">
                 <div className="flex items-center justify-between p-3 border-b border-[var(--card-border)]">
-                  <h3 className="font-semibold text-sm text-[var(--text-primary)]">Notifications</h3>
+                  <h3 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.notifications.title')}</h3>
                   <button onClick={() => setShowDropdown(false)} className="p-1 hover:bg-[var(--hover-bg)] rounded">
                     <X className="w-4 h-4 text-[var(--text-secondary)]" />
                   </button>
                 </div>
                 {notifications.length === 0 ? (
-                  <div className="p-6 text-center text-sm text-[var(--text-secondary)]">No notifications</div>
+                  <div className="p-6 text-center text-sm text-[var(--text-secondary)]">{t('admin.notifications.noNotifications')}</div>
                 ) : (
                   <div className="divide-y divide-[var(--card-border)]">
                     {notifications.map((n, i) => (

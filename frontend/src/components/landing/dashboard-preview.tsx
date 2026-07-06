@@ -2,6 +2,8 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 
 const data = [
   { name: 'Mon', revenue: 1200 },
@@ -16,6 +18,7 @@ const data = [
 export default function DashboardPreview() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const { t } = useTranslation()
 
   return (
     <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
@@ -27,9 +30,9 @@ export default function DashboardPreview() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">Dashboard</span>
-          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">Beautiful analytics at your fingertips</h2>
-          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">Real-time insights into your workspace performance.</p>
+          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.dashboard.badge')}</span>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.dashboard.title')}</h2>
+          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.dashboard.subtitle')}</p>
         </motion.div>
 
         <motion.div
@@ -42,17 +45,17 @@ export default function DashboardPreview() {
             <div className="rounded-xl bg-white p-6 dark:bg-[var(--card-bg)]">
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">Revenue Overview</h3>
-                  <p className="text-sm text-gray-500 dark:text-[var(--text-secondary)]">Weekly revenue breakdown</p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{t('landing.dashboard.revenueOverview')}</h3>
+                  <p className="text-sm text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.dashboard.weeklyRevenue')}</p>
                 </div>
                   <div className="flex gap-3">
                   <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-[var(--text-secondary)]">
                     <div className="h-3 w-3 rounded bg-[#1565C0]" />
-                    Revenue
+                    {t('landing.dashboard.revenue')}
                   </div>
                   <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-[var(--text-secondary)]">
                     <div className="h-3 w-3 rounded bg-blue-200 dark:bg-blue-800" />
-                    Target
+                    {t('landing.dashboard.target')}
                   </div>
                 </div>
               </div>
@@ -70,15 +73,15 @@ export default function DashboardPreview() {
 
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-gray-100 pt-6 dark:border-[var(--card-border)]">
                 <div>
-                  <p className="text-xs font-medium text-gray-400">Total Revenue</p>
+                  <p className="text-xs font-medium text-gray-400">{t('landing.dashboard.totalRevenue')}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-[var(--text-primary)]">$10,100</p>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-400 dark:text-[var(--text-secondary)]">Active Members</p>
+                  <p className="text-xs font-medium text-gray-400 dark:text-[var(--text-secondary)]">{t('landing.dashboard.activeMembers')}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-[var(--text-primary)]">128</p>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-400 dark:text-[var(--text-secondary)]">Occupancy</p>
+                  <p className="text-xs font-medium text-gray-400 dark:text-[var(--text-secondary)]">{t('landing.dashboard.occupancy')}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-[var(--text-primary)]">84%</p>
                 </div>
               </div>

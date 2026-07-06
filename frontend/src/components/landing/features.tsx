@@ -4,19 +4,10 @@ import { motion, useInView } from 'framer-motion'
 import {
   Building2, Users, Calendar, BarChart3, Fingerprint, FileSpreadsheet, Shield, Zap,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 
-const features = [
-  { icon: Building2, title: 'Workspace Management', description: 'Configure desks, capacity, and workspace settings tailored to your space.' },
-  { icon: Users, title: 'Member Management', description: 'Track members, renewals, payments, and profiles from a single dashboard.' },
-  { icon: Calendar, title: 'Meeting Room Reservations', description: 'Let members book meeting rooms with an easy scheduling system.' },
-  { icon: BarChart3, title: 'Analytics Dashboard', description: 'Visualize revenue, occupancy trends, and member growth in real time.' },
-  { icon: Fingerprint, title: 'Attendance Tracking', description: 'Monitor check-ins and daily attendance with simple tracking tools.' },
-  { icon: FileSpreadsheet, title: 'Excel Export', description: 'Export member lists, payments, and reports to Excel with one click.' },
-  { icon: Shield, title: 'Secure Authentication', description: 'Multi-tenant architecture with JWT-based auth and role management.' },
-  { icon: Zap, title: 'Fast Performance', description: 'Optimized queries and lazy-loaded components keep the app blazing fast.' },
-]
-
-function FeatureCard({ icon: Icon, title, description, index }: { icon: typeof features[0]['icon']; title: string; description: string; index: number }) {
+function FeatureCard({ icon: Icon, title, description, index }: { icon: typeof Building2; title: string; description: string; index: number }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
@@ -38,6 +29,17 @@ function FeatureCard({ icon: Icon, title, description, index }: { icon: typeof f
 }
 
 export default function Features() {
+  const { t } = useTranslation()
+  const features = [
+    { icon: Building2, title: t('landing.features.workspaceManagement'), description: t('landing.features.workspaceManagementDesc') },
+    { icon: Users, title: t('landing.features.memberManagement'), description: t('landing.features.memberManagementDesc') },
+    { icon: Calendar, title: t('landing.features.meetingRoom'), description: t('landing.features.meetingRoomDesc') },
+    { icon: BarChart3, title: t('landing.features.analytics'), description: t('landing.features.analyticsDesc') },
+    { icon: Fingerprint, title: t('landing.features.attendance'), description: t('landing.features.attendanceDesc') },
+    { icon: FileSpreadsheet, title: t('landing.features.excelExport'), description: t('landing.features.excelExportDesc') },
+    { icon: Shield, title: t('landing.features.secureAuth'), description: t('landing.features.secureAuthDesc') },
+    { icon: Zap, title: t('landing.features.fastPerformance'), description: t('landing.features.fastPerformanceDesc') },
+  ]
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
@@ -51,9 +53,9 @@ export default function Features() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">Features</span>
-          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">Everything you need to run your space</h2>
-          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">Powerful tools designed for modern coworking spaces.</p>
+          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.features.badge')}</span>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.features.title')}</h2>
+          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.features.subtitle')}</p>
         </motion.div>
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

@@ -27,7 +27,8 @@
     "settings": "Settings",
     "meetingRoom": "Meeting Room",
     "signOut": "Sign Out",
-    "membershipManager": "Membership Manager"
+    "membershipManager": "Membership Manager",
+    "adminPanel": "Admin Panel"
   },
   "dashboard": {
     "title": "Coworkspace",
@@ -176,7 +177,15 @@
     "signInLink": "Sign In",
     "registrationFailed": "Registration failed",
     "subdomainPlaceholder": "your-company",
-    "redirecting": "Redirecting..."
+    "redirecting": "Redirecting...",
+    "fillRequired": "Please fill in all required fields.",
+    "connectionError": "Unable to connect to the server. Please ensure the backend is running on port 5000 and try again.",
+    "timeoutError": "Connection timed out. Please check your network and try again.",
+    "invalidCredentials": "Invalid email or password.",
+    "whatsappLabel": "WhatsApp Number",
+    "whatsappPlaceholder": "+201234567890",
+    "passwordError": "Password must be at least 8 characters.",
+    "whatsappError": "WhatsApp number is required."
   },
   "notifications": {
     "memberCreated": "Member registered successfully!",
@@ -282,5 +291,200 @@
     "workingHours": "Working Hours",
     "workspaceHours": "Workspace Hours: {{open}} - {{close}}",
     "actions": "Actions"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "totalTenants": "Total Tenants",
+      "pendingApproval": "Pending Approval",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "activeSubscriptions": "Active Subscriptions",
+      "trial": "Trial",
+      "totalMembers": "Total Members",
+      "pendingRequests": "Pending Requests",
+      "activeWorkspaces": "Active Workspaces",
+      "payments": "Payments",
+      "workspacesAwaiting": "{{count}} workspace(s) awaiting review",
+      "approvedWorkspaces": "{{count}} approved workspace(s)",
+      "activeSubs": "{{count}} active subscription(s)"
+    },
+    "pending": {
+      "title": "Pending Approval Requests",
+      "noPending": "No pending requests",
+      "noPendingDesc": "All workspaces have been reviewed.",
+      "registered": "Registered",
+      "approve": "Approve",
+      "reject": "Reject",
+      "desks": "{{total}} desks, {{max}} max capacity",
+      "meetingRoom": "Meeting room",
+      "hours": "{{open}} - {{close}}"
+    },
+    "workspaces": {
+      "title": "Active Workspaces",
+      "searchPlaceholder": "Search by name, email, phone, or workspace...",
+      "noMatch": "No matching workspaces",
+      "noApproved": "No approved workspaces",
+      "workspace": "Workspace",
+      "registered": "Registered",
+      "members": "{{count}} members",
+      "capacity": "{{total}}/{{max}} capacity",
+      "meetingRoom": "Meeting Room",
+      "trialEnded": "Trial Ended",
+      "trialDaysLeft": "{{days}} trial days left",
+      "expired": "Expired",
+      "expires": "Expires {{date}}",
+      "paid": "Paid",
+      "days": "{{days}} days",
+      "ended": "Ended",
+      "detail": {
+        "title": "Workspace Detail",
+        "subscription": "Subscription",
+        "members": "Members",
+        "meetingReservations": "Meeting Reservations",
+        "totalDesks": "Total Desks",
+        "maxCapacity": "Max Capacity",
+        "registered": "Registered",
+        "trialStart": "Trial Start",
+        "trialRemaining": "Trial Remaining",
+        "subscriptionExpiry": "Subscription Expiry",
+        "approved": "Approved",
+        "paymentControls": "Payment Controls",
+        "restoreAccess": "Restore Access",
+        "markExpired": "Mark Expired",
+        "exportPdf": "Export PDF",
+        "recentMembers": "Recent Members",
+        "workingHours": "Working Hours: {{open}} - {{close}}",
+        "failedToLoad": "Failed to load detail"
+      }
+    },
+    "payments": {
+      "title": "Payment Management",
+      "noTenants": "No tenants found",
+      "restoreAccess": "Restore Access",
+      "markExpired": "Mark Expired"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "noNotifications": "No notifications"
+    },
+    "accessDenied": "Access denied.",
+    "error": {
+      "failedToLoad": "Failed to load",
+      "failedToApprove": "Failed to approve tenant",
+      "failedToReject": "Failed to reject tenant",
+      "failedToUpdatePayment": "Failed to update payment status",
+      "failedToLoadDetail": "Failed to load workspace detail",
+      "failedToDownloadPdf": "Failed to download PDF",
+      "approvedEmailTimeout": "Tenant approved but approval email timed out — Resend might be slow.",
+      "approvedEmailFailed": "Tenant approved but email failed: {{error}}"
+    }
+  },
+  "pendingApproval": {
+    "title": "Account Pending Approval",
+    "description": "Your workspace",
+    "description2": "has been created and is currently under review. A Super Admin will review your workspace details and activate your account soon.",
+    "info": "You'll get full access once your account is approved and your 30-day free trial begins. Check back later.",
+    "contact": "Need help? Contact us at",
+    "backToHome": "Back to Home"
+  },
+  "subscriptionExpired": {
+    "title": "Subscription Expired",
+    "description": "Your workspace",
+    "description2": "subscription has expired. Please contact support to renew your subscription and restore access.",
+    "info": "Access to your workspace has been suspended. Your team members cannot log in until the subscription is renewed.",
+    "contact": "Contact us at",
+    "contact2": "for assistance.",
+    "backToHome": "Back to Home"
+  },
+  "landing": {
+    "navbar": {
+      "about": "About",
+      "signIn": "Sign In",
+      "signUp": "Sign Up"
+    },
+    "hero": {
+      "badge": "All-in-one workspace management",
+      "title1": "Manage Your Coworking Space",
+      "title2": "Efficiently",
+      "subtitle": "Streamline member management, track attendance, handle reservations, and grow your coworking business — all from one powerful platform.",
+      "getStarted": "Get Started",
+      "signIn": "Sign In"
+    },
+    "features": {
+      "badge": "Features",
+      "title": "Everything you need to run your space",
+      "subtitle": "Powerful tools designed for modern coworking spaces.",
+      "workspaceManagement": "Workspace Management",
+      "workspaceManagementDesc": "Configure desks, capacity, and workspace settings tailored to your space.",
+      "memberManagement": "Member Management",
+      "memberManagementDesc": "Track members, renewals, payments, and profiles from a single dashboard.",
+      "meetingRoom": "Meeting Room Reservations",
+      "meetingRoomDesc": "Let members book meeting rooms with an easy scheduling system.",
+      "analytics": "Analytics Dashboard",
+      "analyticsDesc": "Visualize revenue, occupancy trends, and member growth in real time.",
+      "attendance": "Attendance Tracking",
+      "attendanceDesc": "Monitor check-ins and daily attendance with simple tracking tools.",
+      "excelExport": "Excel Export",
+      "excelExportDesc": "Export member lists, payments, and reports to Excel with one click.",
+      "secureAuth": "Secure Authentication",
+      "secureAuthDesc": "Multi-tenant architecture with JWT-based auth and role management.",
+      "fastPerformance": "Fast Performance",
+      "fastPerformanceDesc": "Optimized queries and lazy-loaded components keep the app blazing fast."
+    },
+    "howItWorks": {
+      "badge": "How It Works",
+      "title": "Get started in four simple steps",
+      "subtitle": "From setup to full operation — fast and frictionless.",
+      "step1Title": "Create your workspace",
+      "step1Desc": "Set up your coworking space in minutes — configure desks, hours, and meeting rooms.",
+      "step2Title": "Add your members",
+      "step2Desc": "Register members with their plans, fees, and start dates. Manage renewals effortlessly.",
+      "step3Title": "Manage reservations",
+      "step3Desc": "Members can book desks and meeting rooms. Track usage and availability in real time.",
+      "step4Title": "Track everything easily",
+      "step4Desc": "Monitor revenue, attendance, and growth from a beautiful analytics dashboard."
+    },
+    "dashboard": {
+      "badge": "Dashboard",
+      "title": "Beautiful analytics at your fingertips",
+      "subtitle": "Real-time insights into your workspace performance.",
+      "revenueOverview": "Revenue Overview",
+      "weeklyRevenue": "Weekly revenue breakdown",
+      "revenue": "Revenue",
+      "target": "Target",
+      "totalRevenue": "Total Revenue",
+      "activeMembers": "Active Members",
+      "occupancy": "Occupancy"
+    },
+    "benefits": {
+      "badge": "Benefits",
+      "title": "Why coworking spaces choose us",
+      "subtitle": "Built for real workspaces. Trusted by growing teams.",
+      "saveTime": "Save Time",
+      "saveTimeDesc": "Automate renewals, reminders, and reporting so you can focus on growing your space.",
+      "smartPayments": "Smart Payments",
+      "smartPaymentsDesc": "Track payments, dues, and financials with a clear overview of who has paid.",
+      "dedicatedSupport": "Dedicated Support",
+      "dedicatedSupportDesc": "Our team is here to help you every step of the way with fast response times.",
+      "autoRenewals": "Auto Renewals",
+      "autoRenewalsDesc": "Membership renewals are handled automatically — no manual follow-ups needed.",
+      "multiLanguage": "Multi-language",
+      "multiLanguageDesc": "Full Arabic and English support with RTL layout for regional coworking spaces.",
+      "mobileFriendly": "Mobile Friendly",
+      "mobileFriendlyDesc": "Access your dashboard and manage members from any device, anywhere."
+    },
+    "cta": {
+      "title": "Ready to transform your coworking space?",
+      "subtitle": "Join hundreds of workspace managers who trust Coworkspace to run their business.",
+      "getStarted": "Get Started Free",
+      "signIn": "Sign In"
+    },
+    "footer": {
+      "home": "Home",
+      "login": "Login",
+      "register": "Register",
+      "copyright": "\u00a9 {{year}} Coworkspace. All rights reserved."
+    }
   }
 }

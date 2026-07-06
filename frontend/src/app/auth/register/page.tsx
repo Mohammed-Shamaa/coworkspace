@@ -43,15 +43,15 @@ function RegisterForm() {
 
     const clientErrors: FieldErrors = {}
     if (!email.trim()) clientErrors.email = [t('errors.generic')]
-    if (!password.trim() || password.length < 8) clientErrors.password = ['Password must be at least 8 characters.']
+    if (!password.trim() || password.length < 8) clientErrors.password = [t('auth.passwordError')]
     if (!fullName.trim()) clientErrors.fullName = [t('errors.generic')]
     if (!companyName.trim()) clientErrors.companyName = [t('errors.generic')]
     if (!subdomain.trim()) clientErrors.subdomain = [t('errors.generic')]
-    if (!whatsappNumber.trim()) clientErrors.whatsappNumber = ['WhatsApp number is required.']
+    if (!whatsappNumber.trim()) clientErrors.whatsappNumber = [t('auth.whatsappError')]
 
     if (Object.keys(clientErrors).length > 0) {
       setFieldErrors(clientErrors)
-      setErrorMessage('Please fill in all required fields.')
+      setErrorMessage(t('auth.fillRequired'))
       return
     }
 
@@ -130,13 +130,13 @@ function RegisterForm() {
           href="/"
           className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:scale-[1.02] hover:bg-blue-50 hover:text-[#1565C0] dark:text-gray-400 dark:hover:bg-blue-950 dark:hover:text-blue-400"
         >
-          Home
+          {t('sidebar.home')}
         </Link>
         <Link
           href="/about"
           className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:scale-[1.02] hover:bg-blue-50 hover:text-[#1565C0] dark:text-gray-400 dark:hover:bg-blue-950 dark:hover:text-blue-400"
         >
-          About Us
+          {t('landing.navbar.about')}
         </Link>
       </nav>
       <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-2xl border border-white/30 dark:border-white/10 shadow-xl shadow-black/5 p-6 md:p-8 w-full max-w-sm md:max-w-md mx-4">
@@ -155,7 +155,7 @@ function RegisterForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {renderField('companyName', t('auth.companyName'), 'text', companyName, setCompanyName, 'My Company')}
           {renderField('subdomain', t('auth.subdomainLabel') + ' ' + t('auth.subdomainHint'), 'text', subdomain, setSubdomain, t('auth.subdomainPlaceholder'))}
-          {renderField('whatsappNumber', 'WhatsApp Number', 'tel', whatsappNumber, setWhatsappNumber, '+201234567890')}
+          {renderField('whatsappNumber', t('auth.whatsappLabel'), 'tel', whatsappNumber, setWhatsappNumber, t('auth.whatsappPlaceholder'))}
           {renderField('fullName', t('auth.fullName'), 'text', fullName, setFullName, 'John Doe')}
           {renderField('email', t('auth.emailLabel'), 'email', email, setEmail, 'name@example.com')}
           {renderField('password', t('auth.passwordLabel'), 'password', password, setPassword, 'Create a strong password', { minLength: 6 })}

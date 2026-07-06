@@ -2,17 +2,10 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Clock, CreditCard, HeadphonesIcon, RefreshCw, Globe, Smartphone } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 
-const benefits = [
-  { icon: Clock, title: 'Save Time', description: 'Automate renewals, reminders, and reporting so you can focus on growing your space.' },
-  { icon: CreditCard, title: 'Smart Payments', description: 'Track payments, dues, and financials with a clear overview of who has paid.' },
-  { icon: HeadphonesIcon, title: 'Dedicated Support', description: 'Our team is here to help you every step of the way with fast response times.' },
-  { icon: RefreshCw, title: 'Auto Renewals', description: 'Membership renewals are handled automatically — no manual follow-ups needed.' },
-  { icon: Globe, title: 'Multi-language', description: 'Full Arabic and English support with RTL layout for regional coworking spaces.' },
-  { icon: Smartphone, title: 'Mobile Friendly', description: 'Access your dashboard and manage members from any device, anywhere.' },
-]
-
-function BenefitCard({ icon: Icon, title, description, index }: { icon: typeof benefits[0]['icon']; title: string; description: string; index: number }) {
+function BenefitCard({ icon: Icon, title, description, index }: { icon: React.ElementType; title: string; description: string; index: number }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-60px' })
 
@@ -38,6 +31,16 @@ function BenefitCard({ icon: Icon, title, description, index }: { icon: typeof b
 export default function Benefits() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const { t } = useTranslation()
+
+  const benefits = [
+    { icon: Clock, title: t('landing.benefits.saveTime'), description: t('landing.benefits.saveTimeDesc') },
+    { icon: CreditCard, title: t('landing.benefits.smartPayments'), description: t('landing.benefits.smartPaymentsDesc') },
+    { icon: HeadphonesIcon, title: t('landing.benefits.dedicatedSupport'), description: t('landing.benefits.dedicatedSupportDesc') },
+    { icon: RefreshCw, title: t('landing.benefits.autoRenewals'), description: t('landing.benefits.autoRenewalsDesc') },
+    { icon: Globe, title: t('landing.benefits.multiLanguage'), description: t('landing.benefits.multiLanguageDesc') },
+    { icon: Smartphone, title: t('landing.benefits.mobileFriendly'), description: t('landing.benefits.mobileFriendlyDesc') },
+  ]
 
   return (
     <section className="py-20 md:py-28" id="benefits">
@@ -49,9 +52,9 @@ export default function Benefits() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">Benefits</span>
-          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">Why coworking spaces choose us</h2>
-          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">Built for real workspaces. Trusted by growing teams.</p>
+          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.benefits.badge')}</span>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.benefits.title')}</h2>
+          <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.benefits.subtitle')}</p>
         </motion.div>
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

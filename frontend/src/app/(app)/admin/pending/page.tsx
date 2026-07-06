@@ -4,6 +4,8 @@ import { adminApi } from '@/lib/api'
 import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Clock, CheckCircle, XCircle, Loader2, Building2, Phone, Mail, MapPin, Hash } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 import type { AdminTenant } from '@/types'
 
 export default function PendingRequestsPage() {
@@ -12,6 +14,7 @@ export default function PendingRequestsPage() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
   const [error, setError] = useState('')
+  const { t } = useTranslation()
 
   const fetchTenants = async () => {
     try {
@@ -19,7 +22,7 @@ export default function PendingRequestsPage() {
       setTenants(res.data.data)
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } }; message?: string }
-      setError(axiosErr.response?.data?.message || axiosErr.message || 'Failed to load')
+      setError(axiosErr.response?.data?.message || axiosErr.message || t('admin.error.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -38,12 +41,12 @@ export default function PendingRequestsPage() {
       if (data.emailSent) {
         setError('')
       } else if (data.emailError === 'timeout') {
-        setError('Tenant approved but approval email timed out — Resend might be slow.')
+        setError(t('admin.error.approvedEmailTimeout'))
       } else if (data.emailError) {
-        setError(`Tenant approved but email failed: ${data.emailError}`)
+        setError(t('admin.error.approvedEmailFailed', { error: data.emailError }))
       }
     } catch {
-      setError('Failed to approve tenant')
+      setError(t('admin.error.failedToApprove'))
     } finally {
       setActionLoading(null)
     }
@@ -55,13 +58,13 @@ export default function PendingRequestsPage() {
       await adminApi.rejectTenant(id)
       setTenants(prev => prev.filter(t => t.id !== id))
     } catch {
-      setError('Failed to reject tenant')
+      setError(t('admin.error.failedToReject'))
     } finally {
       setActionLoading(null)
     }
   }
 
-  if (!isSuperAdmin) return <div className="text-center py-20 text-[var(--text-secondary)]">Access denied.</div>
+  if (!isSuperAdmin) return <div className="text-center py-20 text-[var(--text-secondary)]">{t('admin.accessDenied')}</div>
 
   if (loading) {
     return (
@@ -75,7 +78,7 @@ export default function PendingRequestsPage() {
     <div>
       <div className="flex items-center gap-3 mb-6">
         <Clock className="w-7 h-7 text-amber-500" />
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Pending Approval Requests</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">{t('admin.pending.title')}</h1>
       </div>
 
       {error && (
@@ -85,8 +88,8 @@ export default function PendingRequestsPage() {
       {tenants.length === 0 ? (
         <div className="text-center py-20 text-[var(--text-secondary)]">
           <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-500" />
-          <p className="text-lg font-medium">No pending requests</p>
-          <p className="text-sm">All workspaces have been reviewed.</p>
+          <p className="text-lg font-medium">{t('admin.pending.noPending')}</p>
+          <p className="text-sm">{t('admin.pending.noPendingDesc')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -121,13 +124,13 @@ export default function PendingRequestsPage() {
                   </div>
                   {tenant.totalDesks && (
                     <div className="mt-2 text-xs text-[var(--text-secondary)]">
-                      {tenant.totalDesks} desks, {tenant.maxCapacity} max capacity
-                      {tenant.hasMeetingRoom ? ' • Meeting room' : ''}
-                      {tenant.openingTime ? ` • ${tenant.openingTime} - ${tenant.closingTime}` : ''}
+                      {t('admin.pending.desks', { total: tenant.totalDesks, max: tenant.maxCapacity })}
+                      {tenant.hasMeetingRoom ? t('admin.pending.meetingRoom') : ''}
+                      {tenant.openingTime ? t('admin.pending.hours', { open: tenant.openingTime, close: tenant.closingTime }) : ''}
                     </div>
                   )}
                   <div className="text-xs text-[var(--text-secondary)] mt-1">
-                    Registered: {new Date(tenant.createdAt).toLocaleDateString()}
+                    {t('admin.pending.registered')}: {new Date(tenant.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -138,7 +141,7 @@ export default function PendingRequestsPage() {
                     size="sm"
                   >
                     {actionLoading === tenant.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                    Approve
+                    {t('admin.pending.approve')}
                   </Button>
                   <Button
                     onClick={() => handleReject(tenant.id)}
@@ -148,7 +151,7 @@ export default function PendingRequestsPage() {
                     size="sm"
                   >
                     <XCircle className="w-4 h-4" />
-                    Reject
+                    {t('admin.pending.reject')}
                   </Button>
                 </div>
               </div>

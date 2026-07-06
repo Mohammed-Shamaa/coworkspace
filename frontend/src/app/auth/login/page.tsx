@@ -23,7 +23,7 @@ function LoginForm() {
     e.preventDefault()
     setError('')
     if (!email.trim() || !password.trim()) {
-      setError('Please fill in all required fields.')
+      setError(t('auth.fillRequired'))
       return
     }
     setLoading(true)
@@ -35,11 +35,11 @@ function LoginForm() {
       if (apiErr.apiError) {
         setError(apiErr.apiError.message)
       } else if (apiErr.code === 'ERR_NETWORK' || !apiErr.response) {
-        setError('Unable to connect to the server. Please ensure the backend is running on port 5000 and try again.')
+        setError(t('auth.connectionError'))
       } else if (apiErr.code === 'ECONNABORTED') {
-        setError('Connection timed out. Please check your network and try again.')
+        setError(t('auth.timeoutError'))
       } else if (apiErr.response?.status === 401) {
-        setError('Invalid email or password.')
+        setError(t('auth.invalidCredentials'))
       } else {
         setError(apiErr.response?.data?.message || apiErr.response?.data?.title || t('auth.loginFailed'))
       }
@@ -56,13 +56,13 @@ function LoginForm() {
           href="/"
           className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:scale-[1.02] hover:bg-blue-50 hover:text-[#1565C0] dark:text-gray-400 dark:hover:bg-blue-950 dark:hover:text-blue-400"
         >
-          Home
+          {t('sidebar.home')}
         </Link>
         <Link
           href="/about"
           className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:scale-[1.02] hover:bg-blue-50 hover:text-[#1565C0] dark:text-gray-400 dark:hover:bg-blue-950 dark:hover:text-blue-400"
         >
-          About Us
+          {t('landing.navbar.about')}
         </Link>
       </nav>
       <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-2xl border border-white/30 dark:border-white/10 shadow-xl shadow-black/5 p-6 md:p-8 w-full max-w-sm mx-4">
