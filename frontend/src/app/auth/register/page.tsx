@@ -17,6 +17,7 @@ interface FieldErrors {
   fullName?: string[]
   companyName?: string[]
   subdomain?: string[]
+  whatsappNumber?: string[]
   general?: string[]
   [key: string]: string[] | undefined
 }
@@ -27,6 +28,7 @@ function RegisterForm() {
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [subdomain, setSubdomain] = useState('')
+  const [whatsappNumber, setWhatsappNumber] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [loading, setLoading] = useState(false)
@@ -45,6 +47,7 @@ function RegisterForm() {
     if (!fullName.trim()) clientErrors.fullName = [t('errors.generic')]
     if (!companyName.trim()) clientErrors.companyName = [t('errors.generic')]
     if (!subdomain.trim()) clientErrors.subdomain = [t('errors.generic')]
+    if (!whatsappNumber.trim()) clientErrors.whatsappNumber = ['WhatsApp number is required.']
 
     if (Object.keys(clientErrors).length > 0) {
       setFieldErrors(clientErrors)
@@ -55,7 +58,7 @@ function RegisterForm() {
     setLoading(true)
     try {
       await register({
-        email, password, fullName, companyName, subdomain: subdomain.toLowerCase(),
+        email, password, fullName, companyName, subdomain: subdomain.toLowerCase(), whatsappNumber,
       })
       router.push('/dashboard')
     } catch (err: unknown) {
@@ -152,6 +155,7 @@ function RegisterForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {renderField('companyName', t('auth.companyName'), 'text', companyName, setCompanyName, 'My Company')}
           {renderField('subdomain', t('auth.subdomainLabel') + ' ' + t('auth.subdomainHint'), 'text', subdomain, setSubdomain, t('auth.subdomainPlaceholder'))}
+          {renderField('whatsappNumber', 'WhatsApp Number', 'tel', whatsappNumber, setWhatsappNumber, '+201234567890')}
           {renderField('fullName', t('auth.fullName'), 'text', fullName, setFullName, 'John Doe')}
           {renderField('email', t('auth.emailLabel'), 'email', email, setEmail, 'name@example.com')}
           {renderField('password', t('auth.passwordLabel'), 'password', password, setPassword, 'Create a strong password', { minLength: 6 })}

@@ -40,7 +40,8 @@ public class AuthController : ControllerBase
             string.IsNullOrWhiteSpace(request.Password) ||
             string.IsNullOrWhiteSpace(request.FullName) ||
             string.IsNullOrWhiteSpace(request.CompanyName) ||
-            string.IsNullOrWhiteSpace(request.Subdomain))
+            string.IsNullOrWhiteSpace(request.Subdomain) ||
+            string.IsNullOrWhiteSpace(request.WhatsappNumber))
         {
             _logger.LogWarning("Registration failed: required fields missing");
             return BadRequest(new
@@ -54,7 +55,8 @@ public class AuthController : ControllerBase
                     password = string.IsNullOrWhiteSpace(request.Password) ? new[] { "Password is required." } : Array.Empty<string>(),
                     fullName = string.IsNullOrWhiteSpace(request.FullName) ? new[] { "Full name is required." } : Array.Empty<string>(),
                     companyName = string.IsNullOrWhiteSpace(request.CompanyName) ? new[] { "Company name is required." } : Array.Empty<string>(),
-                    subdomain = string.IsNullOrWhiteSpace(request.Subdomain) ? new[] { "Subdomain is required." } : Array.Empty<string>()
+                    subdomain = string.IsNullOrWhiteSpace(request.Subdomain) ? new[] { "Subdomain is required." } : Array.Empty<string>(),
+                    whatsappNumber = string.IsNullOrWhiteSpace(request.WhatsappNumber) ? new[] { "WhatsApp number is required." } : Array.Empty<string>()
                 }
             });
         }
@@ -113,6 +115,8 @@ public class AuthController : ControllerBase
                     Subdomain = request.Subdomain.ToLower(),
                     PrimaryColor = "#1565C0",
                     IsActive = true,
+                    Status = TenantStatus.Pending,
+                    WhatsappNumber = request.WhatsappNumber,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -158,7 +162,11 @@ public class AuthController : ControllerBase
                         LogoUrl = tenant.LogoUrl,
                         PrimaryColor = tenant.PrimaryColor,
                         CompanyName = tenant.CompanyName,
-                        HasMeetingRoom = tenant.HasMeetingRoom
+                        HasMeetingRoom = tenant.HasMeetingRoom,
+                        Status = tenant.Status.ToString(),
+                        PaymentStatus = tenant.PaymentStatus.ToString(),
+                        TrialStartDate = tenant.TrialStartDate,
+                        SubscriptionExpiryDate = tenant.SubscriptionExpiryDate
                     }
                 };
             }
@@ -273,7 +281,11 @@ public class AuthController : ControllerBase
                     LogoUrl = tenant.LogoUrl,
                     PrimaryColor = tenant.PrimaryColor,
                     CompanyName = tenant.CompanyName,
-                    HasMeetingRoom = tenant.HasMeetingRoom
+                    HasMeetingRoom = tenant.HasMeetingRoom,
+                    Status = tenant.Status.ToString(),
+                    PaymentStatus = tenant.PaymentStatus.ToString(),
+                    TrialStartDate = tenant.TrialStartDate,
+                    SubscriptionExpiryDate = tenant.SubscriptionExpiryDate
                 }
             };
         }
@@ -336,7 +348,11 @@ public class AuthController : ControllerBase
                     LogoUrl = user.Tenant.LogoUrl,
                     PrimaryColor = user.Tenant.PrimaryColor,
                     CompanyName = user.Tenant.CompanyName,
-                    HasMeetingRoom = user.Tenant.HasMeetingRoom
+                    HasMeetingRoom = user.Tenant.HasMeetingRoom,
+                    Status = user.Tenant.Status.ToString(),
+                    PaymentStatus = user.Tenant.PaymentStatus.ToString(),
+                    TrialStartDate = user.Tenant.TrialStartDate,
+                    SubscriptionExpiryDate = user.Tenant.SubscriptionExpiryDate
                 }
             };
         }

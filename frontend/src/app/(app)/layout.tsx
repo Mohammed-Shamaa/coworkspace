@@ -10,7 +10,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { setupApi } from '@/lib/api'
 
 function OnboardingCheck({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, loading } = useAuth()
+  const { isAuthenticated, loading, user, tenant } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const routerRef = useRef(router)
@@ -20,15 +20,36 @@ function OnboardingCheck({ children }: { children: React.ReactNode }) {
   const checkedRef = useRef(false)
 
   useEffect(() => {
-    if (loading || !isAuthenticated || pathname === '/onboarding') return
+    if (loading || !isAuthenticated) return
     if (checkedRef.current) return
     checkedRef.current = true
+
+    // SuperAdmin goes straight to admin dashboard
+    if (user?.role === 'SuperAdmin') {
+      if (pathname !== '/admin' && !pathname.startsWith('/admin')) {
+        routerRef.current.push('/admin')
+      }
+      return
+    }
+
+    // Non-SuperAdmin: check subscription status first
+    if (tenant?.paymentStatus === 'Expired' || tenant?.paymentStatus === 'Suspended') {
+      if (pathname !== '/subscription-expired') {
+        routerRef.current.push('/subscription-expired')
+      }
+      return
+    }
 
     const check = async () => {
       try {
         const res = await setupApi.getStatus()
         if (!res.data.onboardingCompleted) {
           routerRef.current.push('/onboarding')
+          return
+        }
+        // Onboarding complete — check approval status
+        if (tenant?.status === 'Pending' && pathname !== '/pending-approval') {
+          routerRef.current.push('/pending-approval')
         }
       } catch (err: unknown) {
         const axiosErr = err as { response?: { status?: number; data?: Record<string, unknown> }; message?: string }
@@ -38,7 +59,7 @@ function OnboardingCheck({ children }: { children: React.ReactNode }) {
       }
     }
     check()
-  }, [isAuthenticated, loading, pathname])
+  }, [isAuthenticated, loading, pathname, user?.role, tenant?.status, tenant?.paymentStatus])
 
   return <>{children}</>
 }

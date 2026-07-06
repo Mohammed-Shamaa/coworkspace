@@ -120,6 +120,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
     options.AddPolicy("RequireManager", policy => policy.RequireRole("Admin", "Manager"));
+    options.AddPolicy("RequireSuperAdmin", policy => policy.RequireRole("SuperAdmin"));
 });
 
 // CORS — environment-aware
@@ -182,6 +183,63 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Seed SuperAdmin account
+try
+{
+    using var seedScope = app.Services.CreateScope();
+    var seedDb = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var superAdminEmail = "admin@deskora.com";
+    var existingSuperAdmin = await seedDb.Users.FirstOrDefaultAsync(u => u.Email == superAdminEmail);
+
+    if (existingSuperAdmin == null)
+    {
+        var superAdminTenant = new Coworkspace.API.Models.Tenant
+        {
+            Name = "Deskora",
+            CompanyName = "Deskora",
+            Subdomain = "admin",
+            PrimaryColor = "#1565C0",
+            IsActive = true,
+            Status = Coworkspace.API.Models.TenantStatus.Approved,
+            OnboardingCompleted = true,
+            TotalDesks = 0,
+            MaxCapacity = 0,
+            HasMeetingRoom = false,
+            Address = "Deskora HQ",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        seedDb.Tenants.Add(superAdminTenant);
+        await seedDb.SaveChangesAsync();
+
+        var superAdmin = new Coworkspace.API.Models.User
+        {
+            Email = superAdminEmail,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Mohammed+-@@^"),
+            FullName = "Super Admin",
+            Role = Coworkspace.API.Models.UserRole.SuperAdmin,
+            TenantId = superAdminTenant.Id,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        seedDb.Users.Add(superAdmin);
+        await seedDb.SaveChangesAsync();
+
+        Console.WriteLine("[Startup] SuperAdmin account seeded successfully.");
+    }
+    else
+    {
+        Console.WriteLine("[Startup] SuperAdmin account already exists.");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"[Startup] WARNING: SuperAdmin seeding failed: {ex.Message}");
+}
+
 // QuestPDF license
 try
 {
@@ -241,6 +299,12 @@ CREATE TABLE IF NOT EXISTS "Tenants" (
     "IsActive" boolean NOT NULL,
     "CreatedAt" timestamp with time zone NOT NULL,
     "UpdatedAt" timestamp with time zone NOT NULL,
+    "Status" integer NOT NULL,
+    "PaymentStatus" integer NOT NULL,
+    "ApprovalDate" timestamp with time zone NULL,
+    "TrialStartDate" timestamp with time zone NULL,
+    "SubscriptionExpiryDate" timestamp with time zone NULL,
+    "WhatsappNumber" character varying(50) NOT NULL,
     "OnboardingCompleted" boolean NOT NULL,
     "TotalDesks" integer NULL,
     "MaxCapacity" integer NULL,

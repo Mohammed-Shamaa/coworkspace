@@ -13,6 +13,7 @@ public class RegisterRequest
     [Required] [MaxLength(200)] public string FullName { get; set; } = string.Empty;
     [Required] [MaxLength(200)] public string CompanyName { get; set; } = string.Empty;
     [Required] [MaxLength(100)] public string Subdomain { get; set; } = string.Empty;
+    [MaxLength(50)] public string WhatsappNumber { get; set; } = string.Empty;
 }
 
 public class LoginRequest
@@ -43,6 +44,11 @@ public class RefreshTokenRequest
     [Required] public string RefreshToken { get; set; } = string.Empty;
 }
 
+public class UpdatePaymentStatusRequest
+{
+    [Required] public string PaymentStatus { get; set; } = string.Empty;
+}
+
 public class UserInfo
 {
     public int Id { get; set; }
@@ -60,4 +66,8 @@ public class TenantInfo
     public string PrimaryColor { get; set; } = "#1565C0";
     public string CompanyName { get; set; } = string.Empty;
     public bool HasMeetingRoom { get; set; }
+    public string Status { get; set; } = "Pending";
+    public string PaymentStatus { get; set; } = "Trial";
+    public DateTime? TrialStartDate { get; set; }
+    public DateTime? SubscriptionExpiryDate { get; set; }
 }

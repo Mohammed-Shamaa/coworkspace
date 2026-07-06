@@ -244,6 +244,16 @@ export const setupApi = {
   complete: () => api.post('/setup/complete'),
 }
 
+export const adminApi = {
+  getStats: () => api.get('/admin/stats'),
+  getPendingTenants: () => api.get('/admin/pending-tenants'),
+  getActiveWorkspaces: () => api.get('/admin/active-workspaces'),
+  approveTenant: (id: number) => api.post(`/admin/${id}/approve`),
+  rejectTenant: (id: number) => api.post(`/admin/${id}/reject`),
+  getPayments: () => api.get('/admin/payments'),
+  updatePaymentStatus: (id: number, paymentStatus: string) => api.post(`/admin/${id}/payment-status`, { paymentStatus }),
+}
+
 export const meetingRoomApi = {
   getAll: (params?: { date?: string; search?: string }) => api.get('/meetingroom', { params }),
   getById: (id: number) => api.get(`/meetingroom/${id}`),

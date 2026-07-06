@@ -15,6 +15,7 @@ interface AuthContextType {
   register: (data: Record<string, unknown>) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
+  isSuperAdmin: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -163,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     isAuthenticated: !!user,
+    isSuperAdmin: user?.role === 'SuperAdmin',
   }), [user, tenant, loading, onboardingCompleted, checkOnboardingStatus, refreshTenant, login, register, logout])
 
   return (

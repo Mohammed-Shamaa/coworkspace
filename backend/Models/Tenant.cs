@@ -30,6 +30,16 @@ public class Tenant
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    // Approval & Payment fields
+    public TenantStatus Status { get; set; } = TenantStatus.Pending;
+    public TenantPaymentStatus PaymentStatus { get; set; } = TenantPaymentStatus.Trial;
+    public DateTime? ApprovalDate { get; set; }
+    public DateTime? TrialStartDate { get; set; }
+    public DateTime? SubscriptionExpiryDate { get; set; }
+
+    [MaxLength(50)]
+    public string WhatsappNumber { get; set; } = string.Empty;
+
     // Onboarding fields
     public bool OnboardingCompleted { get; set; } = false;
     public int? TotalDesks { get; set; }
