@@ -17,12 +17,14 @@ public class AdminController : ControllerBase
     private readonly AppDbContext _db;
     private readonly ILogger<AdminController> _logger;
     private readonly PdfService _pdfService;
+    private readonly EmailService _emailService;
 
-    public AdminController(AppDbContext db, ILogger<AdminController> logger, PdfService pdfService)
+    public AdminController(AppDbContext db, ILogger<AdminController> logger, PdfService pdfService, EmailService emailService)
     {
         _db = db;
         _logger = logger;
         _pdfService = pdfService;
+        _emailService = emailService;
     }
 
     [HttpGet("pending-tenants")]
@@ -88,7 +90,10 @@ public class AdminController : ControllerBase
     [HttpPost("{tenantId}/approve")]
     public async Task<ActionResult> ApproveTenant(int tenantId)
     {
-        var tenant = await _db.Tenants.FindAsync(tenantId);
+        var tenant = await _db.Tenants
+            .Include(t => t.Users)
+            .FirstOrDefaultAsync(t => t.Id == tenantId);
+
         if (tenant == null)
             return NotFound(new { success = false, message = "Tenant not found." });
 
@@ -104,6 +109,25 @@ public class AdminController : ControllerBase
         await _db.SaveChangesAsync();
 
         _logger.LogInformation("Tenant {TenantId} ({Name}) approved by SuperAdmin", tenantId, tenant.Name);
+
+        // Fire-and-forget approval email (non-blocking)
+        var adminUser = tenant.Users.FirstOrDefault(u => u.Role == UserRole.Admin);
+        if (adminUser != null)
+        {
+            var email = adminUser.Email;
+            var company = tenant.CompanyName;
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendApprovalEmailAsync(email, company);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send approval email to {Email} for tenant {TenantId}", email, tenantId);
+                }
+            });
+        }
 
         return Ok(new { success = true, message = "Tenant approved successfully." });
     }

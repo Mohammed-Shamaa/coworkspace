@@ -3,6 +3,7 @@ using Coworkspace.API.Data;
 using Coworkspace.API.Middleware;
 using Coworkspace.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -146,6 +147,15 @@ builder.Services.AddCors(options =>
 
 // Caching (used by RateLimitingMiddleware)
 builder.Services.AddMemoryCache();
+
+// Resend (email)
+var hasResendKey = !string.IsNullOrEmpty(builder.Configuration["Resend:ApiKey"]);
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<EmailService>();
+if (hasResendKey)
+    Console.WriteLine("[Startup] Resend email service configured.");
+else
+    Console.WriteLine("[Startup] Warning: Resend:ApiKey not configured. Email notifications disabled.");
 
 // Services
 builder.Services.AddScoped<AuditService>();
