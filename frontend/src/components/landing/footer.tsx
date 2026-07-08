@@ -9,8 +9,8 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <div className="flex items-center gap-3">
-            <img src="/logo-48.png" alt="Coworkspace" className="h-8 w-8" />
-            <span className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">Coworkspace</span>
+            <img src="/logo-48.png" alt={t('landing.footer.logoAlt')} className="h-8 w-8" />
+            <span className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{t('landing.footer.logoAlt')}</span>
           </div>
 
           <nav className="flex items-center gap-4 md:gap-6 text-sm">

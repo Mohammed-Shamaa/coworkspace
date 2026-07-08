@@ -1,6 +1,8 @@
 'use client'
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   options: { value: string; label: string }[]
@@ -8,6 +10,7 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, options, ...props }, ref) => {
+    const { t } = useTranslation()
     return (
       <select
         className={cn(
@@ -17,7 +20,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         ref={ref}
         {...props}
       >
-        <option value="">Select...</option>
+        <option value="">{t('common.selectPlaceholder')}</option>
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}

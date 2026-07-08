@@ -78,11 +78,11 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('auth.email')}</label>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" required />
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('common.emailPlaceholder')} required />
           </div>
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('auth.password')}</label>
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" required />
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('common.passwordPlaceholder')} required />
           </div>
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? t('auth.signingIn') : t('auth.signIn')}

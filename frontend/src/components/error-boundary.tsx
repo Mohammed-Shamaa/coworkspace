@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import i18n from '@/lib/i18n'
 
 interface Props { children: React.ReactNode }
 interface State { hasError: boolean; error: Error | null }
@@ -24,14 +25,14 @@ export class ErrorBoundary extends React.Component<Props, State> {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-md text-center">
             <div className="text-4xl mb-4">!</div>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Something went wrong</h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">An unexpected error occurred. Please try refreshing the page.</p>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{i18n.t('common.somethingWentWrong')}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{i18n.t('common.unexpectedError')}</p>
             <button onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload() }} className="px-4 py-2 bg-[#1565C0] text-white rounded hover:bg-[#1976D2] cursor-pointer">
-              Refresh Page
+              {i18n.t('common.refreshPage')}
             </button>
             {this.state.error && (
               <details className="mt-4 text-left">
-                <summary className="text-sm text-gray-500 cursor-pointer">Error details</summary>
+                <summary className="text-sm text-gray-500 cursor-pointer">{i18n.t('common.errorDetails')}</summary>
                 <pre className="mt-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded overflow-auto max-h-40">
                   {this.state.error.message}
                 </pre>

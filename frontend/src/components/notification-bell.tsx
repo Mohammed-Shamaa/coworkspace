@@ -171,7 +171,7 @@ export default function NotificationBell() {
             )}
             {totalCount > 20 && (
               <div className="p-2 text-center text-xs text-[var(--text-secondary)] border-t border-[var(--card-border)]">
-                {totalCount - 20} more
+                {totalCount - 20} {t('common.more')}
               </div>
             )}
           </div>

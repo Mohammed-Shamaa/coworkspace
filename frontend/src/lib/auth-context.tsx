@@ -1,6 +1,7 @@
 'use client'
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import i18n from './i18n'
 import api from './api'
 import type { User, Tenant, AuthResponse } from '@/types'
 
@@ -130,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     if (!email.trim() || !password.trim()) {
-      throw { apiError: { status: 0, message: 'Email and password are required.', code: 'VALIDATION_ERROR' } }
+      throw { apiError: { status: 0, message: i18n.t('common.authValidationRequired'), code: 'VALIDATION_ERROR' } }
     }
     const res = await api.post('/auth/login', { email: email.trim(), password })
     handleAuthResponse(res.data)

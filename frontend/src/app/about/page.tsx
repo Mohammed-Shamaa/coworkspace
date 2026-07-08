@@ -6,13 +6,8 @@ import { motion, useInView } from 'framer-motion'
 import { useScrollDirection } from '@/lib/use-scroll-direction'
 import { byDirection } from '@/lib/animation-variants'
 import { ArrowLeft, Globe, Users, Monitor, HeartHandshake } from 'lucide-react'
-
-const missions = [
-  { icon: Globe, title: 'Global Access', description: 'Build a coworking platform accessible to everyone, everywhere.' },
-  { icon: Users, title: 'Empower Teams', description: 'Empower remote teams and freelancers with digital workspace tools.' },
-  { icon: Monitor, title: 'Seamless Experience', description: 'Provide a seamless digital workspace experience across devices.' },
-  { icon: HeartHandshake, title: 'Connect People', description: 'Connect people across borders through technology and shared spaces.' },
-]
+import { useTranslation } from 'react-i18next'
+import '@/lib/i18n'
 
 function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   return (
@@ -45,6 +40,7 @@ function WhatsAppIcon({ size = 28 }: { size?: number }) {
 function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
+  const { t } = useTranslation()
 
   return (
       <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
@@ -60,7 +56,7 @@ function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
           }}
           className="whitespace-nowrap text-center text-xl font-bold leading-snug text-gray-900 md:text-2xl lg:text-3xl dark:text-[var(--text-primary)]"
         >
-          &ldquo;Deskora transformed how we manage our coworking space&rdquo;
+          {t('about.quote')}
         </motion.div>
       </div>
     </section>
@@ -79,9 +75,17 @@ function SectionHeading({ label, title }: { label: string; title: string }) {
 }
 
 export default function AboutPage() {
+  const { t } = useTranslation()
   const dir = useScrollDirection()
   const textRef = useRef(null)
   const isTextInView = useInView(textRef, { once: false })
+
+  const missions = [
+    { icon: Globe, title: t('about.globalAccess'), description: t('about.globalAccessDesc') },
+    { icon: Users, title: t('about.empowerTeams'), description: t('about.empowerTeamsDesc') },
+    { icon: Monitor, title: t('about.seamlessExperience'), description: t('about.seamlessExperienceDesc') },
+    { icon: HeartHandshake, title: t('about.connectPeople'), description: t('about.connectPeopleDesc') },
+  ]
 
   return (
     <div className="min-h-screen bg-white dark:bg-[var(--page-bg)]">
@@ -93,11 +97,11 @@ export default function AboutPage() {
           className="absolute left-4 top-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20 md:left-6 md:top-6 md:gap-2 md:px-4 md:text-sm"
         >
           <ArrowLeft size={16} />
-          Back to Home
+          {t('about.backToHome')}
         </Link>
         <Image
           src="/hero-bg-no-text_1.png"
-          alt="Deskora - Global coworking platform"
+          alt={t('about.heroTitle')}
           fill
           className="object-cover"
           priority
@@ -113,7 +117,7 @@ export default function AboutPage() {
             }}
             className="max-w-4xl text-center text-2xl font-bold leading-tight text-white drop-shadow-lg md:text-4xl lg:text-5xl"
           >
-            Building the Future of Workspaces from Gaza to the World
+            {t('about.heroTitle')}
           </motion.h1>
         </div>
         <div className="absolute inset-x-0 bottom-0 z-10 h-1/2 bg-gradient-to-t from-white via-white/60 to-transparent dark:from-[var(--page-bg)] dark:via-[var(--page-bg)]/60" />
@@ -123,7 +127,7 @@ export default function AboutPage() {
       <section className="py-20 md:py-28">
         <div className="mx-auto max-w-4xl px-6">
           <FadeIn>
-            <SectionHeading label="My Story" title="A journey of resilience and vision" />
+            <SectionHeading label={t('about.storyLabel')} title={t('about.storyTitle')} />
           </FadeIn>
           <FadeIn delay={0.1}>
             <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)]">
@@ -148,7 +152,7 @@ export default function AboutPage() {
     <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
         <div className="mx-auto max-w-6xl px-6">
           <FadeIn>
-            <SectionHeading label="Mission" title="What drives this platform" />
+            <SectionHeading label={t('about.missionLabel')} title={t('about.missionTitle')} />
           </FadeIn>
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {missions.map((mission, i) => (
@@ -173,7 +177,7 @@ export default function AboutPage() {
       <section className="py-20 md:py-28">
         <div className="mx-auto max-w-4xl px-6">
           <FadeIn>
-            <SectionHeading label="Contact" title="Let's connect" />
+            <SectionHeading label={t('about.contactLabel')} title={t('about.contactTitle')} />
           </FadeIn>
           <div className="mt-14 grid gap-6 md:grid-cols-2">
             <FadeIn delay={0.1}>
@@ -181,8 +185,8 @@ export default function AboutPage() {
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#0A66C2]/10 text-[#0A66C2]">
                   <LinkedInIcon size={28} />
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">LinkedIn</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-[var(--text-secondary)]">Let's connect professionally</p>
+                <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{t('about.linkedin')}</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-[var(--text-secondary)]">{t('about.linkedinDesc')}</p>
                 <a
                   href="https://www.linkedin.com/in/mohammed-sham3a/"
                   target="_blank"
@@ -190,7 +194,7 @@ export default function AboutPage() {
                   className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#0A66C2] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#004182]"
                 >
                   <LinkedInIcon size={16} />
-                  Connect on LinkedIn
+                  {t('about.connectLinkedin')}
                 </a>
               </div>
             </FadeIn>
@@ -200,8 +204,8 @@ export default function AboutPage() {
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#25D366]/10 text-[#25D366]">
                   <WhatsAppIcon size={28} />
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">WhatsApp</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-[var(--text-secondary)]">+972597744476</p>
+                <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{t('about.whatsapp')}</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-[var(--text-secondary)]">{t('about.whatsappDesc')}</p>
                 <a
                   href="https://wa.me/972597744476"
                   target="_blank"
@@ -209,7 +213,7 @@ export default function AboutPage() {
                   className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1da851]"
                 >
                   <WhatsAppIcon size={16} />
-                  Chat on WhatsApp
+                  {t('about.chatWhatsapp')}
                 </a>
               </div>
             </FadeIn>

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { CreateMemberRequest, CreateReservationRequest, UpdateReservationRequest } from '@/types'
 import type { ApiError } from './utils'
+import i18n from './i18n'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 let last429Warning = 0
@@ -139,7 +140,7 @@ api.interceptors.response.use(
   async (error) => {
     const normalizedError: ApiError = {
       status: 0,
-      message: 'Server is not reachable. Please check your connection and try again.',
+      message: i18n.t('common.serverError'),
       code: 'NETWORK_ERROR'
     }
 
@@ -147,7 +148,7 @@ api.interceptors.response.use(
       const status = error.response.status
       const data = error.response.data
       normalizedError.status = status
-      normalizedError.message = data?.message ?? data?.error ?? 'An unexpected error occurred.'
+      normalizedError.message = data?.message ?? data?.error ?? i18n.t('common.unexpectedApiError')
       normalizedError.code = data?.code
       normalizedError.errors = data?.errors
     }
