@@ -17,20 +17,12 @@ export default function EditMemberModal({ isOpen, onClose, member, onSuccess }: 
   if (!isOpen || !member) return null
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
-      <div
-        className="card-premium p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-scale-in"
-        onClick={(e) => e.stopPropagation()}
-        style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.15)' }}
-      >
-        <div className="flex items-center justify-between mb-6">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('members.editMember')}</h2>
-          <button
-            onClick={onClose}
-            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 rounded-lg p-1.5 hover:bg-[var(--hover-bg)] cursor-pointer"
-            aria-label={t('common.close')}
-          >
-            <X size={20} />
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 cursor-pointer" aria-label={t('common.close')}>
+            <X size={24} />
           </button>
         </div>
         <MemberForm

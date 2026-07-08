@@ -17,14 +17,13 @@ function FeatureCard({ icon: Icon, title, description, index }: { icon: typeof B
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
       transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
-      className="group card-premium p-6 cursor-default"
+      className="group rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-lg hover:shadow-blue-50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:hover:border-blue-900"
     >
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 text-[#1565C0] shadow-sm transition-all duration-300 group-hover:from-[#1565C0] group-hover:to-[#0EA5E9] group-hover:text-white group-hover:shadow-md group-hover:shadow-blue-200/50 group-hover:scale-110">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#1565C0] transition-colors group-hover:bg-[#1565C0] group-hover:text-white">
         <Icon size={24} />
       </div>
       <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-[var(--text-secondary)]">{description}</p>
-      <div className="mt-4 h-0.5 w-0 bg-gradient-to-r from-[#1565C0] to-[#0EA5E9] rounded-full transition-all duration-300 group-hover:w-full" />
     </motion.div>
   )
 }
@@ -45,9 +44,8 @@ export default function Features() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section className="relative overflow-hidden border-t border-gray-100 py-20 md:py-28 dark:border-[var(--card-border)]" id="features">
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-950/50 dark:to-transparent" />
-      <div className="mx-auto max-w-7xl px-6 relative">
+    <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]" id="features">
+      <div className="mx-auto max-w-7xl px-6">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 20 }}
@@ -55,7 +53,7 @@ export default function Features() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-block rounded-full bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-1.5 text-xs font-semibold text-[#1565C0] shadow-sm dark:from-blue-950 dark:to-blue-900">{t('landing.features.badge')}</span>
+          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.features.badge')}</span>
           <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.features.title')}</h2>
           <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.features.subtitle')}</p>
         </motion.div>

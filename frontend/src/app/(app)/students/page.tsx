@@ -24,6 +24,7 @@ function StudentsContent() {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } }; message?: string }
       setLoadError(error.response?.data?.error || error.message || 'Failed to load students')
+      console.error(err)
     }
   }
 
@@ -37,6 +38,7 @@ function StudentsContent() {
         if (!ignore) {
           const error = err as { response?: { data?: { error?: string } }; message?: string }
           setLoadError(error.response?.data?.error || error.message || 'Failed to load students')
+          console.error(err)
         }
       }
       if (!ignore) setLoading(false)
@@ -51,7 +53,7 @@ function StudentsContent() {
       const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
       window.open(url, '_blank')
     } catch (err) {
-      /* ignore */
+      console.error('Failed to download PDF:', err)
     }
   }
 
@@ -60,7 +62,7 @@ function StudentsContent() {
       await membersApi.markPaid(member.id)
       loadStudents()
     } catch (err) {
-      /* ignore */
+      console.error('Failed to mark as paid:', err)
     }
   }
 

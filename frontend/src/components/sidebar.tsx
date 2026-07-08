@@ -39,18 +39,13 @@ export default function Sidebar() {
   }, [tenant?.hasMeetingRoom, isSuperAdmin])
 
   return (
-    <aside
-      className="w-16 md:w-64 min-h-screen flex flex-col shrink-0 relative"
-      style={{ background: 'var(--sidebar-bg)' }}
-    >
-      <div className="p-3 md:p-6 border-b border-white/10">
-        <h1 className="text-xs md:text-xl font-bold text-center md:text-left truncate text-white">
-          {tenant?.companyName?.[0] || 'C'}
-        </h1>
-        <p className="hidden md:block text-xs text-[var(--sidebar-text-muted)] mt-1">{t('sidebar.membershipManager')}</p>
+    <aside className="w-16 md:w-64 min-h-screen bg-[#1A237E] text-white flex flex-col shrink-0">
+      <div className="p-3 md:p-6 border-b border-[#283593]">
+        <h1 className="text-xs md:text-xl font-bold text-center md:text-left truncate">{tenant?.companyName?.[0] || 'C'}</h1>
+        <p className="hidden md:block text-xs text-blue-200 mt-1">{t('sidebar.membershipManager')}</p>
       </div>
 
-      <nav className="flex-1 py-2 md:py-4 space-y-0.5 md:space-y-1 px-1.5 md:px-3">
+      <nav className="flex-1 py-2 md:py-4">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
@@ -59,50 +54,39 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center justify-center md:justify-start gap-3 px-2 md:px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group',
+                'flex items-center justify-center md:justify-start gap-3 px-2 md:px-6 py-3 text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-[var(--sidebar-active)] text-white shadow-sm'
-                  : 'text-[var(--sidebar-text-muted)] hover:bg-[var(--sidebar-hover)] hover:text-white'
+                  ? 'bg-[#283593] text-white md:border-r-4 md:border-[#1565C0]'
+                  : 'text-blue-200 hover:bg-[#283593] hover:text-white'
               )}
             >
-              <Icon
-                size={18}
-                className={cn(
-                  'transition-all duration-200',
-                  isActive ? 'text-white' : 'text-[var(--sidebar-text-muted)] group-hover:text-white group-hover:scale-110'
-                )}
-              />
+              <Icon size={18} />
               <span className="hidden md:inline">{t(item.labelKey)}</span>
-              {isActive && (
-                <span className="hidden md:block ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-sm shadow-white/50" />
-              )}
             </Link>
           )
         })}
       </nav>
 
-      <div className="p-2 md:p-4 border-t border-white/10 space-y-1">
-        <div className="hidden md:block text-xs text-[var(--sidebar-text-muted)] mb-2 truncate px-2">{tenant?.companyName}</div>
+      <div className="p-2 md:p-4 border-t border-[#283593]">
+        <div className="hidden md:block text-xs text-blue-200 mb-2">{tenant?.companyName}</div>
         <button
           onClick={toggleTheme}
-          className="flex items-center justify-center md:justify-start gap-3 px-2 md:px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 w-full cursor-pointer text-[var(--sidebar-text-muted)] hover:bg-[var(--sidebar-hover)] hover:text-white group"
+          className="flex items-center justify-center md:justify-start gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer"
         >
-          {theme === 'dark' ? <Sun size={16} className="transition-transform duration-200 group-hover:rotate-45" /> : <Moon size={16} className="transition-transform duration-200 group-hover:-rotate-12" />}
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           <span className="hidden md:inline">{t('common.' + (theme === 'dark' ? 'lightMode' : 'darkMode'))}</span>
         </button>
         <button
           onClick={() => i18n.changeLanguage(i18n.language === 'ar' ? 'en' : 'ar')}
-          className="flex items-center justify-center md:justify-start gap-3 px-2 md:px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 w-full cursor-pointer text-[var(--sidebar-text-muted)] hover:bg-[var(--sidebar-hover)] hover:text-white group"
+          className="flex items-center justify-center md:justify-start gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer mt-2"
         >
-          <Globe size={16} className="transition-transform duration-200 group-hover:scale-110" />
-          <span className="hidden md:inline">{i18n.language === 'ar' ? 'English' : 'العربية'}</span>
+          <Globe size={16} /> <span className="hidden md:inline">{i18n.language === 'ar' ? 'English' : 'العربية'}</span>
         </button>
         <button
           onClick={logout}
-          className="flex items-center justify-center md:justify-start gap-3 px-2 md:px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 w-full cursor-pointer text-[var(--sidebar-text-muted)] hover:bg-red-500/10 hover:text-red-400 group"
+          className="flex items-center justify-center md:justify-start gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer mt-2"
         >
-          <LogOut size={16} className="transition-transform duration-200 group-hover:-translate-x-1" />
-          <span className="hidden md:inline">{t('sidebar.signOut')}</span>
+          <LogOut size={16} /> <span className="hidden md:inline">{t('sidebar.signOut')}</span>
         </button>
       </div>
     </aside>

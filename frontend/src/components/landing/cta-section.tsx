@@ -18,13 +18,10 @@ export default function CTASection() {
           initial={{ opacity: 0, y: 30, scale: 0.98 }}
           animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 30, scale: 0.98 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="relative overflow-hidden rounded-3xl px-8 py-16 text-center md:px-16 md:py-20"
-          style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)' }}
+          className="relative overflow-hidden rounded-3xl bg-[#0d1b3e] px-8 py-16 text-center md:px-16 md:py-20"
         >
-          {/* Animated gradient orbs */}
-          <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-gradient-to-br from-[#1565C0]/30 to-[#0EA5E9]/20 blur-3xl animate-float-slow" />
-          <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 blur-3xl animate-float-medium" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-60 w-60 rounded-full bg-gradient-to-br from-[#1565C0]/10 to-transparent blur-3xl" />
+          <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[#1565C0]/20 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
 
           <div className="relative z-10">
             <h2 className="text-3xl font-bold text-white md:text-4xl">{t('landing.cta.title')}</h2>
@@ -34,13 +31,13 @@ export default function CTASection() {
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link
                 href="/auth/register"
-                className="rounded-xl bg-white px-8 py-3.5 text-base font-semibold text-[#0F172A] shadow-lg shadow-white/10 transition-all duration-200 hover:bg-blue-50 hover:shadow-xl active:scale-[0.97]"
+                className="rounded-xl bg-white px-8 py-3.5 text-base font-semibold text-[#0d1b3e] transition-all hover:bg-blue-50"
               >
                 {t('landing.cta.getStarted')}
               </Link>
               <Link
                 href="/auth/login"
-                className="rounded-xl border border-blue-400/30 px-8 py-3.5 text-base font-semibold text-white transition-all duration-200 hover:bg-white/10 hover:border-blue-400/50 active:scale-[0.97]"
+                className="rounded-xl border border-blue-400/30 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-white/10"
               >
                 {t('landing.cta.signIn')}
               </Link>

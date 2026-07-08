@@ -5,8 +5,6 @@ export default function AuthBackground() {
         className="fixed inset-0 -z-10 animate-gradient-shift bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-950 dark:via-blue-950/10 dark:to-gray-900"
         aria-hidden="true"
       />
-      {/* Subtle grid pattern */}
-      <div className="fixed inset-0 -z-10 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, #1565C0 1px, transparent 1px)', backgroundSize: '32px 32px' }} aria-hidden="true" />
       <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden">
         <svg
           viewBox="0 0 24 24"
