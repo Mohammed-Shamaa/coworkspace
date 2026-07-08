@@ -18,7 +18,8 @@ public class TenantsController : ControllerBase
     [HttpGet("settings")]
     public async Task<ActionResult<TenantInfo>> GetSettings()
     {
-        var tenantId = int.Parse(User.FindFirst("TenantId")?.Value ?? "0");
+        if (!int.TryParse(User.FindFirst("TenantId")?.Value, out var tenantId))
+            return Unauthorized(new { message = "Invalid tenant in token." });
         var tenant = await _db.Tenants.FindAsync(tenantId);
         if (tenant == null) return NotFound();
 
@@ -37,7 +38,8 @@ public class TenantsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<TenantInfo>> UpdateSettings(UpdateTenantSettingsRequest request)
     {
-        var tenantId = int.Parse(User.FindFirst("TenantId")?.Value ?? "0");
+        if (!int.TryParse(User.FindFirst("TenantId")?.Value, out var tenantId))
+            return Unauthorized(new { message = "Invalid tenant in token." });
         var tenant = await _db.Tenants.FindAsync(tenantId);
         if (tenant == null) return NotFound();
 

@@ -132,9 +132,11 @@ public class PdfService
                         header.Cell().Background(Colors.Blue.Medium).Padding(4).Text("Payment").FontColor(Colors.White).Bold().FontSize(9);
                     });
 
+                    var index = 0;
                     foreach (var m in members.OrderBy(m => m.FullName))
                     {
-                        var bg = members.IndexOf(m) % 2 == 0 ? Colors.White : Colors.Grey.Lighten4;
+                        var bg = index % 2 == 0 ? Colors.White : Colors.Grey.Lighten4;
+                        index++;
                         table.Cell().Background(bg).BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(m.Id.ToString()).FontSize(9);
                         table.Cell().Background(bg).BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(m.FullName).FontSize(9);
                         table.Cell().Background(bg).BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(m.MemberType).FontSize(9);

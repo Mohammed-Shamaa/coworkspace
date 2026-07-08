@@ -24,8 +24,6 @@ public class BillingSyncService : BackgroundService
         {
             try
             {
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
-
                 using var scope = _services.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
@@ -47,6 +45,8 @@ public class BillingSyncService : BackgroundService
                     await db.SaveChangesAsync(stoppingToken);
                     _logger.LogInformation("Billing sync updated {Count} members to Unpaid", overdue.Count);
                 }
+
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
             catch (OperationCanceledException)
             {

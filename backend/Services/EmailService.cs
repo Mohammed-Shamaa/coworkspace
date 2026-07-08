@@ -45,12 +45,12 @@ public class EmailService
             };
 
             var json = JsonSerializer.Serialize(payload);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-            var response = await client.PostAsync(ResendApiUrl, content);
+            using var response = await client.PostAsync(ResendApiUrl, content);
             var body = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
@@ -95,12 +95,12 @@ public class EmailService
             };
 
             var json = JsonSerializer.Serialize(payload);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-            var response = await client.PostAsync(ResendApiUrl, content);
+            using var response = await client.PostAsync(ResendApiUrl, content);
             var body = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)

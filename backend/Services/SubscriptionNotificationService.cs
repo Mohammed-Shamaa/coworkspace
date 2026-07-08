@@ -23,8 +23,6 @@ public class SubscriptionNotificationService : BackgroundService
         {
             try
             {
-                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
-
                 using var scope = _services.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 var notifService = scope.ServiceProvider.GetRequiredService<NotificationService>();
@@ -85,6 +83,8 @@ public class SubscriptionNotificationService : BackgroundService
                         }
                     }
                 }
+
+                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
             }
             catch (OperationCanceledException)
             {

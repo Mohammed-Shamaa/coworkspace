@@ -91,6 +91,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex min-h-screen bg-[var(--page-bg)]">
             <Sidebar />
             <main className="flex-1 p-3 md:p-6 overflow-auto relative">
+              {/* Subtle background pattern */}
+              <div className="absolute inset-0 pointer-events-none opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle, #1565C0 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-100/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+              <div className="relative z-10">
               <div className="absolute top-3 md:top-6 right-3 md:right-6 z-30">
                 <NotificationBell />
               </div>
@@ -108,6 +112,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   </motion.div>
                 </AnimatePresence>
               </ErrorBoundary>
+              </div>
             </main>
           </div>
         </OnboardingCheck>

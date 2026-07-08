@@ -13,7 +13,7 @@ i18n
     resources,
     fallbackLng: 'en',
     detection: {
-      order: ['localStorage', 'navigator'],
+      order: ['localStorage'],
       caches: ['localStorage'],
       lookupLocalStorage: 'i18nextLng',
     },

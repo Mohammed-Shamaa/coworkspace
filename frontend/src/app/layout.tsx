@@ -43,6 +43,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{
           __html: `(function(){try{var e=localStorage.getItem("theme");if(e==="dark"||(!e&&window.matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
         }} />
+        <script dangerouslySetInnerHTML={{
+          __html: `(function(){try{var e=localStorage.getItem("i18nextLng");if(e==="ar"){document.documentElement.dir="rtl";document.documentElement.lang="ar"}else{document.documentElement.dir="ltr";document.documentElement.lang="en"}}catch(e){}})()`
+        }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",

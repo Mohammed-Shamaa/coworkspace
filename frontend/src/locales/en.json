@@ -11,6 +11,7 @@
     "success": "Success!",
     "error": "Error",
     "close": "Close",
+    "retry": "Retry",
     "language": "Language",
     "english": "English",
     "arabic": "Arabic",
@@ -442,7 +443,12 @@
     "navbar": {
       "about": "About",
       "signIn": "Sign In",
-      "signUp": "Sign Up"
+      "signUp": "Sign Up",
+      "logoAlt": "Deskora",
+      "switchToArabic": "Switch to العربية",
+      "switchToEnglish": "Switch to English",
+      "switchToDarkMode": "Switch to dark mode",
+      "switchToLightMode": "Switch to light mode"
     },
     "hero": {
       "badge": "All-in-one workspace management",
@@ -525,6 +531,7 @@
       "home": "Home",
       "login": "Login",
       "register": "Register",
+      "logoAlt": "Coworkspace",
       "copyright": "\u00a9 {{year}} Coworkspace. All rights reserved."
     }
   },

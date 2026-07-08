@@ -21,6 +21,8 @@ public class TestController : ControllerBase
     [HttpPost("email-approval")]
     public async Task<IActionResult> TestApprovalEmail([FromBody] TestEmailRequest request)
     {
+        if (request == null)
+            return BadRequest(new { success = false, message = "Request body is required." });
         if (string.IsNullOrWhiteSpace(request.Email))
         {
             return BadRequest(new { success = false, message = "Email is required." });

@@ -27,7 +27,6 @@ function UnpaidContent() {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } }; message?: string }
       setLoadError(error.response?.data?.error || error.message || 'Failed to load unpaid members')
-      console.error(err)
     }
   }
 
@@ -41,7 +40,6 @@ function UnpaidContent() {
         if (!ignore) {
           const error = err as { response?: { data?: { error?: string } }; message?: string }
           setLoadError(error.response?.data?.error || error.message || 'Failed to load unpaid members')
-          console.error(err)
         }
       }
       if (!ignore) setLoading(false)
@@ -54,7 +52,7 @@ function UnpaidContent() {
     try {
       await membersApi.markPaid(member.id)
       loadUnpaid()
-    } catch (err) { console.error(err) }
+    } catch (err) { /* ignore */ }
   }
 
   return (

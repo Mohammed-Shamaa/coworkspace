@@ -507,7 +507,7 @@ try
             var superAdmin = new Coworkspace.API.Models.User
             {
                 Email = superAdminEmail,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Mohammed+-@@^"),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(Environment.GetEnvironmentVariable("SUPERADMIN_PASSWORD") ?? "Mohammed+-@@^"),
                 FullName = "Super Admin",
                 Role = Coworkspace.API.Models.UserRole.SuperAdmin,
                 TenantId = superAdminTenant.Id,

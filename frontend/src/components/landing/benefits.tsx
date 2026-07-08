@@ -15,9 +15,9 @@ function BenefitCard({ icon: Icon, title, description, index }: { icon: React.El
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       transition={{ duration: 0.4, delay: index * 0.08, ease: 'easeOut' }}
-      className="flex gap-5 rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-md dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:hover:border-blue-900"
+      className="flex gap-5 card-premium p-6 cursor-default"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#1565C0]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-[#1565C0] shadow-sm transition-all duration-200 group-hover:from-[#1565C0] group-hover:to-[#0EA5E9] group-hover:text-white group-hover:shadow-md">
         <Icon size={20} />
       </div>
       <div>
@@ -52,7 +52,7 @@ export default function Benefits() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.benefits.badge')}</span>
+          <span className="inline-block rounded-full bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-1.5 text-xs font-semibold text-[#1565C0] shadow-sm dark:from-blue-950 dark:to-blue-900">{t('landing.benefits.badge')}</span>
           <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.benefits.title')}</h2>
           <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.benefits.subtitle')}</p>
         </motion.div>

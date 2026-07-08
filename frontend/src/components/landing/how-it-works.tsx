@@ -15,10 +15,10 @@ function StepCard({ icon: Icon, title, description, index, totalSteps }: { icon:
       initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
       animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
       transition={{ duration: 0.5, delay: index * 0.15, ease: 'easeOut' }}
-      className="relative flex gap-6"
+      className="relative flex gap-6 group cursor-default"
     >
       <div className="flex flex-col items-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1565C0] text-white shadow-md">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#1565C0] to-[#0EA5E9] text-white shadow-md shadow-blue-200/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-300/50 group-hover:scale-110">
           <Icon size={22} />
         </div>
         {index < totalSteps - 1 && (
@@ -54,7 +54,7 @@ export default function HowItWorks() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-2xl text-center"
         >
-          <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.howItWorks.badge')}</span>
+          <span className="inline-block rounded-full bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-1.5 text-xs font-semibold text-[#1565C0] shadow-sm dark:from-blue-950 dark:to-blue-900">{t('landing.howItWorks.badge')}</span>
           <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.howItWorks.title')}</h2>
           <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.howItWorks.subtitle')}</p>
         </motion.div>

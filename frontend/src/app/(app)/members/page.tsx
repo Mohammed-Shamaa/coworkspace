@@ -38,7 +38,6 @@ function MembersPageContent() {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } }; message?: string }
       setLoadError(error.response?.data?.error || error.message || 'Failed to load members')
-      console.error(err)
     }
   }
 
@@ -52,7 +51,6 @@ function MembersPageContent() {
         if (!ignore) {
           const error = err as { response?: { data?: { error?: string } }; message?: string }
           setLoadError(error.response?.data?.error || error.message || 'Failed to load members')
-          console.error(err)
         }
       }
       if (!ignore) setLoading(false)
@@ -71,7 +69,7 @@ function MembersPageContent() {
       const res = await membersApi.downloadPdf(member.id)
       const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
       window.open(url, '_blank')
-    } catch (err) { console.error(err) }
+    } catch (err) { /* ignore */ }
   }
 
   const handleDelete = async (member: Member) => {
@@ -79,14 +77,14 @@ function MembersPageContent() {
     try {
       await membersApi.delete(member.id)
       loadMembers()
-    } catch (err) { console.error(err) }
+    } catch (err) { /* ignore */ }
   }
 
   const handleMarkPaid = async (member: Member) => {
     try {
       await membersApi.markPaid(member.id)
       loadMembers()
-    } catch (err) { console.error(err) }
+    } catch (err) { /* ignore */ }
   }
 
   return (
@@ -114,7 +112,7 @@ function MembersPageContent() {
             a.click()
             document.body.removeChild(a)
             URL.revokeObjectURL(url)
-          } catch (err) { console.error(err) }
+          } catch (err) { /* ignore */ }
         }}>
           {t('members.exportExcel')}
         </Button>

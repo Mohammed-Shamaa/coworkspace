@@ -90,7 +90,7 @@ public class NotificationService
 
     public async Task<(List<Notification> Items, int TotalCount)> GetPaginatedAsync(int userId, int page = 1, int pageSize = 20)
     {
-        var query = _context.Notifications.Where(n => n.UserId == userId);
+        var query = _context.Notifications.AsNoTracking().Where(n => n.UserId == userId);
         var totalCount = await query.CountAsync();
 
         var items = await query

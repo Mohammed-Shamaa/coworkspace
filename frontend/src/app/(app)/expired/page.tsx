@@ -29,7 +29,6 @@ function ExpiredContent() {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } }; message?: string }
       setLoadError(error.response?.data?.error || error.message || 'Failed to load expired members')
-      console.error(err)
     }
   }
 
@@ -43,7 +42,6 @@ function ExpiredContent() {
         if (!ignore) {
           const error = err as { response?: { data?: { error?: string } }; message?: string }
           setLoadError(error.response?.data?.error || error.message || 'Failed to load expired members')
-          console.error(err)
         }
       }
       if (!ignore) setLoading(false)
@@ -57,7 +55,7 @@ function ExpiredContent() {
       await membersApi.markPaid(member.id, { recordedByUserId: user?.id })
       loadExpired()
     } catch (err) {
-      console.error('Failed to mark as paid:', err)
+      /* ignore */
     }
   }
 

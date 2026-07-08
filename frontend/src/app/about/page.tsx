@@ -47,7 +47,7 @@ function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
   const isInView = useInView(ref, { once: true })
 
   return (
-      <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
+    <section className="border-t border-gray-100 bg-gradient-to-b from-gray-50/50 to-white py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
       <div className="mx-auto max-w-5xl px-6">
         <motion.div
           ref={ref}
@@ -70,7 +70,7 @@ function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
 function SectionHeading({ label, title }: { label: string; title: string }) {
   return (
     <div className="mb-12 text-center">
-      <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0] dark:bg-blue-950">
+      <span className="inline-block rounded-full bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-1.5 text-xs font-semibold text-[#1565C0] shadow-sm dark:from-blue-950 dark:to-blue-900">
         {label}
       </span>
       <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{title}</h2>
@@ -87,10 +87,10 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white dark:bg-[var(--page-bg)]">
       {/* Hero */}
       <section className="relative h-[45vh] min-h-[320px] w-full overflow-hidden md:h-[65vh] md:min-h-[420px]">
-        <div className="absolute inset-0 z-10 bg-black/10" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
         <Link
           href="/"
-          className="absolute left-4 top-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20 md:left-6 md:top-6 md:gap-2 md:px-4 md:text-sm"
+          className="absolute left-4 top-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/20 hover:scale-[1.02] active:scale-95 md:left-6 md:top-6 md:gap-2 md:px-4 md:text-sm"
         >
           <ArrowLeft size={16} />
           Back to Home
@@ -126,7 +126,7 @@ export default function AboutPage() {
             <SectionHeading label="My Story" title="A journey of resilience and vision" />
           </FadeIn>
           <FadeIn delay={0.1}>
-            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)]">
+            <div className="card-premium p-8 md:p-10">
               <p className="text-lg leading-relaxed text-gray-700 dark:text-[var(--text-primary)]">
                 I am a Software Engineer from Gaza, 22 years old, passionate about building scalable digital products
                 that solve real-world problems.
@@ -145,7 +145,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission */}
-    <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
+      <section className="border-t border-gray-100 bg-gradient-to-b from-gray-50/50 to-white py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
         <div className="mx-auto max-w-6xl px-6">
           <FadeIn>
             <SectionHeading label="Mission" title="What drives this platform" />
@@ -153,8 +153,8 @@ export default function AboutPage() {
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {missions.map((mission, i) => (
               <FadeIn key={mission.title} delay={0.05 * i}>
-                <div className="group rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-lg hover:shadow-blue-50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:hover:border-blue-900">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#1565C0] transition-colors group-hover:bg-[#1565C0] group-hover:text-white dark:bg-blue-950 dark:text-blue-400">
+                <div className="card-premium p-6 group cursor-default">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 text-[#1565C0] shadow-sm transition-all duration-300 group-hover:from-[#1565C0] group-hover:to-[#0EA5E9] group-hover:text-white group-hover:shadow-md group-hover:scale-110 dark:from-blue-950 dark:to-blue-900">
                     <mission.icon size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{mission.title}</h3>
@@ -177,8 +177,8 @@ export default function AboutPage() {
           </FadeIn>
           <div className="mt-14 grid gap-6 md:grid-cols-2">
             <FadeIn delay={0.1}>
-              <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm transition-all hover:shadow-md dark:border-[var(--card-border)] dark:bg-[var(--card-bg)]">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#0A66C2]/10 text-[#0A66C2]">
+              <div className="card-premium p-8 text-center group cursor-default">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#0A66C2]/10 text-[#0A66C2] transition-all duration-300 group-hover:scale-110 group-hover:shadow-md">
                   <LinkedInIcon size={28} />
                 </div>
                 <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">LinkedIn</h3>
@@ -187,7 +187,7 @@ export default function AboutPage() {
                   href="https://www.linkedin.com/in/mohammed-sham3a/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#0A66C2] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#004182]"
+                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#0A66C2] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#004182] hover:shadow-md active:scale-[0.97]"
                 >
                   <LinkedInIcon size={16} />
                   Connect on LinkedIn
@@ -196,8 +196,8 @@ export default function AboutPage() {
             </FadeIn>
 
             <FadeIn delay={0.2}>
-              <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm transition-all hover:shadow-md dark:border-[var(--card-border)] dark:bg-[var(--card-bg)]">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#25D366]/10 text-[#25D366]">
+              <div className="card-premium p-8 text-center group cursor-default">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#25D366]/10 text-[#25D366] transition-all duration-300 group-hover:scale-110 group-hover:shadow-md">
                   <WhatsAppIcon size={28} />
                 </div>
                 <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">WhatsApp</h3>
@@ -206,7 +206,7 @@ export default function AboutPage() {
                   href="https://wa.me/972597744476"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1da851]"
+                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#1da851] hover:shadow-md active:scale-[0.97]"
                 >
                   <WhatsAppIcon size={16} />
                   Chat on WhatsApp

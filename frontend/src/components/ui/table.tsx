@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="w-full overflow-auto">
+    <div className="w-full overflow-auto rounded-lg">
       <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
     </div>
   )
@@ -29,7 +29,10 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
     <tr
       ref={ref}
       className={cn(
-        'border-b border-[var(--card-border)] transition-colors even:bg-[var(--datagrid-alt)] hover:bg-gray-100 dark:hover:bg-[#2a2a3e]',
+        'border-b border-[var(--card-border)] transition-all duration-150 ' +
+        'even:bg-[var(--datagrid-alt)] ' +
+        'hover:bg-[var(--hover-bg)] hover:backdrop-blur-sm ' +
+        'dark:hover:bg-[#1a1f4a]',
         className
       )}
       {...props}
@@ -42,7 +45,12 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<
   ({ className, ...props }, ref) => (
     <th
       ref={ref}
-      className={cn('h-10 px-4 text-left align-middle font-semibold text-white text-sm', className)}
+      className={cn(
+        'h-11 px-4 text-left align-middle font-semibold text-white text-sm ' +
+        'first:rounded-tl-lg last:rounded-tr-lg ' +
+        'whitespace-nowrap',
+        className
+      )}
       {...props}
     />
   )
