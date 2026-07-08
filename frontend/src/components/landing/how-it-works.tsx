@@ -18,11 +18,11 @@ function StepCard({ icon: Icon, title, description, index, totalSteps }: { icon:
       className="relative flex gap-6"
     >
       <div className="flex flex-col items-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#1565C0] to-[#1976D2] text-white shadow-md transition-all hover:scale-110 hover:shadow-lg">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1565C0] text-white shadow-md">
           <Icon size={22} />
         </div>
         {index < totalSteps - 1 && (
-          <div className="mt-2 w-0.5 flex-1 bg-gradient-to-b from-blue-200/80 to-transparent dark:from-blue-800" />
+          <div className="mt-2 w-0.5 flex-1 bg-gradient-to-b from-blue-200 to-transparent dark:from-blue-800" />
         )}
       </div>
       <div className="pb-12 pt-1">

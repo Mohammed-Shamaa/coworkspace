@@ -16,7 +16,7 @@ export default function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
             >
-              <span className="inline-block rounded-full border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0] shadow-sm">
+              <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">
                 {t('landing.hero.badge')}
               </span>
             </motion.div>
@@ -28,7 +28,7 @@ export default function Hero() {
               className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-[var(--text-primary)]"
             >
               {t('landing.hero.title1')}{' '}
-              <span className="bg-gradient-to-r from-[#1565C0] to-[#0EA5E9] bg-clip-text text-transparent">{t('landing.hero.title2')}</span>
+              <span className="text-[#1565C0]">{t('landing.hero.title2')}</span>
             </motion.h1>
 
             <motion.p
@@ -48,13 +48,13 @@ export default function Hero() {
             >
               <Link
                 href="/auth/register"
-                className="group relative rounded-xl bg-gradient-to-r from-[#1565C0] to-[#1976D2] px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-200/50 transition-all hover:shadow-xl hover:shadow-blue-300/50 active:scale-[0.97]"
+                className="rounded-xl bg-[#1565C0] px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-200 transition-all hover:bg-[#0d47a1] hover:shadow-blue-300"
               >
-                <span className="relative z-10">{t('landing.hero.getStarted')}</span>
+                {t('landing.hero.getStarted')}
               </Link>
               <Link
                 href="/auth/login"
-                className="rounded-xl border border-gray-200 bg-white/80 px-8 py-3.5 text-base font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:bg-white hover:shadow-md dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)] dark:hover:border-blue-900"
+                className="rounded-xl border border-gray-200 bg-white px-8 py-3.5 text-base font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)] dark:hover:border-blue-900"
               >
                 {t('landing.hero.signIn')}
               </Link>
@@ -68,8 +68,8 @@ export default function Hero() {
             className="relative hidden md:block"
           >
             <div className="relative">
-              <div className="rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-200/60 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:shadow-gray-950/50">
-                <div className="rounded-xl bg-gradient-to-br from-[#1565C0]/5 to-blue-50/80 p-6 dark:from-[#1565C0]/10 dark:to-blue-950/30">
+              <div className="rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl shadow-gray-200/50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:shadow-gray-950/50">
+                <div className="rounded-xl bg-gradient-to-br from-[#1565C0]/5 to-blue-50 p-6 dark:from-[#1565C0]/10 dark:to-blue-950/30">
                   <div className="mb-4 flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full bg-red-400" />
                     <div className="h-3 w-3 rounded-full bg-yellow-400" />
@@ -79,23 +79,23 @@ export default function Hero() {
                     <div className="h-4 w-3/4 rounded bg-gray-200" />
                     <div className="h-4 w-1/2 rounded bg-gray-200" />
                     <div className="mt-4 grid grid-cols-3 gap-3">
-                      <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+                      <div className="rounded-lg border border-gray-200 bg-white p-3">
                         <div className="mb-2 h-8 w-8 rounded-lg bg-blue-100" />
                         <div className="h-3 w-full rounded bg-gray-200" />
                         <div className="mt-1 h-5 w-10 rounded bg-gray-300" />
                       </div>
-                      <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+                      <div className="rounded-lg border border-gray-200 bg-white p-3">
                         <div className="mb-2 h-8 w-8 rounded-lg bg-green-100" />
                         <div className="h-3 w-full rounded bg-gray-200" />
                         <div className="mt-1 h-5 w-10 rounded bg-gray-300" />
                       </div>
-                      <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+                      <div className="rounded-lg border border-gray-200 bg-white p-3">
                         <div className="mb-2 h-8 w-8 rounded-lg bg-yellow-100" />
                         <div className="h-3 w-full rounded bg-gray-200" />
                         <div className="mt-1 h-5 w-10 rounded bg-gray-300" />
                       </div>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+                    <div className="rounded-lg border border-gray-200 bg-white p-3">
                       <div className="flex items-center justify-between">
                         <div className="h-3 w-24 rounded bg-gray-200" />
                         <div className="h-3 w-16 rounded bg-gray-200" />
@@ -110,16 +110,16 @@ export default function Hero() {
                 </div>
               </div>
 
-              <div className="absolute -bottom-4 -right-4 -z-10 h-72 w-72 rounded-full bg-gradient-to-br from-blue-200/40 to-indigo-200/30 blur-3xl" />
-              <div className="absolute -top-4 -left-4 -z-10 h-48 w-48 rounded-full bg-gradient-to-br from-purple-200/30 to-pink-200/20 blur-3xl" />
+              <div className="absolute -bottom-4 -right-4 -z-10 h-72 w-72 rounded-full bg-blue-100/60 blur-3xl" />
+              <div className="absolute -top-4 -left-4 -z-10 h-48 w-48 rounded-full bg-purple-100/40 blur-3xl" />
             </div>
           </motion.div>
         </div>
       </div>
 
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 right-0 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-blue-100/40 to-indigo-100/20 blur-3xl" />
-        <div className="absolute -bottom-40 left-0 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-purple-100/30 to-pink-100/10 blur-3xl" />
+        <div className="absolute -top-40 right-0 h-[500px] w-[500px] rounded-full bg-blue-50/30 blur-3xl" />
+        <div className="absolute -bottom-40 left-0 h-[400px] w-[400px] rounded-full bg-purple-50/20 blur-3xl" />
       </div>
     </section>
   )
