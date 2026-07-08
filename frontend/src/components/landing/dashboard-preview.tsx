@@ -21,7 +21,7 @@ export default function DashboardPreview() {
   const { t } = useTranslation()
 
   return (
-    <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
+    <section className="border-t border-gray-100/80 bg-gradient-to-b from-white to-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
       <div className="mx-auto max-w-7xl px-6">
         <motion.div
           ref={ref}

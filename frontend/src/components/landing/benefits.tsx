@@ -15,9 +15,9 @@ function BenefitCard({ icon: Icon, title, description, index }: { icon: React.El
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       transition={{ duration: 0.4, delay: index * 0.08, ease: 'easeOut' }}
-      className="flex gap-5 rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-md dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:hover:border-blue-900"
+      className="group flex gap-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-lg hover:shadow-blue-50/50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:hover:border-blue-900"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#1565C0]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 text-[#1565C0] shadow-sm transition-all group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-[#1565C0] group-hover:to-[#1976D2] group-hover:text-white group-hover:shadow-md">
         <Icon size={20} />
       </div>
       <div>

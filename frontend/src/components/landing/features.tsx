@@ -17,9 +17,9 @@ function FeatureCard({ icon: Icon, title, description, index }: { icon: typeof B
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
       transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
-      className="group rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:border-blue-100 hover:shadow-lg hover:shadow-blue-50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:hover:border-blue-900"
+      className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-blue-100 hover:shadow-xl hover:shadow-blue-100/30 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:hover:border-blue-900"
     >
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#1565C0] transition-colors group-hover:bg-[#1565C0] group-hover:text-white">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 text-[#1565C0] shadow-sm transition-all group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-[#1565C0] group-hover:to-[#1976D2] group-hover:text-white group-hover:shadow-md">
         <Icon size={24} />
       </div>
       <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{title}</h3>
@@ -44,7 +44,7 @@ export default function Features() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]" id="features">
+    <section className="border-t border-gray-100/80 bg-gradient-to-b from-gray-50/80 to-white py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]" id="features">
       <div className="mx-auto max-w-7xl px-6">
         <motion.div
           ref={ref}
