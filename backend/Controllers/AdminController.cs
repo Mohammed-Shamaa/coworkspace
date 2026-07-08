@@ -80,6 +80,7 @@ public class AdminController : ControllerBase
                 t.Address,
                 t.CreatedAt,
                 t.ApprovalDate,
+                t.IsLocked,
                 AdminEmail = t.Users.Where(u => u.Role == UserRole.Admin).Select(u => u.Email).FirstOrDefault(),
                 AdminName = t.Users.Where(u => u.Role == UserRole.Admin).Select(u => u.FullName).FirstOrDefault(),
                 MemberCount = t.Members.Count
@@ -313,6 +314,7 @@ public class AdminController : ControllerBase
             ClosingTime = tenant.ClosingTime,
             Status = tenant.Status.ToString(),
             PaymentStatus = tenant.PaymentStatus.ToString(),
+            IsLocked = tenant.IsLocked,
             TrialStartDate = tenant.TrialStartDate,
             SubscriptionExpiryDate = tenant.SubscriptionExpiryDate,
             ApprovalDate = tenant.ApprovalDate,
@@ -399,6 +401,158 @@ public class AdminController : ControllerBase
             .ToList();
 
         return Ok(new { success = true, data = new AdminNotificationsResponse { Notifications = ordered, TotalCount = ordered.Count } });
+    }
+
+    [HttpGet("rejected-workspaces")]
+    public async Task<ActionResult> GetRejectedWorkspaces([FromQuery] string q = "", [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        var query = _db.Tenants
+            .Where(t => t.Status == TenantStatus.Rejected)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var search = q.Trim().ToLower();
+            query = query.Where(t =>
+                t.Name.ToLower().Contains(search) ||
+                t.CompanyName.ToLower().Contains(search) ||
+                t.Subdomain.ToLower().Contains(search) ||
+                t.WhatsappNumber.Contains(search) ||
+                t.Users.Any(u => u.Role == UserRole.Admin && (
+                    u.Email.ToLower().Contains(search) ||
+                    u.FullName.ToLower().Contains(search)
+                ))
+            );
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var tenants = await query
+            .OrderByDescending(t => t.UpdatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(t => new
+            {
+                t.Id,
+                t.Name,
+                t.CompanyName,
+                t.Subdomain,
+                t.WhatsappNumber,
+                t.Address,
+                t.TotalDesks,
+                t.MaxCapacity,
+                t.HasMeetingRoom,
+                t.CreatedAt,
+                t.UpdatedAt,
+                AdminEmail = t.Users.Where(u => u.Role == UserRole.Admin).Select(u => u.Email).FirstOrDefault(),
+                AdminName = t.Users.Where(u => u.Role == UserRole.Admin).Select(u => u.FullName).FirstOrDefault()
+            })
+            .ToListAsync();
+
+        return Ok(new { success = true, data = tenants, totalCount });
+    }
+
+    [HttpPost("{tenantId}/restore")]
+    public async Task<ActionResult> RestoreTenant(int tenantId)
+    {
+        var tenant = await _db.Tenants
+            .Include(t => t.Users)
+            .FirstOrDefaultAsync(t => t.Id == tenantId);
+
+        if (tenant == null)
+            return NotFound(new { success = false, message = "Tenant not found." });
+
+        if (tenant.Status != TenantStatus.Rejected)
+            return BadRequest(new { success = false, message = "Tenant is not in rejected status." });
+
+        tenant.Status = TenantStatus.Approved;
+        tenant.IsLocked = false;
+        tenant.ApprovalDate ??= DateTime.UtcNow;
+        tenant.TrialStartDate ??= DateTime.UtcNow;
+        tenant.SubscriptionExpiryDate ??= DateTime.UtcNow.AddDays(30);
+        tenant.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Tenant {TenantId} ({Name}) restored from rejected by SuperAdmin", tenantId, tenant.Name);
+
+        return Ok(new { success = true, message = "Tenant restored successfully." });
+    }
+
+    [HttpDelete("{tenantId}/permanent-delete")]
+    public async Task<ActionResult> PermanentDeleteTenant(int tenantId)
+    {
+        var tenant = await _db.Tenants
+            .Include(t => t.Users)
+            .Include(t => t.Members)
+            .Include(t => t.MeetingRoomReservations)
+            .FirstOrDefaultAsync(t => t.Id == tenantId && t.Status == TenantStatus.Rejected);
+
+        if (tenant == null)
+            return NotFound(new { success = false, message = "Rejected tenant not found." });
+
+        using var transaction = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            _db.Notifications.RemoveRange(_db.Notifications.Where(n => n.TenantId == tenantId));
+            _db.AuditLogs.RemoveRange(_db.AuditLogs.Where(a => a.TenantId == tenantId));
+            _db.Payments.RemoveRange(_db.Payments.Where(p => p.TenantId == tenantId));
+            _db.MeetingRoomReservations.RemoveRange(tenant.MeetingRoomReservations);
+            _db.Members.RemoveRange(tenant.Members);
+            _db.Users.RemoveRange(tenant.Users);
+            _db.Tenants.Remove(tenant);
+
+            await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            _logger.LogInformation("Tenant {TenantId} ({Name}) permanently deleted by SuperAdmin", tenantId, tenant.Name);
+
+            return Ok(new { success = true, message = "Tenant permanently deleted." });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Failed to permanently delete tenant {TenantId}", tenantId);
+            return StatusCode(500, new { success = false, message = "Failed to delete tenant. Database integrity error." });
+        }
+    }
+
+    [HttpPost("{tenantId}/lock")]
+    public async Task<ActionResult> LockTenant(int tenantId)
+    {
+        var tenant = await _db.Tenants.FindAsync(tenantId);
+        if (tenant == null)
+            return NotFound(new { success = false, message = "Tenant not found." });
+
+        if (tenant.Status != TenantStatus.Approved)
+            return BadRequest(new { success = false, message = "Only approved workspaces can be locked." });
+
+        tenant.IsLocked = true;
+        tenant.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Tenant {TenantId} ({Name}) locked by SuperAdmin", tenantId, tenant.Name);
+
+        return Ok(new { success = true, message = "Workspace locked successfully." });
+    }
+
+    [HttpPost("{tenantId}/unlock")]
+    public async Task<ActionResult> UnlockTenant(int tenantId)
+    {
+        var tenant = await _db.Tenants.FindAsync(tenantId);
+        if (tenant == null)
+            return NotFound(new { success = false, message = "Tenant not found." });
+
+        if (!tenant.IsLocked)
+            return BadRequest(new { success = false, message = "Workspace is not locked." });
+
+        tenant.IsLocked = false;
+        tenant.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Tenant {TenantId} ({Name}) unlocked by SuperAdmin", tenantId, tenant.Name);
+
+        return Ok(new { success = true, message = "Workspace unlocked successfully." });
     }
 
     [HttpGet("workspaces/{tenantId}/pdf")]

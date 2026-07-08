@@ -246,6 +246,12 @@ export const adminApi = {
   getWorkspaceDetail: (id: number) => api.get(`/admin/workspaces/${id}/detail`),
   getNotifications: () => api.get('/admin/notifications'),
   downloadWorkspacePdf: (id: number) => api.get(`/admin/workspaces/${id}/pdf`, { responseType: 'blob' }),
+  getRejectedWorkspaces: (params?: { q?: string; page?: number; pageSize?: number }) =>
+    api.get('/admin/rejected-workspaces', { params }),
+  restoreTenant: (id: number) => api.post(`/admin/${id}/restore`),
+  permanentDeleteTenant: (id: number) => api.delete(`/admin/${id}/permanent-delete`),
+  lockTenant: (id: number) => api.post(`/admin/${id}/lock`),
+  unlockTenant: (id: number) => api.post(`/admin/${id}/unlock`),
 }
 
 export const notificationApi = {

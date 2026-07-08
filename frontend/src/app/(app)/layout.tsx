@@ -33,6 +33,22 @@ function OnboardingCheck({ children }: { children: React.ReactNode }) {
       return
     }
 
+    // Non-SuperAdmin: check rejection status (highest priority)
+    if (tenant?.status === 'Rejected') {
+      if (pathname !== '/account-rejected') {
+        routerRef.current.push('/account-rejected')
+      }
+      return
+    }
+
+    // Non-SuperAdmin: check lock status
+    if (tenant?.isLocked) {
+      if (pathname !== '/account-locked') {
+        routerRef.current.push('/account-locked')
+      }
+      return
+    }
+
     // Non-SuperAdmin: check subscription status first
     if (tenant?.paymentStatus === 'Expired' || tenant?.paymentStatus === 'Suspended') {
       if (pathname !== '/subscription-expired') {

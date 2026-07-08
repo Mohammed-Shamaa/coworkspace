@@ -11,6 +11,7 @@ export interface Tenant {
   hasMeetingRoom?: boolean
   status?: TenantStatus
   paymentStatus?: TenantPaymentStatus
+  isLocked?: boolean
   trialStartDate?: string | null
   subscriptionExpiryDate?: string | null
 }
@@ -36,6 +37,7 @@ export interface AdminTenant {
   subscriptionExpiryDate?: string | null
   approvalDate?: string | null
   memberCount?: number
+  isLocked?: boolean
 }
 
 export interface AdminStats {
@@ -170,6 +172,7 @@ export interface AdminWorkspaceDetail {
   closingTime: string | null
   status: string
   paymentStatus: string
+  isLocked?: boolean
   trialStartDate: string | null
   subscriptionExpiryDate: string | null
   approvalDate: string | null

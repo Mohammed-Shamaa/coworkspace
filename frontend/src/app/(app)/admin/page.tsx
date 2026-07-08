@@ -79,7 +79,7 @@ export default function AdminDashboard() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Link href="/admin/pending" className="bg-[var(--card-bg)] rounded-xl border border-[var(--card-border)] p-5 hover:border-[#1565C0]/50 transition-colors block">
           <Clock className="w-5 h-5 text-amber-500 mb-2" />
           <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.dashboard.pendingRequests')}</h3>
@@ -89,6 +89,11 @@ export default function AdminDashboard() {
           <Building2 className="w-5 h-5 text-blue-500 mb-2" />
           <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.dashboard.activeWorkspaces')}</h3>
           <p className="text-sm text-[var(--text-secondary)]">{t('admin.dashboard.approvedWorkspaces', { count: stats?.approvedTenants ?? 0 })}</p>
+        </Link>
+        <Link href="/admin/rejected" className="bg-[var(--card-bg)] rounded-xl border border-[var(--card-border)] p-5 hover:border-[#1565C0]/50 transition-colors block">
+          <XCircle className="w-5 h-5 text-red-500 mb-2" />
+          <h3 className="font-semibold text-[var(--text-primary)]">{t('admin.dashboard.rejectedApproval')}</h3>
+          <p className="text-sm text-[var(--text-secondary)]">{t('admin.dashboard.rejectedWorkspaces', { count: stats?.rejectedTenants ?? 0 })}</p>
         </Link>
         <Link href="/admin/payments" className="bg-[var(--card-bg)] rounded-xl border border-[var(--card-border)] p-5 hover:border-[#1565C0]/50 transition-colors block">
           <CreditCard className="w-5 h-5 text-purple-500 mb-2" />

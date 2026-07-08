@@ -305,6 +305,8 @@
       "pendingRequests": "Pending Requests",
       "activeWorkspaces": "Active Workspaces",
       "payments": "Payments",
+      "rejectedApproval": "Rejected Workspaces",
+      "rejectedWorkspaces": "{{count}} rejected workspace(s)",
       "workspacesAwaiting": "{{count}} workspace(s) awaiting review",
       "approvedWorkspaces": "{{count}} approved workspace(s)",
       "activeSubs": "{{count}} active subscription(s)"
@@ -353,6 +355,9 @@
         "restoreAccess": "Restore Access",
         "markExpired": "Mark Expired",
         "exportPdf": "Export PDF",
+        "lockWorkspace": "Lock Workspace",
+        "unlockWorkspace": "Unlock Workspace",
+        "workspaceLocked": "This workspace is currently locked.",
         "recentMembers": "Recent Members",
         "workingHours": "Working Hours: {{open}} - {{close}}",
         "failedToLoad": "Failed to load detail"
@@ -368,17 +373,53 @@
       "title": "Notifications",
       "noNotifications": "No notifications"
     },
+    "rejected": {
+      "title": "Rejected Workspaces",
+      "searchPlaceholder": "Search rejected workspaces...",
+      "noRejected": "No rejected workspaces",
+      "noRejectedDesc": "There are no rejected workspace requests.",
+      "noMatch": "No matching rejected workspaces",
+      "restore": "Restore",
+      "restoring": "Restoring...",
+      "delete": "Delete Permanently",
+      "deleting": "Deleting...",
+      "confirmDelete": "Are you sure you want to permanently delete this rejected workspace? This action cannot be undone.",
+      "registered": "Registered",
+      "restored": "Workspace restored successfully.",
+      "deleted": "Workspace deleted permanently.",
+      "desks": "{{total}} desks, {{max}} max capacity"
+    },
     "accessDenied": "Access denied.",
     "error": {
       "failedToLoad": "Failed to load",
       "failedToApprove": "Failed to approve tenant",
       "failedToReject": "Failed to reject tenant",
       "failedToUpdatePayment": "Failed to update payment status",
-      "failedToLoadDetail": "Failed to load workspace detail",
-      "failedToDownloadPdf": "Failed to download PDF",
-      "approvedEmailTimeout": "Tenant approved but approval email timed out — Resend might be slow.",
-      "approvedEmailFailed": "Tenant approved but email failed: {{error}}"
-    }
+        "failedToLoadDetail": "Failed to load workspace detail",
+        "failedToDownloadPdf": "Failed to download PDF",
+        "failedToRestore": "Failed to restore workspace",
+        "failedToDelete": "Failed to delete workspace",
+        "failedToLock": "Failed to lock workspace",
+        "failedToUnlock": "Failed to unlock workspace",
+        "approvedEmailTimeout": "Tenant approved but approval email timed out — Resend might be slow.",
+        "approvedEmailFailed": "Tenant approved but email failed: {{error}}"
+      }
+  },
+  "accountRejected": {
+    "title": "Account Request Rejected",
+    "description": "Your workspace request has been rejected.",
+    "description2": "Unfortunately, your workspace registration request was not approved. This decision was made by the administrator.",
+    "info": "If you believe this was a mistake or would like more information, please contact the administrator.",
+    "contact": "Contact us at",
+    "backToHome": "Back to Home"
+  },
+  "accountLocked": {
+    "title": "Workspace Temporarily Disabled",
+    "description": "Your workspace",
+    "description2": "has been temporarily disabled by the administrator.",
+    "info": "Your workspace has been temporarily disabled. Please contact the administrator for more information.",
+    "contact": "Contact us at",
+    "backToHome": "Back to Home"
   },
   "pendingApproval": {
     "title": "Account Pending Approval",

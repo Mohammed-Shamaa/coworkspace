@@ -27,6 +27,7 @@ public class Tenant
     public string CompanyName { get; set; } = string.Empty;
 
     public bool IsActive { get; set; } = true;
+    public bool IsLocked { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

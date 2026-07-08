@@ -68,6 +68,7 @@ public class TenantInfo
     public bool HasMeetingRoom { get; set; }
     public string Status { get; set; } = "Pending";
     public string PaymentStatus { get; set; } = "Trial";
+    public bool IsLocked { get; set; }
     public DateTime? TrialStartDate { get; set; }
     public DateTime? SubscriptionExpiryDate { get; set; }
 }

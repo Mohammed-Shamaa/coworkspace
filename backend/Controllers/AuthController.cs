@@ -165,6 +165,7 @@ public class AuthController : ControllerBase
                         HasMeetingRoom = tenant.HasMeetingRoom,
                         Status = tenant.Status.ToString(),
                         PaymentStatus = tenant.PaymentStatus.ToString(),
+                        IsLocked = tenant.IsLocked,
                         TrialStartDate = tenant.TrialStartDate,
                         SubscriptionExpiryDate = tenant.SubscriptionExpiryDate
                     }
@@ -246,6 +247,12 @@ public class AuthController : ControllerBase
 
             var tenant = user.Tenant;
 
+            if (tenant.Status == TenantStatus.Rejected)
+                return Unauthorized(new { success = false, message = "Your workspace request has been rejected. Please contact the administrator for more information.", errorCode = "AUTH_REJECTED", errors = new { general = new[] { "Your workspace request has been rejected. Please contact the administrator for more information." } } });
+
+            if (tenant.IsLocked)
+                return Unauthorized(new { success = false, message = "Your workspace has been temporarily disabled by the administrator. Please contact support for assistance.", errorCode = "AUTH_LOCKED", errors = new { general = new[] { "Your workspace has been temporarily disabled by the administrator. Please contact support for assistance." } } });
+
             var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
@@ -284,6 +291,7 @@ public class AuthController : ControllerBase
                     HasMeetingRoom = tenant.HasMeetingRoom,
                     Status = tenant.Status.ToString(),
                     PaymentStatus = tenant.PaymentStatus.ToString(),
+                    IsLocked = tenant.IsLocked,
                     TrialStartDate = tenant.TrialStartDate,
                     SubscriptionExpiryDate = tenant.SubscriptionExpiryDate
                 }
@@ -352,6 +360,7 @@ public class AuthController : ControllerBase
                     HasMeetingRoom = user.Tenant.HasMeetingRoom,
                     Status = user.Tenant.Status.ToString(),
                     PaymentStatus = user.Tenant.PaymentStatus.ToString(),
+                    IsLocked = user.Tenant.IsLocked,
                     TrialStartDate = user.Tenant.TrialStartDate,
                     SubscriptionExpiryDate = user.Tenant.SubscriptionExpiryDate
                 }

@@ -305,6 +305,8 @@
       "pendingRequests": "طلبات قيد المراجعة",
       "activeWorkspaces": "مساحات العمل النشطة",
       "payments": "المدفوعات",
+      "rejectedApproval": "مساحات العمل المرفوضة",
+      "rejectedWorkspaces": "{{count}} مساحة عمل مرفوضة",
       "workspacesAwaiting": "{{count}} مساحة عمل تنتظر المراجعة",
       "approvedWorkspaces": "{{count}} مساحة عمل مقبولة",
       "activeSubs": "{{count}} اشتراك نشط"
@@ -353,6 +355,9 @@
         "restoreAccess": "استعادة الوصول",
         "markExpired": "تحديد منتهية",
         "exportPdf": "تصدير PDF",
+        "lockWorkspace": "قفل مساحة العمل",
+        "unlockWorkspace": "فتح قفل مساحة العمل",
+        "workspaceLocked": "مساحة العمل هذه مقفلة حالياً.",
         "recentMembers": "الأعضاء الجدد",
         "workingHours": "ساعات العمل: {{open}} - {{close}}",
         "failedToLoad": "فشل تحميل التفاصيل"
@@ -368,6 +373,22 @@
       "title": "الإشعارات",
       "noNotifications": "لا توجد إشعارات"
     },
+    "rejected": {
+      "title": "مساحات العمل المرفوضة",
+      "searchPlaceholder": "بحث في مساحات العمل المرفوضة...",
+      "noRejected": "لا توجد مساحات عمل مرفوضة",
+      "noRejectedDesc": "لا توجد طلبات مساحة عمل مرفوضة.",
+      "noMatch": "لا توجد مساحات عمل مرفوضة مطابقة",
+      "restore": "استعادة",
+      "restoring": "جارٍ الاستعادة...",
+      "delete": "حذف نهائي",
+      "deleting": "جارٍ الحذف...",
+      "confirmDelete": "هل أنت متأكد من حذف مساحة العمل المرفوضة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.",
+      "registered": "مسجل",
+      "restored": "تمت استعادة مساحة العمل بنجاح.",
+      "deleted": "تم حذف مساحة العمل نهائياً.",
+      "desks": "{{total}} مكتب، {{max}} أقصى سعة"
+    },
     "accessDenied": "تم رفض الوصول.",
     "error": {
       "failedToLoad": "فشل التحميل",
@@ -375,10 +396,30 @@
       "failedToReject": "فشل رفض المستأجر",
       "failedToUpdatePayment": "فشل تحديث حالة الدفع",
       "failedToLoadDetail": "فشل تحميل تفاصيل مساحة العمل",
-      "failedToDownloadPdf": "فشل تحميل PDF",
-      "approvedEmailTimeout": "تمت الموافقة على المستأجر ولكن مهلة البريد الإلكتروني انتهت — قد تكون إعادة الإرسال بطيئة.",
-      "approvedEmailFailed": "تمت الموافقة على المستأجر ولكن فشل إرسال البريد الإلكتروني: {{error}}"
-    }
+        "failedToDownloadPdf": "فشل تحميل PDF",
+        "failedToRestore": "فشل استعادة مساحة العمل",
+        "failedToDelete": "فشل حذف مساحة العمل",
+        "failedToLock": "فشل قفل مساحة العمل",
+        "failedToUnlock": "فشل إلغاء قفل مساحة العمل",
+        "approvedEmailTimeout": "تمت الموافقة على المستأجر ولكن مهلة البريد الإلكتروني انتهت — قد تكون إعادة الإرسال بطيئة.",
+        "approvedEmailFailed": "تمت الموافقة على المستأجر ولكن فشل إرسال البريد الإلكتروني: {{error}}"
+      }
+    },
+  "accountRejected": {
+    "title": "تم رفض طلب الحساب",
+    "description": "تم رفض طلب مساحة العمل الخاصة بك.",
+    "description2": "لسوء الحظ، لم تتم الموافقة على طلب تسجيل مساحة العمل الخاصة بك. تم اتخاذ هذا القرار من قبل المسؤول.",
+    "info": "إذا كنت تعتقد أن هذا خطأ أو ترغب في مزيد من المعلومات، يرجى الاتصال بالمسؤول.",
+    "contact": "اتصل بنا على",
+    "backToHome": "العودة إلى الرئيسية"
+  },
+  "accountLocked": {
+    "title": "مساحة العمل معطلة مؤقتاً",
+    "description": "مساحة العمل الخاصة بك",
+    "description2": "تم تعطيلها مؤقتاً من قبل المسؤول.",
+    "info": "تم تعطيل مساحة العمل الخاصة بك مؤقتاً. يرجى الاتصال بالمسؤول للحصول على مزيد من المعلومات.",
+    "contact": "اتصل بنا على",
+    "backToHome": "العودة إلى الرئيسية"
   },
   "pendingApproval": {
     "title": "الحساب قيد المراجعة",

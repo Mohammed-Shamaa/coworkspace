@@ -15,6 +15,7 @@ public class AdminWorkspaceDetail
     public TimeSpan? ClosingTime { get; set; }
     public string Status { get; set; } = string.Empty;
     public string PaymentStatus { get; set; } = string.Empty;
+    public bool IsLocked { get; set; }
     public DateTime? TrialStartDate { get; set; }
     public DateTime? SubscriptionExpiryDate { get; set; }
     public DateTime? ApprovalDate { get; set; }

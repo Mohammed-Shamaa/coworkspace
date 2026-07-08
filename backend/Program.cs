@@ -367,6 +367,7 @@ ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "ApprovalDate" timestamp with tim
 ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "TrialStartDate" timestamp with time zone NULL;
 ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "SubscriptionExpiryDate" timestamp with time zone NULL;
 ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "WhatsappNumber" character varying(50) NOT NULL DEFAULT '';
+ALTER TABLE "Tenants" ADD COLUMN IF NOT EXISTS "IsLocked" boolean NOT NULL DEFAULT FALSE;
 
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Tenants_Subdomain" ON "Tenants" ("Subdomain");
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Members_TenantId_FullName" ON "Members" ("TenantId", "FullName");

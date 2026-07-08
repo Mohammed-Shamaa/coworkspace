@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import {
   Building2, Loader2, Users, CheckCircle, Clock, Search, X,
   ChevronRight, FileText, CreditCard, AlertTriangle, Phone, Mail,
-  Hash, MapPin, Calendar, Download, ArrowLeft, Smartphone, User
+  Hash, MapPin, Calendar, Download, ArrowLeft, Smartphone, User, Lock, Unlock
 } from 'lucide-react'
 import type { AdminTenant, AdminWorkspaceDetail } from '@/types'
 import { useTranslation } from 'react-i18next'
@@ -221,13 +221,21 @@ export default function WorkspacesPage() {
                     )}
                   </div>
                 </div>
-                <span className={`text-xs font-medium px-2 py-1 rounded-full shrink-0 ${
-                  ws.paymentStatus === 'Active' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
-                  ws.paymentStatus === 'Trial' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                  'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                }`}>
-                  {ws.paymentStatus === 'Active' ? t('admin.workspaces.paid') : ws.paymentStatus}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  {ws.isLocked && (
+                    <span className="text-xs font-medium px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      Locked
+                    </span>
+                  )}
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    ws.paymentStatus === 'Active' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                    ws.paymentStatus === 'Trial' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                    'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                  }`}>
+                    {ws.paymentStatus === 'Active' ? t('admin.workspaces.paid') : ws.paymentStatus}
+                  </span>
+                </div>
               </div>
             </div>
             )})}
@@ -348,10 +356,30 @@ export default function WorkspacesPage() {
                     </div>
                   </div>
 
-                  {/* Payment controls */}
+                  {/* Lock/Unlock controls */}
                   <div className="space-y-2">
                     <h4 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.workspaces.detail.paymentControls')}</h4>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {detail.isLocked ? (
+                        <Button
+                          onClick={async () => { try { await adminApi.unlockTenant(detail.id); await fetchWorkspaces(); if (selectedId) await openDetail(detail.id) } catch { setError(t('admin.error.failedToUnlock')) } }}
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 gap-2 text-xs"
+                        >
+                          <Unlock className="w-3 h-3" />
+                          {t('admin.workspaces.detail.unlockWorkspace')}
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={async () => { try { await adminApi.lockTenant(detail.id); await fetchWorkspaces(); if (selectedId) await openDetail(detail.id) } catch { setError(t('admin.error.failedToLock')) } }}
+                          size="sm"
+                          variant="outline"
+                          className="gap-2 text-amber-600 border-amber-300 text-xs"
+                        >
+                          <Lock className="w-3 h-3" />
+                          {t('admin.workspaces.detail.lockWorkspace')}
+                        </Button>
+                      )}
                       {isExpired(detail.subscriptionExpiryDate) && (
                         <Button
                           onClick={() => handlePaymentStatus(detail.id, 'Active')}
@@ -386,6 +414,12 @@ export default function WorkspacesPage() {
                         {t('admin.workspaces.detail.exportPdf')}
                       </Button>
                     </div>
+                    {detail.isLocked && (
+                      <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2">
+                        <Lock className="w-3 h-3 shrink-0" />
+                        <span>{t('admin.workspaces.detail.workspaceLocked')}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Recent members */}
