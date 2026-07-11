@@ -1,9 +1,8 @@
 'use client'
-import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
+import ScrollReveal from './scroll-reveal'
 
 const data = [
   { name: 'Mon', revenue: 1200 },
@@ -16,29 +15,21 @@ const data = [
 ]
 
 export default function DashboardPreview() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
   const { t } = useTranslation()
 
   return (
     <section className="border-t border-gray-100 bg-gray-50/50 py-20 md:py-28 dark:border-[var(--card-border)] dark:bg-[var(--page-bg)]">
       <div className="mx-auto max-w-7xl px-6">
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-2xl text-center"
-        >
+        <ScrollReveal yOffset={20} className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.dashboard.badge')}</span>
           <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.dashboard.title')}</h2>
           <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.dashboard.subtitle')}</p>
-        </motion.div>
+        </ScrollReveal>
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+        <ScrollReveal
+          yOffset={40}
+          delay={0.2}
+          duration={0.6}
           className="mt-14"
         >
           <div className="rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl shadow-gray-200/50 dark:border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:shadow-gray-950/50">
@@ -87,7 +78,7 @@ export default function DashboardPreview() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </ScrollReveal>
       </div>
     </section>
   )

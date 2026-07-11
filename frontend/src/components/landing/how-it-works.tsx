@@ -1,20 +1,15 @@
 'use client'
-import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
 import { UserPlus, Users, CalendarCheck, LayoutDashboard } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
+import ScrollReveal from './scroll-reveal'
 
 function StepCard({ icon: Icon, title, description, index, totalSteps }: { icon: typeof UserPlus; title: string; description: string; index: number; totalSteps: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-80px' })
-
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-      transition={{ duration: 0.5, delay: index * 0.15, ease: 'easeOut' }}
+    <ScrollReveal
+      delay={index * 0.15}
+      yOffset={0}
+      duration={0.5}
       className="relative flex gap-6"
     >
       <div className="flex flex-col items-center">
@@ -27,9 +22,9 @@ function StepCard({ icon: Icon, title, description, index, totalSteps }: { icon:
       </div>
       <div className="pb-12 pt-1">
         <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-[var(--text-secondary)]">{description}</p>
+        <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:[var(--text-secondary)]">{description}</p>
       </div>
-    </motion.div>
+    </ScrollReveal>
   )
 }
 
@@ -41,23 +36,15 @@ export default function HowItWorks() {
     { icon: CalendarCheck, title: t('landing.howItWorks.step3Title'), description: t('landing.howItWorks.step3Desc') },
     { icon: LayoutDashboard, title: t('landing.howItWorks.step4Title'), description: t('landing.howItWorks.step4Desc') },
   ]
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
     <section className="py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-2xl text-center"
-        >
+        <ScrollReveal yOffset={20} className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.howItWorks.badge')}</span>
           <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.howItWorks.title')}</h2>
           <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.howItWorks.subtitle')}</p>
-        </motion.div>
+        </ScrollReveal>
 
         <div className="mx-auto mt-16 max-w-2xl">
           {steps.map((step, i) => (
