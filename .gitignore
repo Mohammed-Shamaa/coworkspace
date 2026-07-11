@@ -63,6 +63,10 @@ $RECYCLE.BIN/
 *~
 *.sublime-workspace
 
+# --- Stray scripts ---
+generate_script_pdf.py
+novel_to_pdf.py
+
 # --- Misc ---
 *.pem
 *.pub

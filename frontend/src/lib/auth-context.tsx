@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore */ }
   }, [])
 
-  const handleAuthResponse = (data: AuthResponse) => {
+  const handleAuthResponse = useCallback((data: AuthResponse) => {
     localStorage.setItem('token', data.token)
     localStorage.setItem('refreshToken', data.refreshToken)
     localStorage.setItem('expiresAt', data.expiresAt)
@@ -127,23 +127,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user)
     setTenant(data.tenant)
     setOnboardingCompleted(null)
-  }
+  }, [])
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     if (!email.trim() || !password.trim()) {
       throw { apiError: { status: 0, message: i18n.t('common.authValidationRequired'), code: 'VALIDATION_ERROR' } }
     }
     const res = await api.post('/auth/login', { email: email.trim(), password })
     handleAuthResponse(res.data)
     return res.data
-  }
+  }, [handleAuthResponse])
 
-  const register = async (data: Record<string, unknown>) => {
+  const register = useCallback(async (data: Record<string, unknown>) => {
     const res = await api.post('/auth/register', data)
     handleAuthResponse(res.data)
-  }
+  }, [handleAuthResponse])
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('expiresAt')
@@ -152,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
     setTenant(null)
     router.push('/auth/login')
-  }
+  }, [router])
 
   const value = useMemo(() => ({
     user,

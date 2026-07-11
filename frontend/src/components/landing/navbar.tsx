@@ -27,9 +27,9 @@ export default function Navbar() {
           <button
             onClick={toggleLanguage}
             aria-label={i18n.language === 'ar' ? t('landing.navbar.switchToEnglish') : t('landing.navbar.switchToArabic')}
-            className="rounded-lg p-2 md:p-2.5 text-gray-500 transition-all hover:bg-blue-50 active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800"
+            className="group rounded-lg p-2 md:p-2.5 text-gray-500 transition-all duration-300 hover:scale-105 hover:bg-blue-100 hover:text-[#1565C0] hover:shadow-sm hover:shadow-blue-200/50 active:scale-95 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-blue-400 dark:hover:shadow-blue-900/30"
           >
-            <Globe size={16} />
+            <Globe size={16} className="transition-transform duration-300 group-hover:rotate-12" />
             <span className="ml-1.5 text-xs font-medium hidden sm:inline">
               {i18n.language === 'ar' ? 'English' : 'العربية'}
             </span>
@@ -37,9 +37,9 @@ export default function Navbar() {
           <button
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? t('landing.navbar.switchToLightMode') : t('landing.navbar.switchToDarkMode')}
-            className="rounded-lg p-2 md:p-2.5 text-gray-500 transition-all hover:bg-blue-50 active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800"
+            className="group rounded-lg p-2 md:p-2.5 text-gray-500 transition-all duration-300 hover:scale-105 hover:bg-amber-50 hover:text-amber-600 hover:shadow-sm hover:shadow-amber-200/50 active:scale-95 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-amber-400 dark:hover:shadow-amber-900/30"
           >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            {theme === 'dark' ? <Sun size={16} className="transition-transform duration-300 group-hover:rotate-45" /> : <Moon size={16} className="transition-transform duration-300 group-hover:-rotate-12" />}
           </button>
 
           <Link
