@@ -105,25 +105,6 @@ export interface Payment {
   createdAt: string
 }
 
-export interface Dashboard {
-  totalMembers: number
-  activeMembers: number
-  expiredMembers: number
-  unpaidMembers: number
-  studentCount: number
-  remoteWorkerCount: number
-  monthlyIncome: number
-  recentRegistrations: RecentRegistration[]
-}
-
-export interface RecentRegistration {
-  id: number
-  fullName: string
-  memberType: string
-  registrationDate: string
-  monthlyFee: number
-}
-
 export interface Reservation {
   id: number
   personName: string

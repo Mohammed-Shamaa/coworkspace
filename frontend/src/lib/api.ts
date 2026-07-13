@@ -207,10 +207,6 @@ api.interceptors.response.use(
 
 export default api
 
-export const dashboardApi = {
-  get: () => api.get('/dashboard'),
-}
-
 export const membersApi = {
   getAll: (params?: { search?: string; filter?: string; type?: string; paymentStatus?: string; expired?: boolean }) =>
     api.get('/members', { params }),
