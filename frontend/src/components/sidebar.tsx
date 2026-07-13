@@ -10,7 +10,7 @@ import '@/lib/i18n'
 import {
   LayoutDashboard, Users, CreditCard, GraduationCap,
   Briefcase, Clock, Settings, LogOut, Globe, Sun, Moon,
-  Presentation, Shield
+  Presentation, Shield, BarChart3
 } from 'lucide-react'
 
 export default function Sidebar() {
@@ -27,6 +27,7 @@ export default function Sidebar() {
       { href: '/students', labelKey: 'sidebar.students', icon: GraduationCap },
       { href: '/workers', labelKey: 'sidebar.workers', icon: Briefcase },
       { href: '/expired', labelKey: 'sidebar.expired', icon: Clock },
+      { href: '/analytics', labelKey: 'sidebar.analytics', icon: BarChart3 },
       { href: '/settings', labelKey: 'sidebar.settings', icon: Settings },
     ]
     if (tenant?.hasMeetingRoom) {

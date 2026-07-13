@@ -252,4 +252,86 @@ export interface CreateMemberRequest {
   monthlyFee: number
 }
 
+export interface AnalyticsOverview {
+  kpis: KpiData
+  revenueHistory: AnalyticsRevenuePoint[]
+  memberGrowth: AnalyticsMemberGrowthPoint[]
+  occupancy: AnalyticsOccupancyData | null
+  paymentStatus: AnalyticsPaymentStatusData | null
+  subscriptions: AnalyticsSubscriptionPoint[]
+  meetingRoomUsage: AnalyticsMeetingRoomPoint[]
+  memberActivity: AnalyticsMemberActivityPoint[]
+  insights: AnalyticsInsight[]
+}
+
+export interface KpiData {
+  totalMembers: number
+  activeMembers: number
+  expiredMembers: number
+  unpaidMembers: number
+  studentCount: number
+  remoteWorkerCount: number
+  monthlyIncome: number
+  totalRevenue: number
+  occupancyRate: number
+  totalDesks: number
+  occupiedDesks: number
+  availableDesks: number
+  totalMeetingRoomBookings: number
+  activeSubscriptions: number
+  membersTrend: number | null
+  revenueTrend: number | null
+  occupancyTrend: number | null
+  meetingRoomTrend: number | null
+}
+
+export interface AnalyticsRevenuePoint {
+  month: string
+  revenue: number
+}
+
+export interface AnalyticsMemberGrowthPoint {
+  month: string
+  newMembers: number
+}
+
+export interface AnalyticsOccupancyData {
+  occupied: number
+  available: number
+  rate: number
+}
+
+export interface AnalyticsPaymentStatusData {
+  paid: number
+  unpaid: number
+  paidPercentage: number
+  unpaidPercentage: number
+}
+
+export interface AnalyticsSubscriptionPoint {
+  plan: string
+  count: number
+  percentage: number
+}
+
+export interface AnalyticsMeetingRoomPoint {
+  day: string
+  bookings: number
+}
+
+export interface AnalyticsMemberActivityPoint {
+  month: string
+  newMembers: number
+  expiredMembers: number
+}
+
+export interface AnalyticsInsight {
+  type: string
+  title: string
+  message: string
+  icon: string
+}
+
+export type AnalyticsPeriod = '7d' | '30d' | '90d' | '1y'
+
 

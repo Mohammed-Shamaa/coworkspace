@@ -278,3 +278,7 @@ export const meetingRoomApi = {
   getUpcoming: () => api.get('/meetingroom/upcoming'),
 }
 
+export const analyticsApi = {
+  getOverview: (params?: { period?: string }) => api.get('/analytics', { params }),
+}
+
