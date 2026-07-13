@@ -97,10 +97,10 @@ export default function NotificationBell() {
     <div className="relative">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[#1565C0]/50 transition-colors"
+        className="relative p-2 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[#1565C0]/50 dark:hover:border-amber-400/50 dark:hover:shadow-[0_0_10px_rgba(245,158,11,0.25)] dark:hover:scale-105 transition-all"
         aria-label={t('appNotifications.title')}
       >
-        <Bell className="w-5 h-5 text-[var(--text-secondary)]" />
+        <Bell className="w-5 h-5 text-[var(--text-secondary)] dark:text-amber-400" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
             {unreadCount > 99 ? '99+' : unreadCount}
