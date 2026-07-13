@@ -19,6 +19,8 @@ public class AuthController : ControllerBase
     private readonly AppDbContext _db;
     private readonly IConfiguration _config;
     private readonly ILogger<AuthController> _logger;
+    private static byte[]? _cachedSigningKey;
+    private static readonly object _keyLock = new();
 
     public AuthController(AppDbContext db, IConfiguration config, ILogger<AuthController> logger)
     {
@@ -154,21 +156,7 @@ public class AuthController : ControllerBase
                     RefreshToken = refreshToken,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(15),
                     User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
-                    Tenant = new TenantInfo
-                    {
-                        Id = tenant.Id,
-                        Name = tenant.Name,
-                        Subdomain = tenant.Subdomain,
-                        LogoUrl = tenant.LogoUrl,
-                        PrimaryColor = tenant.PrimaryColor,
-                        CompanyName = tenant.CompanyName,
-                        HasMeetingRoom = tenant.HasMeetingRoom,
-                        Status = tenant.Status.ToString(),
-                        PaymentStatus = tenant.PaymentStatus.ToString(),
-                        IsLocked = tenant.IsLocked,
-                        TrialStartDate = tenant.TrialStartDate,
-                        SubscriptionExpiryDate = tenant.SubscriptionExpiryDate
-                    }
+                    Tenant = BuildTenantInfo(tenant)
                 };
             }
             catch
@@ -211,59 +199,64 @@ public class AuthController : ControllerBase
                 {
                     success = false,
                     message = "Email and password are required.",
-                    errorCode = "AUTH_VALIDATION_ERROR",
-                    errors = new
-                    {
-                        email = string.IsNullOrWhiteSpace(request.Email) ? new[] { "Email is required." } : Array.Empty<string>(),
-                        password = string.IsNullOrWhiteSpace(request.Password) ? new[] { "Password is required." } : Array.Empty<string>()
-                    }
+                    errorCode = "AUTH_VALIDATION_ERROR"
                 });
             }
 
             var email = request.Email.Trim().ToLowerInvariant();
 
-            var user = await _db.Users.Include(u => u.Tenant)
-                .FirstOrDefaultAsync(u => u.Email.ToLower() == email);
+            var userAuth = await _db.Users
+                .Where(u => u.Email.ToLower() == email)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.PasswordHash,
+                    u.IsActive,
+                    u.FullName,
+                    u.Email,
+                    Role = u.Role.ToString(),
+                    TenantId = u.Tenant.Id,
+                    TenantName = u.Tenant.Name,
+                    TenantSubdomain = u.Tenant.Subdomain,
+                    TenantLogoUrl = u.Tenant.LogoUrl,
+                    TenantPrimaryColor = u.Tenant.PrimaryColor,
+                    TenantCompanyName = u.Tenant.CompanyName,
+                    TenantHasMeetingRoom = u.Tenant.HasMeetingRoom,
+                    TenantStatus = u.Tenant.Status,
+                    TenantPaymentStatus = u.Tenant.PaymentStatus,
+                    TenantIsLocked = u.Tenant.IsLocked,
+                    TenantTrialStartDate = u.Tenant.TrialStartDate,
+                    TenantSubscriptionExpiryDate = u.Tenant.SubscriptionExpiryDate
+                })
+                .FirstOrDefaultAsync();
 
-            if (user == null || user.Tenant == null)
-                return Unauthorized(new { success = false, message = "Invalid email or password.", errorCode = "AUTH_INVALID_CREDENTIALS", errors = new { general = new[] { "Invalid email or password." } } });
+            if (userAuth == null)
+                return Unauthorized(new { success = false, message = "Invalid email or password.", errorCode = "AUTH_INVALID_CREDENTIALS" });
 
-            bool passwordValid;
-            try
-            {
-                passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Password verification failed for UserId={UserId}, Email={Email}", user.Id, user.Email);
-                return Unauthorized(new { success = false, message = "Invalid email or password.", errorCode = "AUTH_INVALID_CREDENTIALS", errors = new { general = new[] { "Invalid email or password." } } });
-            }
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, userAuth.PasswordHash))
+                return Unauthorized(new { success = false, message = "Invalid email or password.", errorCode = "AUTH_INVALID_CREDENTIALS" });
 
-            if (!passwordValid)
-                return Unauthorized(new { success = false, message = "Invalid email or password.", errorCode = "AUTH_INVALID_CREDENTIALS", errors = new { general = new[] { "Invalid email or password." } } });
+            if (!userAuth.IsActive)
+                return Unauthorized(new { success = false, message = "Account is disabled.", errorCode = "AUTH_ACCOUNT_DISABLED" });
 
-            if (!user.IsActive)
-                return Unauthorized(new { success = false, message = "Account is disabled.", errorCode = "AUTH_ACCOUNT_DISABLED", errors = new { general = new[] { "Account is disabled." } } });
+            if (userAuth.TenantStatus == TenantStatus.Rejected)
+                return Unauthorized(new { success = false, message = "Your workspace request has been rejected. Please contact the administrator for more information.", errorCode = "AUTH_REJECTED" });
 
-            var tenant = user.Tenant;
-
-            if (tenant.Status == TenantStatus.Rejected)
-                return Unauthorized(new { success = false, message = "Your workspace request has been rejected. Please contact the administrator for more information.", errorCode = "AUTH_REJECTED", errors = new { general = new[] { "Your workspace request has been rejected. Please contact the administrator for more information." } } });
-
-            if (tenant.IsLocked)
-                return Unauthorized(new { success = false, message = "Your workspace has been temporarily disabled by the administrator. Please contact support for assistance.", errorCode = "AUTH_LOCKED", errors = new { general = new[] { "Your workspace has been temporarily disabled by the administrator. Please contact support for assistance." } } });
+            if (userAuth.TenantIsLocked)
+                return Unauthorized(new { success = false, message = "Your workspace has been temporarily disabled by the administrator. Please contact support for assistance.", errorCode = "AUTH_LOCKED" });
 
             var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            user.LastLoginAt = DateTime.UtcNow;
-            try
+
+            var rows = await _db.Users
+                .Where(u => u.Id == userAuth.Id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.RefreshToken, refreshToken)
+                    .SetProperty(u => u.RefreshTokenExpiry, DateTime.UtcNow.AddDays(7))
+                    .SetProperty(u => u.LastLoginAt, DateTime.UtcNow));
+
+            if (rows == 0)
             {
-                await _db.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Failed to persist login token fields for UserId={UserId}, TenantId={TenantId}", user.Id, user.TenantId);
+                _logger.LogError("Failed to persist login token fields for UserId={UserId}", userAuth.Id);
                 return StatusCode(500, new
                 {
                     success = false,
@@ -272,28 +265,30 @@ public class AuthController : ControllerBase
                 });
             }
 
-            var token = GenerateJwtToken(user, tenant);
+            var tokenString = GenerateJwtToken(
+                userAuth.Id.ToString(), userAuth.Email, userAuth.Role,
+                userAuth.FullName, userAuth.TenantId.ToString());
 
             return new AuthResponse
             {
-                Token = token,
+                Token = tokenString,
                 RefreshToken = refreshToken,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(15),
-                User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
+                User = new UserInfo { Id = userAuth.Id, Email = userAuth.Email, FullName = userAuth.FullName, Role = userAuth.Role },
                 Tenant = new TenantInfo
                 {
-                    Id = tenant.Id,
-                    Name = tenant.Name,
-                    Subdomain = tenant.Subdomain,
-                    LogoUrl = tenant.LogoUrl,
-                    PrimaryColor = tenant.PrimaryColor,
-                    CompanyName = tenant.CompanyName,
-                    HasMeetingRoom = tenant.HasMeetingRoom,
-                    Status = tenant.Status.ToString(),
-                    PaymentStatus = tenant.PaymentStatus.ToString(),
-                    IsLocked = tenant.IsLocked,
-                    TrialStartDate = tenant.TrialStartDate,
-                    SubscriptionExpiryDate = tenant.SubscriptionExpiryDate
+                    Id = userAuth.TenantId,
+                    Name = userAuth.TenantName,
+                    Subdomain = userAuth.TenantSubdomain,
+                    LogoUrl = userAuth.TenantLogoUrl,
+                    PrimaryColor = userAuth.TenantPrimaryColor,
+                    CompanyName = userAuth.TenantCompanyName,
+                    HasMeetingRoom = userAuth.TenantHasMeetingRoom,
+                    Status = userAuth.TenantStatus.ToString(),
+                    PaymentStatus = userAuth.TenantPaymentStatus.ToString(),
+                    IsLocked = userAuth.TenantIsLocked,
+                    TrialStartDate = userAuth.TenantTrialStartDate,
+                    SubscriptionExpiryDate = userAuth.TenantSubscriptionExpiryDate
                 }
             };
         }
@@ -305,8 +300,7 @@ public class AuthController : ControllerBase
             {
                 success = false,
                 message = "An unexpected error occurred during login. Please try again.",
-                errorCode = "AUTH_LOGIN_ERROR",
-                errors = new { general = new[] { "An internal error occurred." } }
+                errorCode = "AUTH_LOGIN_ERROR"
             });
         }
     }
@@ -316,23 +310,46 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _db.Users.Include(u => u.Tenant).FirstOrDefaultAsync(u => u.RefreshToken == request.RefreshToken);
-            if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)
+            var now = DateTime.UtcNow;
+
+            var userData = await _db.Users
+                .Where(u => u.RefreshToken == request.RefreshToken)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.RefreshTokenExpiry,
+                    u.FullName,
+                    u.Email,
+                    Role = u.Role.ToString(),
+                    TenantId = u.Tenant.Id,
+                    TenantName = u.Tenant.Name,
+                    TenantSubdomain = u.Tenant.Subdomain,
+                    TenantLogoUrl = u.Tenant.LogoUrl,
+                    TenantPrimaryColor = u.Tenant.PrimaryColor,
+                    TenantCompanyName = u.Tenant.CompanyName,
+                    TenantHasMeetingRoom = u.Tenant.HasMeetingRoom,
+                    TenantStatus = u.Tenant.Status,
+                    TenantPaymentStatus = u.Tenant.PaymentStatus,
+                    TenantIsLocked = u.Tenant.IsLocked,
+                    TenantTrialStartDate = u.Tenant.TrialStartDate,
+                    TenantSubscriptionExpiryDate = u.Tenant.SubscriptionExpiryDate
+                })
+                .FirstOrDefaultAsync();
+
+            if (userData == null || userData.RefreshTokenExpiry <= now)
                 return Unauthorized(new { success = false, message = "Invalid or expired refresh token.", errorCode = "AUTH_TOKEN_EXPIRED" });
 
-            if (user.Tenant == null)
-                return BadRequest(new { success = false, message = "User has no associated tenant.", errorCode = "AUTH_TENANT_MISSING" });
-
             var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            try
+
+            var rows = await _db.Users
+                .Where(u => u.Id == userData.Id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.RefreshToken, refreshToken)
+                    .SetProperty(u => u.RefreshTokenExpiry, DateTime.UtcNow.AddDays(7)));
+
+            if (rows == 0)
             {
-                await _db.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Failed to persist refresh token for UserId={UserId}", user.Id);
+                _logger.LogError("Failed to persist refresh token for UserId={UserId}", userData.Id);
                 return StatusCode(500, new
                 {
                     success = false,
@@ -341,28 +358,30 @@ public class AuthController : ControllerBase
                 });
             }
 
-            var token = GenerateJwtToken(user, user.Tenant);
+            var tokenString = GenerateJwtToken(
+                userData.Id.ToString(), userData.Email, userData.Role,
+                userData.FullName, userData.TenantId.ToString());
 
             return new AuthResponse
             {
-                Token = token,
+                Token = tokenString,
                 RefreshToken = refreshToken,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(15),
-                User = new UserInfo { Id = user.Id, Email = user.Email, FullName = user.FullName, Role = user.Role.ToString() },
+                User = new UserInfo { Id = userData.Id, Email = userData.Email, FullName = userData.FullName, Role = userData.Role },
                 Tenant = new TenantInfo
                 {
-                    Id = user.Tenant.Id,
-                    Name = user.Tenant.Name,
-                    Subdomain = user.Tenant.Subdomain,
-                    LogoUrl = user.Tenant.LogoUrl,
-                    PrimaryColor = user.Tenant.PrimaryColor,
-                    CompanyName = user.Tenant.CompanyName,
-                    HasMeetingRoom = user.Tenant.HasMeetingRoom,
-                    Status = user.Tenant.Status.ToString(),
-                    PaymentStatus = user.Tenant.PaymentStatus.ToString(),
-                    IsLocked = user.Tenant.IsLocked,
-                    TrialStartDate = user.Tenant.TrialStartDate,
-                    SubscriptionExpiryDate = user.Tenant.SubscriptionExpiryDate
+                    Id = userData.TenantId,
+                    Name = userData.TenantName,
+                    Subdomain = userData.TenantSubdomain,
+                    LogoUrl = userData.TenantLogoUrl,
+                    PrimaryColor = userData.TenantPrimaryColor,
+                    CompanyName = userData.TenantCompanyName,
+                    HasMeetingRoom = userData.TenantHasMeetingRoom,
+                    Status = userData.TenantStatus.ToString(),
+                    PaymentStatus = userData.TenantPaymentStatus.ToString(),
+                    IsLocked = userData.TenantIsLocked,
+                    TrialStartDate = userData.TenantTrialStartDate,
+                    SubscriptionExpiryDate = userData.TenantSubscriptionExpiryDate
                 }
             };
         }
@@ -373,8 +392,7 @@ public class AuthController : ControllerBase
             {
                 success = false,
                 message = "An unexpected error occurred during token refresh.",
-                errorCode = "AUTH_REFRESH_ERROR",
-                errors = new { general = new[] { "An internal error occurred." } }
+                errorCode = "AUTH_REFRESH_ERROR"
             });
         }
     }
@@ -396,15 +414,8 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(User user, Tenant tenant)
     {
-        var jwtKey = _config["Jwt:Key"];
-        if (string.IsNullOrEmpty(jwtKey) || Encoding.UTF8.GetByteCount(jwtKey) < 16)
-        {
-            _logger.LogCritical("Jwt:Key is missing or too short (minimum 16 bytes required). Auth will fail.");
-            throw new InvalidOperationException("Jwt:Key is not configured or is too short.");
-        }
-
+        var key = GetSigningKey();
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(jwtKey);
         var expiry = DateTime.UtcNow.AddMinutes(15);
 
         var claims = new[]
@@ -426,4 +437,68 @@ public class AuthController : ControllerBase
 
         return tokenHandler.WriteToken(token);
     }
+
+    private string GenerateJwtToken(string userId, string email, string role, string fullName, string tenantId)
+    {
+        var key = GetSigningKey();
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var expiry = DateTime.UtcNow.AddMinutes(15);
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId),
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, role),
+            new Claim("TenantId", tenantId),
+            new Claim("FullName", fullName)
+        };
+
+        var token = new JwtSecurityToken(
+            issuer: _config["Jwt:Issuer"] ?? "CoworkspaceAPI",
+            audience: _config["Jwt:Audience"] ?? "CoworkspaceApp",
+            claims: claims,
+            expires: expiry,
+            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+        );
+
+        return tokenHandler.WriteToken(token);
+    }
+
+    private byte[] GetSigningKey()
+    {
+        if (_cachedSigningKey != null)
+            return _cachedSigningKey;
+
+        lock (_keyLock)
+        {
+            if (_cachedSigningKey != null)
+                return _cachedSigningKey;
+
+            var jwtKey = _config["Jwt:Key"];
+            if (string.IsNullOrEmpty(jwtKey) || Encoding.UTF8.GetByteCount(jwtKey) < 16)
+            {
+                _logger.LogCritical("Jwt:Key is missing or too short (minimum 16 bytes required). Auth will fail.");
+                throw new InvalidOperationException("Jwt:Key is not configured or is too short.");
+            }
+
+            _cachedSigningKey = Encoding.UTF8.GetBytes(jwtKey);
+            return _cachedSigningKey;
+        }
+    }
+
+    private static TenantInfo BuildTenantInfo(Tenant tenant) => new()
+    {
+        Id = tenant.Id,
+        Name = tenant.Name,
+        Subdomain = tenant.Subdomain,
+        LogoUrl = tenant.LogoUrl,
+        PrimaryColor = tenant.PrimaryColor,
+        CompanyName = tenant.CompanyName,
+        HasMeetingRoom = tenant.HasMeetingRoom,
+        Status = tenant.Status.ToString(),
+        PaymentStatus = tenant.PaymentStatus.ToString(),
+        IsLocked = tenant.IsLocked,
+        TrialStartDate = tenant.TrialStartDate,
+        SubscriptionExpiryDate = tenant.SubscriptionExpiryDate
+    };
 }

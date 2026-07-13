@@ -28,6 +28,7 @@ public class AppDbContext : DbContext
         // User
         modelBuilder.Entity<User>(entity =>
         {
+            entity.HasIndex(u => u.Email);
             entity.HasIndex(u => new { u.TenantId, u.Email }).IsUnique();
             entity.HasIndex(u => u.RefreshToken);
             entity.HasOne(u => u.Tenant).WithMany(t => t.Users).HasForeignKey(u => u.TenantId).OnDelete(DeleteBehavior.Restrict);

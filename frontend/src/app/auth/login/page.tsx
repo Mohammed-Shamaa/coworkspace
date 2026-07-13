@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
@@ -15,17 +15,20 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const submittingRef = useRef(false)
   const { login } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submittingRef.current) return
     setError('')
     if (!email.trim() || !password.trim()) {
       setError(t('auth.fillRequired'))
       return
     }
+    submittingRef.current = true
     setLoading(true)
     try {
       await login(email, password)
@@ -45,6 +48,7 @@ function LoginForm() {
       }
     } finally {
       setLoading(false)
+      submittingRef.current = false
     }
   }
 
