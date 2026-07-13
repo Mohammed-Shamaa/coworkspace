@@ -14,199 +14,214 @@ namespace Coworkspace.API.Controllers;
 public class AnalyticsController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly ILogger<AnalyticsController> _logger;
 
-    public AnalyticsController(AppDbContext db) => _db = db;
+    public AnalyticsController(AppDbContext db, ILogger<AnalyticsController> logger)
+    {
+        _db = db;
+        _logger = logger;
+    }
 
     private int TenantId => int.Parse(User.FindFirst("TenantId")?.Value ?? throw new UnauthorizedAccessException("Missing TenantId"));
 
     [HttpGet]
     public async Task<ActionResult<AnalyticsOverviewResponse>> GetAnalytics([FromQuery] string period = "30d")
     {
-        var today = DateTime.UtcNow.Date;
-        var (startDate, previousStartDate) = GetDateRange(period, today);
-
-        var memberAgg = await _db.Members.AsNoTracking()
-            .Where(m => m.TenantId == TenantId)
-            .GroupBy(m => 1)
-            .Select(g => new
-            {
-                Total = g.Count(),
-                Active = g.Count(m => m.NoEndDate || (m.EndDate != null && m.EndDate >= today)),
-                Expired = g.Count(m => !m.NoEndDate && m.EndDate != null && m.EndDate < today),
-                Unpaid = g.Count(m => m.PaymentStatus == PaymentStatus.Unpaid),
-                Students = g.Count(m => m.MemberType == MemberType.Student),
-                Workers = g.Count(m => m.MemberType == MemberType.RemoteWorker),
-                MonthlyIncome = g.Where(m => m.PaymentStatus == PaymentStatus.Paid).Select(m => (decimal?)m.MonthlyFee).Sum() ?? 0,
-                OccupiedDesks = g.Count(m => !string.IsNullOrEmpty(m.DeskNumber) && m.DeskNumber != "-"
-                    && (m.NoEndDate || (m.EndDate != null && m.EndDate >= today)))
-            })
-            .FirstOrDefaultAsync();
-
-        var totalRevenue = await _db.Payments.AsNoTracking()
-            .Where(p => p.TenantId == TenantId && p.Status == "Paid")
-            .SumAsync(p => (decimal?)p.Amount) ?? 0;
-
-        var tenant = await _db.Tenants.AsNoTracking()
-            .Where(t => t.Id == TenantId)
-            .Select(t => new { t.TotalDesks, t.HasMeetingRoom })
-            .FirstOrDefaultAsync();
-
-        var totalBookings = await _db.MeetingRoomReservations.AsNoTracking()
-            .Where(r => r.TenantId == TenantId)
-            .CountAsync();
-
-        var membersCurrent = await _db.Members.AsNoTracking()
-            .CountAsync(m => m.TenantId == TenantId && m.RegistrationDate >= startDate);
-        var membersPrevious = await _db.Members.AsNoTracking()
-            .CountAsync(m => m.TenantId == TenantId && m.RegistrationDate >= previousStartDate && m.RegistrationDate < startDate);
-
-        var revenueCurrent = await _db.Payments.AsNoTracking()
-            .Where(p => p.TenantId == TenantId && p.Status == "Paid" && p.PaymentDate >= startDate)
-            .SumAsync(p => (decimal?)p.Amount) ?? 0;
-        var revenuePrevious = await _db.Payments.AsNoTracking()
-            .Where(p => p.TenantId == TenantId && p.Status == "Paid" && p.PaymentDate >= previousStartDate && p.PaymentDate < startDate)
-            .SumAsync(p => (decimal?)p.Amount) ?? 0;
-
-        var bookingsCurrent = await _db.MeetingRoomReservations.AsNoTracking()
-            .CountAsync(r => r.TenantId == TenantId && r.CreatedAt >= startDate);
-        var bookingsPrevious = await _db.MeetingRoomReservations.AsNoTracking()
-            .CountAsync(r => r.TenantId == TenantId && r.CreatedAt >= previousStartDate && r.CreatedAt < startDate);
-
-        var revenueHistory = await _db.Payments.AsNoTracking()
-            .Where(p => p.TenantId == TenantId && p.Status == "Paid" && p.PaymentDate >= startDate)
-            .GroupBy(p => new { p.PaymentDate.Year, p.PaymentDate.Month })
-            .Select(g => new AnalyticsRevenuePoint
-            {
-                Month = g.Key.Year + "-" + g.Key.Month.ToString("D2"),
-                Revenue = g.Sum(p => p.Amount)
-            })
-            .OrderBy(r => r.Month)
-            .ToListAsync();
-
-        var memberGrowth = await _db.Members.AsNoTracking()
-            .Where(m => m.TenantId == TenantId && m.RegistrationDate >= startDate)
-            .GroupBy(m => new { m.RegistrationDate.Year, m.RegistrationDate.Month })
-            .Select(g => new AnalyticsMemberGrowthPoint
-            {
-                Month = g.Key.Year + "-" + g.Key.Month.ToString("D2"),
-                NewMembers = g.Count()
-            })
-            .OrderBy(r => r.Month)
-            .ToListAsync();
-
-        var totalMembers = memberAgg?.Total ?? 0;
-        var paidCount = totalMembers - (memberAgg?.Unpaid ?? 0);
-
-        var totalDesks = tenant?.TotalDesks ?? 0;
-        var occupiedDesks = memberAgg?.OccupiedDesks ?? 0;
-
-        var hasDeskData = totalDesks > 0;
-
-        var subscriptionsData = await _db.Members.AsNoTracking()
-            .Where(m => m.TenantId == TenantId)
-            .GroupBy(m => m.AttendancePlan)
-            .Select(g => new AnalyticsSubscriptionPoint
-            {
-                Plan = g.Key.ToString(),
-                Count = g.Count()
-            })
-            .ToListAsync();
-        var totalForPct = subscriptionsData.Sum(s => s.Count);
-        foreach (var s in subscriptionsData)
-            s.Percentage = totalForPct > 0 ? Math.Round((double)s.Count / totalForPct * 100, 1) : 0;
-
-        var meetingRoomDaily = await _db.MeetingRoomReservations.AsNoTracking()
-            .Where(r => r.TenantId == TenantId && r.ReservationDate >= startDate)
-            .GroupBy(r => r.ReservationDate.Date)
-            .Select(g => new { Date = g.Key, Bookings = g.Count() })
-            .ToListAsync();
-
-        var dayOrder = new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-        var meetingRoomUsage = meetingRoomDaily
-            .GroupBy(x => (int)x.Date.DayOfWeek)
-            .Select(g => new AnalyticsMeetingRoomPoint
-            {
-                Day = dayOrder[g.Key],
-                Bookings = g.Sum(x => x.Bookings)
-            })
-            .OrderBy(r => Array.IndexOf(dayOrder, r.Day))
-            .ToList();
-
-        var newMembersByMonth = await _db.Members.AsNoTracking()
-            .Where(m => m.TenantId == TenantId && m.RegistrationDate >= startDate)
-            .GroupBy(m => new { m.RegistrationDate.Year, m.RegistrationDate.Month })
-            .Select(g => new { Year = g.Key.Year, Month = g.Key.Month, Count = g.Count() })
-            .ToListAsync();
-
-        var expiredMembersByMonth = await _db.Members.AsNoTracking()
-            .Where(m => m.TenantId == TenantId && !m.NoEndDate && m.EndDate != null && m.EndDate >= startDate)
-            .GroupBy(m => new { m.EndDate!.Value.Year, m.EndDate!.Value.Month })
-            .Select(g => new { Year = g.Key.Year, Month = g.Key.Month, Count = g.Count() })
-            .ToListAsync();
-
-        var allMonths = newMembersByMonth.Select(n => (n.Year, n.Month))
-            .Union(expiredMembersByMonth.Select(e => (e.Year, e.Month)))
-            .Distinct()
-            .OrderBy(x => x.Year).ThenBy(x => x.Month)
-            .ToList();
-
-        var memberActivity = allMonths.Select(m => new AnalyticsMemberActivityPoint
+        try
         {
-            Month = m.Year + "-" + m.Month.ToString("D2"),
-            NewMembers = newMembersByMonth.FirstOrDefault(n => n.Year == m.Year && n.Month == m.Month)?.Count ?? 0,
-            ExpiredMembers = expiredMembersByMonth.FirstOrDefault(e => e.Year == m.Year && e.Month == m.Month)?.Count ?? 0
-        }).ToList();
+            var today = DateTime.UtcNow.Date;
+            var (startDate, previousStartDate) = GetDateRange(period, today);
 
-        var insights = GenerateInsights(memberAgg, totalDesks, occupiedDesks, revenueCurrent, revenuePrevious, bookingsCurrent, bookingsPrevious, membersCurrent, membersPrevious);
+            var memberAgg = await _db.Members.AsNoTracking()
+                .Where(m => m.TenantId == TenantId)
+                .GroupBy(m => 1)
+                .Select(g => new MemberAggregate
+                {
+                    Total = g.Count(),
+                    Active = g.Count(m => m.NoEndDate || (m.EndDate != null && m.EndDate >= today)),
+                    Expired = g.Count(m => !m.NoEndDate && m.EndDate != null && m.EndDate < today),
+                    Unpaid = g.Count(m => m.PaymentStatus == PaymentStatus.Unpaid),
+                    Students = g.Count(m => m.MemberType == MemberType.Student),
+                    Workers = g.Count(m => m.MemberType == MemberType.RemoteWorker),
+                    MonthlyIncome = g.Where(m => m.PaymentStatus == PaymentStatus.Paid).Select(m => (decimal?)m.MonthlyFee).Sum() ?? 0,
+                    OccupiedDesks = g.Count(m => !string.IsNullOrEmpty(m.DeskNumber) && m.DeskNumber != "-"
+                        && (m.NoEndDate || (m.EndDate != null && m.EndDate >= today)))
+                })
+                .FirstOrDefaultAsync();
 
-        var response = new AnalyticsOverviewResponse
+            var totalRevenue = await _db.Payments.AsNoTracking()
+                .Where(p => p.TenantId == TenantId && p.Status == "Paid")
+                .SumAsync(p => (decimal?)p.Amount) ?? 0;
+
+            var tenantInfo = await _db.Tenants.AsNoTracking()
+                .Where(t => t.Id == TenantId)
+                .Select(t => new { t.TotalDesks, t.HasMeetingRoom })
+                .FirstOrDefaultAsync();
+
+            var totalBookings = await _db.MeetingRoomReservations.AsNoTracking()
+                .Where(r => r.TenantId == TenantId)
+                .CountAsync();
+
+            var membersCurrent = await _db.Members.AsNoTracking()
+                .CountAsync(m => m.TenantId == TenantId && m.RegistrationDate >= startDate);
+            var membersPrevious = await _db.Members.AsNoTracking()
+                .CountAsync(m => m.TenantId == TenantId && m.RegistrationDate >= previousStartDate && m.RegistrationDate < startDate);
+
+            var revenueCurrent = await _db.Payments.AsNoTracking()
+                .Where(p => p.TenantId == TenantId && p.Status == "Paid" && p.PaymentDate >= startDate)
+                .SumAsync(p => (decimal?)p.Amount) ?? 0;
+            var revenuePrevious = await _db.Payments.AsNoTracking()
+                .Where(p => p.TenantId == TenantId && p.Status == "Paid" && p.PaymentDate >= previousStartDate && p.PaymentDate < startDate)
+                .SumAsync(p => (decimal?)p.Amount) ?? 0;
+
+            var bookingsCurrent = await _db.MeetingRoomReservations.AsNoTracking()
+                .CountAsync(r => r.TenantId == TenantId && r.CreatedAt >= startDate);
+            var bookingsPrevious = await _db.MeetingRoomReservations.AsNoTracking()
+                .CountAsync(r => r.TenantId == TenantId && r.CreatedAt >= previousStartDate && r.CreatedAt < startDate);
+
+            var revenueHistory = await _db.Payments.AsNoTracking()
+                .Where(p => p.TenantId == TenantId && p.Status == "Paid" && p.PaymentDate >= startDate)
+                .GroupBy(p => new { p.PaymentDate.Year, p.PaymentDate.Month })
+                .Select(g => new { g.Key.Year, g.Key.Month, Revenue = g.Sum(p => p.Amount) })
+                .OrderBy(r => r.Year).ThenBy(r => r.Month)
+                .ToListAsync();
+
+            var memberGrowth = await _db.Members.AsNoTracking()
+                .Where(m => m.TenantId == TenantId && m.RegistrationDate >= startDate)
+                .GroupBy(m => new { m.RegistrationDate.Year, m.RegistrationDate.Month })
+                .Select(g => new { g.Key.Year, g.Key.Month, NewMembers = g.Count() })
+                .OrderBy(r => r.Year).ThenBy(r => r.Month)
+                .ToListAsync();
+
+            var totalMembers = memberAgg?.Total ?? 0;
+            var paidCount = totalMembers - (memberAgg?.Unpaid ?? 0);
+            var totalDesks = tenantInfo?.TotalDesks ?? 0;
+            var occupiedDesks = memberAgg?.OccupiedDesks ?? 0;
+            var hasDeskData = totalDesks > 0;
+
+            var subscriptionsRaw = await _db.Members.AsNoTracking()
+                .Where(m => m.TenantId == TenantId)
+                .GroupBy(m => m.AttendancePlan)
+                .Select(g => new { Plan = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var subscriptionsData = subscriptionsRaw
+                .Select(s => new AnalyticsSubscriptionPoint
+                {
+                    Plan = s.Plan.ToString(),
+                    Count = s.Count
+                })
+                .ToList();
+            var totalForPct = subscriptionsData.Sum(s => s.Count);
+            foreach (var s in subscriptionsData)
+                s.Percentage = totalForPct > 0 ? Math.Round((double)s.Count / totalForPct * 100, 1) : 0;
+
+            var meetingRoomDaily = await _db.MeetingRoomReservations.AsNoTracking()
+                .Where(r => r.TenantId == TenantId && r.ReservationDate >= startDate)
+                .GroupBy(r => new { r.ReservationDate.Year, r.ReservationDate.Month, r.ReservationDate.Day })
+                .Select(g => new { g.Key.Year, g.Key.Month, g.Key.Day, Bookings = g.Count() })
+                .ToListAsync();
+
+            var dayOrder = new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+            var meetingRoomUsage = meetingRoomDaily
+                .GroupBy(x => new DateTime(x.Year, x.Month, x.Day).DayOfWeek)
+                .Select(g => new AnalyticsMeetingRoomPoint
+                {
+                    Day = dayOrder[(int)g.Key],
+                    Bookings = g.Sum(x => x.Bookings)
+                })
+                .OrderBy(r => Array.IndexOf(dayOrder, r.Day))
+                .ToList();
+
+            var newMembersByMonth = await _db.Members.AsNoTracking()
+                .Where(m => m.TenantId == TenantId && m.RegistrationDate >= startDate)
+                .GroupBy(m => new { m.RegistrationDate.Year, m.RegistrationDate.Month })
+                .Select(g => new { Year = g.Key.Year, Month = g.Key.Month, Count = g.Count() })
+                .ToListAsync();
+
+            var expiredMembersByMonth = await _db.Members.AsNoTracking()
+                .Where(m => m.TenantId == TenantId && !m.NoEndDate && m.EndDate != null && m.EndDate >= startDate)
+                .GroupBy(m => new { Year = m.EndDate!.Value.Year, Month = m.EndDate!.Value.Month })
+                .Select(g => new { g.Key.Year, g.Key.Month, Count = g.Count() })
+                .ToListAsync();
+
+            var allMonths = newMembersByMonth.Select(n => (n.Year, n.Month))
+                .Union(expiredMembersByMonth.Select(e => (e.Year, e.Month)))
+                .Distinct()
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                .ToList();
+
+            var memberActivity = allMonths.Select(m => new AnalyticsMemberActivityPoint
+            {
+                Month = m.Year + "-" + m.Month.ToString("D2"),
+                NewMembers = newMembersByMonth.FirstOrDefault(n => n.Year == m.Year && n.Month == m.Month)?.Count ?? 0,
+                ExpiredMembers = expiredMembersByMonth.FirstOrDefault(e => e.Year == m.Year && e.Month == m.Month)?.Count ?? 0
+            }).ToList();
+
+            var insights = GenerateInsights(memberAgg, totalDesks, occupiedDesks, revenueCurrent, revenuePrevious, bookingsCurrent, bookingsPrevious, membersCurrent, membersPrevious);
+
+            var response = new AnalyticsOverviewResponse
+            {
+                Kpis = new KpiData
+                {
+                    TotalMembers = memberAgg?.Total ?? 0,
+                    ActiveMembers = memberAgg?.Active ?? 0,
+                    ExpiredMembers = memberAgg?.Expired ?? 0,
+                    UnpaidMembers = memberAgg?.Unpaid ?? 0,
+                    StudentCount = memberAgg?.Students ?? 0,
+                    RemoteWorkerCount = memberAgg?.Workers ?? 0,
+                    MonthlyIncome = memberAgg?.MonthlyIncome ?? 0,
+                    TotalRevenue = totalRevenue,
+                    OccupancyRate = hasDeskData ? Math.Round((double)occupiedDesks / totalDesks * 100, 1) : 0,
+                    TotalDesks = totalDesks,
+                    OccupiedDesks = occupiedDesks,
+                    AvailableDesks = Math.Max(0, totalDesks - occupiedDesks),
+                    TotalMeetingRoomBookings = totalBookings,
+                    ActiveSubscriptions = memberAgg?.Active ?? 0,
+                    MembersTrend = membersPrevious > 0 ? Math.Round((double)(membersCurrent - membersPrevious) / membersPrevious * 100, 1) : null,
+                    RevenueTrend = revenuePrevious > 0 ? Math.Round((double)(revenueCurrent - revenuePrevious) / (double)revenuePrevious * 100, 1) : null,
+                    MeetingRoomTrend = bookingsPrevious > 0 ? Math.Round((double)(bookingsCurrent - bookingsPrevious) / bookingsPrevious * 100, 1) : null
+                },
+                RevenueHistory = revenueHistory.Select(r => new AnalyticsRevenuePoint
+                {
+                    Month = r.Year + "-" + r.Month.ToString("D2"),
+                    Revenue = r.Revenue
+                }).ToList(),
+                MemberGrowth = memberGrowth.Select(r => new AnalyticsMemberGrowthPoint
+                {
+                    Month = r.Year + "-" + r.Month.ToString("D2"),
+                    NewMembers = r.NewMembers
+                }).ToList(),
+                Occupancy = hasDeskData ? new AnalyticsOccupancyData
+                {
+                    Occupied = occupiedDesks,
+                    Available = Math.Max(0, totalDesks - occupiedDesks),
+                    Rate = Math.Round((double)occupiedDesks / totalDesks * 100, 1)
+                } : null,
+                PaymentStatus = totalMembers > 0 ? new AnalyticsPaymentStatusData
+                {
+                    Paid = paidCount,
+                    Unpaid = memberAgg?.Unpaid ?? 0,
+                    PaidPercentage = Math.Round((double)paidCount / totalMembers * 100, 1),
+                    UnpaidPercentage = Math.Round((double)(memberAgg?.Unpaid ?? 0) / totalMembers * 100, 1)
+                } : null,
+                Subscriptions = subscriptionsData,
+                MeetingRoomUsage = meetingRoomUsage,
+                MemberActivity = memberActivity,
+                Insights = insights
+            };
+
+            return response;
+        }
+        catch (Exception ex)
         {
-            Kpis = new KpiData
-            {
-                TotalMembers = memberAgg?.Total ?? 0,
-                ActiveMembers = memberAgg?.Active ?? 0,
-                ExpiredMembers = memberAgg?.Expired ?? 0,
-                UnpaidMembers = memberAgg?.Unpaid ?? 0,
-                StudentCount = memberAgg?.Students ?? 0,
-                RemoteWorkerCount = memberAgg?.Workers ?? 0,
-                MonthlyIncome = memberAgg?.MonthlyIncome ?? 0,
-                TotalRevenue = totalRevenue,
-                OccupancyRate = hasDeskData ? Math.Round((double)occupiedDesks / totalDesks * 100, 1) : 0,
-                TotalDesks = totalDesks,
-                OccupiedDesks = occupiedDesks,
-                AvailableDesks = Math.Max(0, totalDesks - occupiedDesks),
-                TotalMeetingRoomBookings = totalBookings,
-                ActiveSubscriptions = memberAgg?.Active ?? 0,
-                MembersTrend = membersPrevious > 0 ? Math.Round((double)(membersCurrent - membersPrevious) / membersPrevious * 100, 1) : null,
-                RevenueTrend = revenuePrevious > 0 ? Math.Round((double)(revenueCurrent - revenuePrevious) / (double)revenuePrevious * 100, 1) : null,
-                MeetingRoomTrend = bookingsPrevious > 0 ? Math.Round((double)(bookingsCurrent - bookingsPrevious) / bookingsPrevious * 100, 1) : null
-            },
-            RevenueHistory = revenueHistory,
-            MemberGrowth = memberGrowth,
-            Occupancy = hasDeskData ? new AnalyticsOccupancyData
-            {
-                Occupied = occupiedDesks,
-                Available = Math.Max(0, totalDesks - occupiedDesks),
-                Rate = Math.Round((double)occupiedDesks / totalDesks * 100, 1)
-            } : null,
-            PaymentStatus = totalMembers > 0 ? new AnalyticsPaymentStatusData
-            {
-                Paid = paidCount,
-                Unpaid = memberAgg?.Unpaid ?? 0,
-                PaidPercentage = Math.Round((double)paidCount / totalMembers * 100, 1),
-                UnpaidPercentage = Math.Round((double)(memberAgg?.Unpaid ?? 0) / totalMembers * 100, 1)
-            } : null,
-            Subscriptions = subscriptionsData,
-            MeetingRoomUsage = meetingRoomUsage,
-            MemberActivity = memberActivity,
-            Insights = insights
-        };
-
-        return response;
+            _logger.LogError(ex, "Analytics endpoint failed for tenant {TenantId}", TenantId);
+            return Ok(new AnalyticsOverviewResponse());
+        }
     }
 
     private static List<AnalyticsInsight> GenerateInsights(
-        dynamic? memberAgg, int totalDesks, int occupiedDesks,
+        MemberAggregate? memberAgg, int totalDesks, int occupiedDesks,
         decimal revenueCurrent, decimal revenuePrevious,
         int bookingsCurrent, int bookingsPrevious,
         int membersCurrent, int membersPrevious)
@@ -214,10 +229,10 @@ public class AnalyticsController : ControllerBase
         var insights = new List<AnalyticsInsight>();
         if (memberAgg == null) return insights;
 
-        var unpaid = (int)memberAgg.Unpaid;
-        var expired = (int)memberAgg.Expired;
-        var active = (int)memberAgg.Active;
-        var monthlyIncome = (decimal)memberAgg.MonthlyIncome;
+        var unpaid = memberAgg.Unpaid;
+        var expired = memberAgg.Expired;
+        var active = memberAgg.Active;
+        var monthlyIncome = memberAgg.MonthlyIncome;
 
         if (active == 0)
         {
@@ -332,5 +347,17 @@ public class AnalyticsController : ControllerBase
             _ => 30
         };
         return (today.AddDays(-days), today.AddDays(-days * 2));
+    }
+
+    private class MemberAggregate
+    {
+        public int Total { get; set; }
+        public int Active { get; set; }
+        public int Expired { get; set; }
+        public int Unpaid { get; set; }
+        public int Students { get; set; }
+        public int Workers { get; set; }
+        public decimal MonthlyIncome { get; set; }
+        public int OccupiedDesks { get; set; }
     }
 }
