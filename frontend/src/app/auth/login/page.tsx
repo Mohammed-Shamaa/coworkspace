@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 import { LanguageProvider } from '@/lib/language-provider'
 import AuthBackground from '@/components/auth-background'
+import { GoogleSignInButton } from '@/components/google-signin-button'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -92,6 +93,8 @@ function LoginForm() {
             {loading ? t('auth.signingIn') : t('auth.signIn')}
           </Button>
         </form>
+
+        <GoogleSignInButton />
 
         <p className="text-center text-sm text-[var(--text-secondary)] mt-4">
           {t('auth.noAccount')}{' '}

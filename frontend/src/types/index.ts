@@ -65,6 +65,21 @@ export interface AuthResponse {
   tenant: Tenant
 }
 
+export interface GoogleLoginResponse {
+  requiresRegistration: boolean
+  registrationToken?: string
+  email?: string
+  name?: string
+}
+
+export interface CompleteGoogleRegistrationRequest {
+  registrationToken: string
+  fullName: string
+  companyName: string
+  subdomain: string
+  whatsappNumber: string
+}
+
 export interface Member {
   id: number
   fullName: string

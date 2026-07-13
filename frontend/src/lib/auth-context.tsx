@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useRouter } from 'next/navigation'
 import i18n from './i18n'
 import api from './api'
-import type { User, Tenant, AuthResponse } from '@/types'
+import type { User, Tenant, AuthResponse, GoogleLoginResponse } from '@/types'
 
 interface AuthContextType {
   user: User | null
@@ -13,6 +13,14 @@ interface AuthContextType {
   checkOnboardingStatus: () => Promise<void>
   refreshTenant: () => Promise<void>
   login: (email: string, password: string) => Promise<AuthResponse>
+  loginWithGoogle: (idToken: string) => Promise<GoogleLoginResponse>
+  completeGoogleRegistration: (data: {
+    registrationToken: string
+    fullName: string
+    companyName: string
+    subdomain: string
+    whatsappNumber: string
+  }) => Promise<AuthResponse>
   register: (data: Record<string, unknown>) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
@@ -129,6 +137,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setOnboardingCompleted(null)
   }, [])
 
+  const loginWithGoogle = useCallback(async (idToken: string) => {
+    const res = await api.post('/auth/google-login', { idToken })
+    const data = res.data as GoogleLoginResponse
+
+    if (!data.requiresRegistration) {
+      handleAuthResponse(res.data as unknown as AuthResponse)
+    }
+
+    return data
+  }, [handleAuthResponse])
+
+  const completeGoogleRegistration = useCallback(async (data: {
+    registrationToken: string
+    fullName: string
+    companyName: string
+    subdomain: string
+    whatsappNumber: string
+  }) => {
+    const res = await api.post('/auth/complete-google-registration', data)
+    handleAuthResponse(res.data)
+    return res.data
+  }, [handleAuthResponse])
+
   const login = useCallback(async (email: string, password: string) => {
     if (!email.trim() || !password.trim()) {
       throw { apiError: { status: 0, message: i18n.t('common.authValidationRequired'), code: 'VALIDATION_ERROR' } }
@@ -162,11 +193,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkOnboardingStatus,
     refreshTenant,
     login,
+    loginWithGoogle,
+    completeGoogleRegistration,
     register,
     logout,
     isAuthenticated: !!user,
     isSuperAdmin: user?.role === 'SuperAdmin',
-  }), [user, tenant, loading, onboardingCompleted, checkOnboardingStatus, refreshTenant, login, register, logout])
+  }), [user, tenant, loading, onboardingCompleted, checkOnboardingStatus, refreshTenant, login, loginWithGoogle, completeGoogleRegistration, register, logout])
 
   return (
     <AuthContext.Provider value={value}>

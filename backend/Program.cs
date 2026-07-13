@@ -162,6 +162,7 @@ builder.Services.AddScoped<AuditService>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<MeetingRoomService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<GoogleAuthService>();
 
 // Background services
 builder.Services.AddHostedService<Coworkspace.API.Services.BillingSyncService>();

@@ -49,6 +49,28 @@ public class UpdatePaymentStatusRequest
     [Required] public string PaymentStatus { get; set; } = string.Empty;
 }
 
+public class GoogleLoginRequest
+{
+    [Required] public string IdToken { get; set; } = string.Empty;
+}
+
+public class GoogleLoginResponse
+{
+    public bool RequiresRegistration { get; set; }
+    public string? RegistrationToken { get; set; }
+    public string? Email { get; set; }
+    public string? Name { get; set; }
+}
+
+public class CompleteGoogleRegistrationRequest
+{
+    [Required] public string RegistrationToken { get; set; } = string.Empty;
+    [Required] [MaxLength(200)] public string FullName { get; set; } = string.Empty;
+    [Required] [MaxLength(200)] public string CompanyName { get; set; } = string.Empty;
+    [Required] [MaxLength(100)] public string Subdomain { get; set; } = string.Empty;
+    [MaxLength(50)] public string WhatsappNumber { get; set; } = string.Empty;
+}
+
 public class UserInfo
 {
     public int Id { get; set; }

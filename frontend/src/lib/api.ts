@@ -278,3 +278,14 @@ export const analyticsApi = {
   getOverview: (params?: { period?: string }) => api.get('/analytics', { params }),
 }
 
+export const googleAuthApi = {
+  login: (idToken: string) => api.post('/auth/google-login', { idToken }),
+  completeRegistration: (data: {
+    registrationToken: string
+    fullName: string
+    companyName: string
+    subdomain: string
+    whatsappNumber: string
+  }) => api.post('/auth/complete-google-registration', data),
+}
+
