@@ -218,7 +218,9 @@
     "whatsappLabel": "رقم الواتساب",
     "whatsappPlaceholder": "+201234567890",
     "passwordError": "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",
-    "whatsappError": "رقم الواتساب مطلوب."
+    "whatsappError": "رقم الواتساب مطلوب.",
+    "workspaceName": "اسم مساحة العمل *",
+    "googleSubtitle": "أكمل معلومات مساحة العمل الخاصة بك للبدء."
   },
   "notifications": {
     "memberCreated": "تم تسجيل العضو بنجاح!",

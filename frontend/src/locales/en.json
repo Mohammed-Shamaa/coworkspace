@@ -218,7 +218,9 @@
     "whatsappLabel": "WhatsApp Number",
     "whatsappPlaceholder": "+201234567890",
     "passwordError": "Password must be at least 8 characters.",
-    "whatsappError": "WhatsApp number is required."
+    "whatsappError": "WhatsApp number is required.",
+    "workspaceName": "Workspace Name *",
+    "googleSubtitle": "Complete your workspace information to get started."
   },
   "notifications": {
     "memberCreated": "Member registered successfully!",

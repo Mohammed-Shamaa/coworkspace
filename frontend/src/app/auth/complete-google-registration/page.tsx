@@ -110,7 +110,7 @@ function CompleteGoogleRegistrationForm() {
           <p className="text-[var(--text-secondary)] text-sm mt-1">
             Signed in as <span className="font-semibold text-[var(--text-primary)]">{email}</span>
           </p>
-          <p className="text-[var(--text-secondary)] text-xs mt-1">{t('auth.loginSubtitle')}</p>
+          <p className="text-[var(--text-secondary)] text-xs mt-1">{t('auth.googleSubtitle')}</p>
         </div>
 
         {error && (
@@ -128,13 +128,11 @@ function CompleteGoogleRegistrationForm() {
           </div>
           <div>
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('auth.workspaceName')}</label>
-            <div className="flex items-center gap-1">
-              <Input type="text" value={subdomain} onChange={(e) => setSubdomain(e.target.value)} placeholder="myworkspace" required className="flex-1" />
-              <span className="text-sm text-[var(--text-secondary)] whitespace-nowrap">.deskora.com</span>
-            </div>
+            <Input type="text" value={subdomain} onChange={(e) => setSubdomain(e.target.value)} placeholder={t('auth.subdomainPlaceholder')} required />
+            <p className="text-xs text-[var(--text-secondary)] mt-1">{t('auth.subdomainLabel')} {t('auth.subdomainHint')}</p>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('auth.whatsappNumber')}</label>
+            <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('auth.whatsappLabel')}</label>
             <Input type="tel" value={whatsappNumber} onChange={(e) => setWhatsappNumber(e.target.value)} placeholder="+1234567890" required />
           </div>
           <Button type="submit" disabled={loading} className="w-full">
