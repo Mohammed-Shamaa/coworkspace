@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Coworkspace.API.Data;
 
 namespace Coworkspace.API.Services;
 
@@ -15,14 +14,12 @@ public class GoogleTokenPayload
 public class GoogleAuthService
 {
     private readonly HttpClient _httpClient;
-    private readonly AppDbContext _db;
     private readonly IConfiguration _config;
     private readonly ILogger<GoogleAuthService> _logger;
 
-    public GoogleAuthService(HttpClient httpClient, AppDbContext db, IConfiguration config, ILogger<GoogleAuthService> logger)
+    public GoogleAuthService(HttpClient httpClient, IConfiguration config, ILogger<GoogleAuthService> logger)
     {
         _httpClient = httpClient;
-        _db = db;
         _config = config;
         _logger = logger;
     }
