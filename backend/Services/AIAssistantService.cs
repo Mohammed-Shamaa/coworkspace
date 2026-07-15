@@ -68,17 +68,32 @@ public class AIAssistantService
         var json = JsonSerializer.Serialize(body, jsonOptions);
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent";
 
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
-        {
-            Content = new StringContent(json, Encoding.UTF8, "application/json")
-        };
-        httpRequest.Headers.Add("x-goog-api-key", _apiKey);
+        HttpResponseMessage response = null!;
+        string responseBody;
+        int retries = 0;
+        const int maxRetries = 2;
 
-        var response = await _httpClient.SendAsync(httpRequest);
-        var responseBody = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode)
+        while (true)
         {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+            httpRequest.Headers.Add("x-goog-api-key", _apiKey);
+
+            response = await _httpClient.SendAsync(httpRequest);
+            responseBody = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+                break;
+
+            if ((int)response.StatusCode == 429 && retries < maxRetries)
+            {
+                retries++;
+                await Task.Delay(1000 * retries);
+                continue;
+            }
+
             string detail = "Unknown error";
             try
             {
