@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -73,10 +74,23 @@ public class AIAssistantService
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
 
         var response = await _httpClient.SendAsync(httpRequest);
-        response.EnsureSuccessStatusCode();
+        var responseBody = await response.Content.ReadAsStringAsync();
 
-        var responseJson = await response.Content.ReadAsStringAsync();
-        using var doc = JsonDocument.Parse(responseJson);
+        if (!response.IsSuccessStatusCode)
+        {
+            // Try to extract the OpenAI error message
+            string detail = "Unknown error";
+            try
+            {
+                using var errDoc = JsonDocument.Parse(responseBody);
+                detail = errDoc.RootElement.GetProperty("error").GetProperty("message").GetString() ?? responseBody;
+            }
+            catch { detail = responseBody; }
+
+            throw new HttpRequestException($"OpenAI returned {(int)response.StatusCode}: {detail}", null, response.StatusCode);
+        }
+
+        using var doc = JsonDocument.Parse(responseBody);
         var reply = doc.RootElement
             .GetProperty("choices")[0]
             .GetProperty("message")
