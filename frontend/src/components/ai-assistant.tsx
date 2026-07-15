@@ -161,21 +161,14 @@ export default function AiAssistant() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Navbar button */}
       <button
         ref={buttonRef}
         onClick={() => (isOpen ? close() : setIsOpen(true))}
         aria-label={isOpen ? t('aiAssistant.close') : t('aiAssistant.open')}
-        className="fixed bottom-5 right-5 z-[80] flex h-12 w-12 items-center justify-center rounded-full
-                   bg-gradient-to-r from-[#1565C0] to-[#0d47a1] text-white shadow-lg shadow-[#1565C0]/30
-                   transition-all duration-200 hover:scale-110 hover:shadow-xl hover:shadow-[#1565C0]/40
-                   active:scale-95 dark:shadow-[#1565C0]/20 dark:hover:shadow-[#1565C0]/30"
+        className="group rounded-lg p-2 md:p-2.5 text-gray-500 transition-all duration-300 hover:scale-105 hover:bg-purple-50 hover:text-purple-600 hover:shadow-sm hover:shadow-purple-200/50 active:scale-95 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-purple-400 dark:hover:shadow-purple-900/30"
       >
-        {isOpen ? (
-          <X size={20} />
-        ) : (
-          <MessageCircle size={20} className="transition-transform duration-200 group-hover:scale-110" />
-        )}
+        <MessageCircle size={16} className="transition-transform duration-300 group-hover:scale-110" />
       </button>
 
       <AnimatePresence>
@@ -195,13 +188,13 @@ export default function AiAssistant() {
             <motion.div
               role="dialog"
               aria-label="Deskora AI Assistant"
-              initial={{ opacity: 0, scale: 0.92, y: 16 }}
+              initial={{ opacity: 0, scale: 0.92, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 16 }}
+              exit={{ opacity: 0, scale: 0.92, y: 8 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               className="fixed z-[100]
-                         bottom-0 left-0 right-0                        /* mobile: full-width bottom sheet */
-                         md:bottom-20 md:left-auto md:right-5           /* desktop: above the FAB */
+                         bottom-0 left-0 right-0                                    /* mobile: bottom sheet */
+                         md:bottom-auto md:left-auto md:right-4 md:top-[68px]       /* desktop: dropdown below navbar */
                          md:w-[400px]"
             >
               <div
