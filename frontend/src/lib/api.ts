@@ -210,7 +210,6 @@ export default api
 export const membersApi = {
   getAll: (params?: { search?: string; filter?: string; type?: string; paymentStatus?: string; expired?: boolean }) =>
     api.get('/members', { params }),
-  getById: (id: number) => api.get(`/members/${id}`),
   create: (data: CreateMemberRequest) => api.post('/members', data),
   update: (id: number, data: Partial<CreateMemberRequest>) => api.put(`/members/${id}`, data),
   delete: (id: number) => api.delete(`/members/${id}`),
@@ -241,7 +240,6 @@ export const adminApi = {
   getPayments: () => api.get('/admin/payments'),
   updatePaymentStatus: (id: number, paymentStatus: string) => api.post(`/admin/${id}/payment-status`, { paymentStatus }),
   getWorkspaceDetail: (id: number) => api.get(`/admin/workspaces/${id}/detail`),
-  getNotifications: () => api.get('/admin/notifications'),
   downloadWorkspacePdf: (id: number) => api.get(`/admin/workspaces/${id}/pdf`, { responseType: 'blob' }),
   getRejectedWorkspaces: (params?: { q?: string; page?: number; pageSize?: number }) =>
     api.get('/admin/rejected-workspaces', { params }),
@@ -266,7 +264,6 @@ export const notificationApi = {
 
 export const meetingRoomApi = {
   getAll: (params?: { date?: string; search?: string }) => api.get('/meetingroom', { params }),
-  getById: (id: number) => api.get(`/meetingroom/${id}`),
   create: (data: CreateReservationRequest) => api.post('/meetingroom', data),
   update: (id: number, data: UpdateReservationRequest) => api.put(`/meetingroom/${id}`, data),
   delete: (id: number) => api.delete(`/meetingroom/${id}`),
@@ -278,15 +275,5 @@ export const analyticsApi = {
   getOverview: (params?: { period?: string }) => api.get('/analytics', { params }),
 }
 
-export const googleAuthApi = {
-  login: (idToken: string) => api.post('/auth/google-login', { idToken }),
-  completeRegistration: (data: {
-    registrationToken: string
-    fullName: string
-    companyName: string
-    subdomain: string
-    whatsappNumber: string
-    password: string
-  }) => api.post('/auth/complete-google-registration', data),
-}
+
 

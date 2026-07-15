@@ -1,6 +1,3 @@
-export type TenantStatus = 'Pending' | 'Approved' | 'Rejected'
-export type TenantPaymentStatus = 'Trial' | 'Active' | 'Expired' | 'Suspended'
-
 export interface Tenant {
   id: number
   name: string
@@ -9,8 +6,8 @@ export interface Tenant {
   primaryColor: string
   companyName: string
   hasMeetingRoom?: boolean
-  status?: TenantStatus
-  paymentStatus?: TenantPaymentStatus
+  status?: 'Pending' | 'Approved' | 'Rejected'
+  paymentStatus?: 'Trial' | 'Active' | 'Expired' | 'Suspended'
   isLocked?: boolean
   trialStartDate?: string | null
   subscriptionExpiryDate?: string | null
@@ -70,15 +67,6 @@ export interface GoogleLoginResponse {
   registrationToken?: string
   email?: string
   name?: string
-}
-
-export interface CompleteGoogleRegistrationRequest {
-  registrationToken: string
-  fullName: string
-  companyName: string
-  subdomain: string
-  whatsappNumber: string
-  password: string
 }
 
 export interface Member {
@@ -182,35 +170,13 @@ export interface AdminWorkspaceDetail {
   recentMembers: AdminMemberSummary[]
 }
 
-export interface AdminMemberSummary {
+interface AdminMemberSummary {
   id: number
   fullName: string
   phoneNumber: string
   memberType: string
   paymentStatus: string
   registrationDate: string
-}
-
-export interface AdminWorkspaceSearchResult {
-  id: number
-  name: string
-  companyName: string
-  subdomain: string
-  status: string
-  paymentStatus: string
-  adminEmail: string
-  adminName: string
-  trialStartDate: string | null
-  subscriptionExpiryDate: string | null
-  memberCount: number
-}
-
-export interface AdminNotification {
-  type: string
-  message: string
-  tenantId: number
-  tenantName: string
-  occuredAt: string
 }
 
 export interface AppNotification {
@@ -222,14 +188,6 @@ export interface AppNotification {
   createdAt: string
   relatedEntityId: number | null
   relatedEntityType: string | null
-}
-
-export interface NotificationsResponse {
-  notifications: AppNotification[]
-  totalCount: number
-  unreadCount: number
-  page: number
-  pageSize: number
 }
 
 export interface CreateMemberRequest {
@@ -278,7 +236,6 @@ export interface KpiData {
   activeSubscriptions: number
   membersTrend: number | null
   revenueTrend: number | null
-  occupancyTrend: number | null
   meetingRoomTrend: number | null
 }
 

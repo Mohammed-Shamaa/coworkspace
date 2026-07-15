@@ -1,5 +1,4 @@
 'use client'
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import '@/lib/i18n'
 import MemberForm from '@/components/member-form'
@@ -7,7 +6,6 @@ import Image from 'next/image'
 
 export default function DashboardHome() {
   const { t } = useTranslation()
-  const [refreshKey, setRefreshKey] = useState(0)
 
   return (
     <div>
@@ -37,7 +35,7 @@ export default function DashboardHome() {
         <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-5">
           {t('dashboard.registerNewMember')}
         </h2>
-        <MemberForm onSuccess={() => setRefreshKey(k => k + 1)} />
+        <MemberForm onSuccess={() => {}} />
       </div>
     </div>
   )

@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Coworkspace.API.Data;
 using Coworkspace.API.DTOs;
-using Coworkspace.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

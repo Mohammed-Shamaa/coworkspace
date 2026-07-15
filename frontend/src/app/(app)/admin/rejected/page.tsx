@@ -195,7 +195,7 @@ export default function RejectedWorkspacesPage() {
                           className="bg-red-600 hover:bg-red-700 text-white gap-2 text-xs"
                         >
                           {actionLoading === tenant.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
-                          {t('common.confirm')?.replace('{{name}}', '') || 'Confirm'}
+                          {t('common.confirm')}
                         </Button>
                         <Button
                           onClick={() => setConfirmDeleteId(null)}

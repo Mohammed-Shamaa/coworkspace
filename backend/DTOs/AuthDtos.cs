@@ -84,6 +84,12 @@ public class UserInfo
     public string Role { get; set; } = string.Empty;
 }
 
+public class TestEmailRequest
+{
+    public string Email { get; set; } = string.Empty;
+    public string? Name { get; set; }
+}
+
 public class TenantInfo
 {
     public int Id { get; set; }

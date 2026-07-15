@@ -1,3 +1,4 @@
+using Coworkspace.API.DTOs;
 using Coworkspace.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -50,10 +51,4 @@ public class TestController : ControllerBase
             }
         });
     }
-}
-
-public class TestEmailRequest
-{
-    public string Email { get; set; } = string.Empty;
-    public string? Name { get; set; }
 }

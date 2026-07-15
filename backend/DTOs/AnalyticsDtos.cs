@@ -31,7 +31,6 @@ public class KpiData
     public int ActiveSubscriptions { get; set; }
     public double? MembersTrend { get; set; }
     public double? RevenueTrend { get; set; }
-    public double? OccupancyTrend { get; set; }
     public double? MeetingRoomTrend { get; set; }
 }
 

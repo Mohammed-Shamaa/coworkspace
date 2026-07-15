@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Coworkspace.API.Models;
 
 namespace Coworkspace.API.DTOs;
 

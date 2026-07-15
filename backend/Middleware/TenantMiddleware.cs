@@ -29,7 +29,6 @@ public class TenantMiddleware
             if (tenant != null)
             {
                 context.Items["TenantId"] = tenant.Id;
-                context.Items["Tenant"] = tenant;
             }
         }
 
