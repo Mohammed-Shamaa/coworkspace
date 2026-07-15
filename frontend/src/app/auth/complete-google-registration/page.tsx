@@ -15,6 +15,8 @@ function CompleteGoogleRegistrationForm() {
   const [companyName, setCompanyName] = useState('')
   const [subdomain, setSubdomain] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const submittingRef = useRef(false)
@@ -42,8 +44,18 @@ function CompleteGoogleRegistrationForm() {
     if (submittingRef.current) return
     setError('')
 
-    if (!fullName.trim() || !companyName.trim() || !subdomain.trim() || !whatsappNumber.trim()) {
+    if (!fullName.trim() || !companyName.trim() || !subdomain.trim() || !whatsappNumber.trim() || !password) {
       setError(t('auth.fillRequired'))
+      return
+    }
+
+    if (password.length < 8) {
+      setError(t('auth.passwordError'))
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setError(t('auth.passwordsDoNotMatch'))
       return
     }
 
@@ -62,6 +74,7 @@ function CompleteGoogleRegistrationForm() {
         companyName: companyName.trim(),
         subdomain: subdomain.trim().toLowerCase(),
         whatsappNumber: whatsappNumber.trim(),
+        password,
       })
       sessionStorage.removeItem('googleRegToken')
       sessionStorage.removeItem('googleEmail')
@@ -135,8 +148,17 @@ function CompleteGoogleRegistrationForm() {
             <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('auth.whatsappLabel')}</label>
             <Input type="tel" value={whatsappNumber} onChange={(e) => setWhatsappNumber(e.target.value)} placeholder="+1234567890" required />
           </div>
+          <div>
+            <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('auth.passwordLabel')}</label>
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('auth.passwordPlaceholder')} required />
+            <p className="text-xs text-[var(--text-secondary)] mt-1">{t('auth.passwordHint')}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('auth.confirmPassword')}</label>
+            <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder={t('auth.confirmPasswordPlaceholder')} required />
+          </div>
           <Button type="submit" disabled={loading} className="w-full">
-            {loading ? t('auth.signingIn') : 'Continue'}
+            {loading ? t('auth.creatingAccount') : 'Create Account'}
           </Button>
         </form>
       </div>

@@ -20,6 +20,7 @@ interface AuthContextType {
     companyName: string
     subdomain: string
     whatsappNumber: string
+    password: string
   }) => Promise<AuthResponse>
   register: (data: Record<string, unknown>) => Promise<void>
   logout: () => void
@@ -154,6 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     companyName: string
     subdomain: string
     whatsappNumber: string
+    password: string
   }) => {
     const res = await api.post('/auth/complete-google-registration', data)
     handleAuthResponse(res.data)

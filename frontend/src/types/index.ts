@@ -78,6 +78,7 @@ export interface CompleteGoogleRegistrationRequest {
   companyName: string
   subdomain: string
   whatsappNumber: string
+  password: string
 }
 
 export interface Member {

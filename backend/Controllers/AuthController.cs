@@ -477,6 +477,23 @@ public class AuthController : ControllerBase
                 });
             }
 
+            string passwordHash;
+            try
+            {
+                passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Password hashing failed for Google registration Email={Email}", normalizedEmail);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Password processing failed. Please try a different password.",
+                    errorCode = "AUTH_HASH_FAILURE",
+                    errors = new { general = new[] { "Password hashing failed." } }
+                });
+            }
+
             using var transaction = await _db.Database.BeginTransactionAsync();
 
             try
@@ -500,7 +517,7 @@ public class AuthController : ControllerBase
                 var user = new User
                 {
                     Email = normalizedEmail,
-                    PasswordHash = null,
+                    PasswordHash = passwordHash,
                     GoogleId = googleId,
                     FullName = request.FullName,
                     Role = UserRole.Admin,

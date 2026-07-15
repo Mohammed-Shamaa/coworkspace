@@ -219,6 +219,10 @@
     "whatsappPlaceholder": "+201234567890",
     "passwordError": "Password must be at least 8 characters.",
     "whatsappError": "WhatsApp number is required.",
+    "passwordHint": "At least 8 characters with uppercase, lowercase, number, and special character.",
+    "confirmPassword": "Confirm Password *",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "passwordsDoNotMatch": "Passwords do not match.",
     "workspaceName": "Workspace Name *",
     "googleSubtitle": "Complete your workspace information to get started."
   },

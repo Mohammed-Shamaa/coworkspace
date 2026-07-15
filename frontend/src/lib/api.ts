@@ -286,6 +286,7 @@ export const googleAuthApi = {
     companyName: string
     subdomain: string
     whatsappNumber: string
+    password: string
   }) => api.post('/auth/complete-google-registration', data),
 }
 

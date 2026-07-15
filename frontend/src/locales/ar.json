@@ -219,6 +219,10 @@
     "whatsappPlaceholder": "+201234567890",
     "passwordError": "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",
     "whatsappError": "رقم الواتساب مطلوب.",
+    "passwordHint": "8 أحرف على الأقل مع حرف كبير وصغير ورقم ورمز خاص.",
+    "confirmPassword": "تأكيد كلمة المرور *",
+    "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور",
+    "passwordsDoNotMatch": "كلمات المرور غير متطابقة.",
     "workspaceName": "اسم مساحة العمل *",
     "googleSubtitle": "أكمل معلومات مساحة العمل الخاصة بك للبدء."
   },

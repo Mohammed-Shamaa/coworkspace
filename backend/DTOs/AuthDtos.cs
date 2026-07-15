@@ -69,6 +69,11 @@ public class CompleteGoogleRegistrationRequest
     [Required] [MaxLength(200)] public string CompanyName { get; set; } = string.Empty;
     [Required] [MaxLength(100)] public string Subdomain { get; set; } = string.Empty;
     [MaxLength(50)] public string WhatsappNumber { get; set; } = string.Empty;
+    [Required]
+    [MinLength(8)]
+    [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$",
+        ErrorMessage = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.")]
+    public string Password { get; set; } = string.Empty;
 }
 
 public class UserInfo
