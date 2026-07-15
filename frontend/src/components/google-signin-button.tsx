@@ -94,7 +94,6 @@ export function GoogleSignInButton() {
           text: 'signin_with',
           size: 'large',
           logo_alignment: 'left',
-          width: '100%',
         })
 
         setGisReady(true)
