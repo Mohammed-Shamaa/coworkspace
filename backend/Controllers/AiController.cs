@@ -44,7 +44,7 @@ public class AiController : ControllerBase
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "AI service request failed");
+            _logger.LogError(ex, "AI service request failed: {Message}", ex.Message);
             return StatusCode(502, new AiResponse { Reply = "The AI service is temporarily unavailable. Please try again later." });
         }
         catch (Exception ex)

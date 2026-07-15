@@ -64,7 +64,8 @@ public class AIAssistantService
             temperature = 0.3
         };
 
-        var json = JsonSerializer.Serialize(body);
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
+        var json = JsonSerializer.Serialize(body, jsonOptions);
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, _apiUrl)
         {
             Content = new StringContent(json, Encoding.UTF8, "application/json")
