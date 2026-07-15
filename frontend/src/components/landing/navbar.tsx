@@ -6,7 +6,6 @@ import { useTheme } from '@/lib/theme-provider'
 import { Sun, Moon, Globe } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { DeskoraLogo } from '@/components/deskora-logo'
-import AiAssistant from '@/components/ai-assistant'
 import '@/lib/i18n'
 
 export default function Navbar() {
@@ -54,8 +53,6 @@ export default function Navbar() {
           >
             {t('landing.navbar.about')}
           </Link>
-
-          <AiAssistant />
 
           <Link
             href="/auth/login"
