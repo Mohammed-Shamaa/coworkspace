@@ -137,10 +137,12 @@ export default function AiAssistant() {
       const res = await aiApi.chat(chatMessages)
       const reply: string = res.data.reply || ''
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
-    } catch {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { reply?: string } }; message?: string }
+      const fallback = error.response?.data?.reply || error.message || t('aiAssistant.errorMessage')
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: t('aiAssistant.errorMessage') },
+        { role: 'assistant', content: fallback },
       ])
     } finally {
       setLoading(false)

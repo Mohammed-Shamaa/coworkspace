@@ -290,5 +290,5 @@ export const analyticsApi = {
 }
 
 export const aiApi = {
-  chat: (messages: { role: string; content: string }[]) => api.post('/ai/chat', { messages }),
+  chat: (messages: { role: string; content: string }[]) => api.post('/ai/chat', { messages }, { timeout: 30000 }),
 }
