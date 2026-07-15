@@ -21,7 +21,7 @@ public class AiController : ControllerBase
     {
         if (!_ai.IsConfigured)
         {
-            _logger.LogWarning("AI chat requested but OPENAI_API_KEY is not configured");
+            _logger.LogWarning("AI chat requested but GEMINI_API_KEY is not configured");
             return Ok(new AiResponse { Reply = "AI assistant is not configured. Please contact support." });
         }
 
@@ -45,7 +45,7 @@ public class AiController : ControllerBase
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "AI service request failed: {Message}", ex.Message);
-            var userMessage = ex.Message.Contains("429") || ex.Message.Contains("quota")
+            var userMessage = ex.Message.Contains("429") || ex.Message.Contains("quota") || ex.Message.Contains("RESOURCE_EXHAUSTED")
                 ? "The AI assistant is currently unavailable due to usage limits. Please try again later or contact support."
                 : "The AI service is temporarily unavailable. Please try again later.";
             return StatusCode(502, new AiResponse { Reply = userMessage });

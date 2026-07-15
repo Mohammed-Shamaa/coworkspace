@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -32,69 +31,80 @@ public class AIAssistantService
     private readonly HttpClient _httpClient;
     private readonly string? _apiKey;
     private readonly string _model;
-    private readonly string _apiUrl;
     private static readonly string SystemPrompt = BuildSystemPrompt();
 
     public AIAssistantService(IHttpClientFactory httpClientFactory, IConfiguration config)
     {
         _httpClient = httpClientFactory.CreateClient();
-        _apiKey = config["OPENAI_API_KEY"];
-        _model = config["OPENAI_MODEL"] ?? "gpt-4o-mini";
-        _apiUrl = config["OPENAI_API_URL"] ?? "https://api.openai.com/v1/chat/completions";
+        _apiKey = config["GEMINI_API_KEY"];
+        _model = config["GEMINI_MODEL"] ?? "gemini-2.0-flash";
     }
 
     public bool IsConfigured => !string.IsNullOrEmpty(_apiKey);
 
     public async Task<AiResponse> ChatAsync(AiChatRequest request)
     {
-        var fullMessages = new List<object>
-        {
-            new { role = "system", content = SystemPrompt }
-        };
-
+        var contents = new List<object>();
         foreach (var msg in request.Messages)
         {
-            fullMessages.Add(new { role = msg.Role, content = msg.Content });
+            if (msg.Role == "assistant" || msg.Role == "model")
+                contents.Add(new { role = "model", parts = new[] { new { text = msg.Content } } });
+            else
+                contents.Add(new { role = "user", parts = new[] { new { text = msg.Content } } });
         }
 
         var body = new
         {
-            model = _model,
-            messages = fullMessages,
-            max_tokens = 1024,
-            temperature = 0.3
+            system_instruction = new { parts = new[] { new { text = SystemPrompt } } },
+            contents,
+            generation_config = new
+            {
+                max_output_tokens = 1024,
+                temperature = 0.3
+            }
         };
 
         var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
         var json = JsonSerializer.Serialize(body, jsonOptions);
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, _apiUrl)
+        var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent";
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
         {
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
-        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+        httpRequest.Headers.Add("x-goog-api-key", _apiKey);
 
         var response = await _httpClient.SendAsync(httpRequest);
         var responseBody = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
-            // Try to extract the OpenAI error message
             string detail = "Unknown error";
             try
             {
                 using var errDoc = JsonDocument.Parse(responseBody);
-                detail = errDoc.RootElement.GetProperty("error").GetProperty("message").GetString() ?? responseBody;
+                if (errDoc.RootElement.TryGetProperty("error", out var errProp))
+                {
+                    var msg = errProp.TryGetProperty("message", out var m) ? m.GetString() : null;
+                    var status = errProp.TryGetProperty("status", out var s) ? s.GetString() : null;
+                    detail = msg ?? status ?? responseBody;
+                }
+                else { detail = responseBody; }
             }
             catch { detail = responseBody; }
 
-            throw new HttpRequestException($"OpenAI returned {(int)response.StatusCode}: {detail}", null, response.StatusCode);
+            throw new HttpRequestException($"Gemini returned {(int)response.StatusCode}: {detail}", null, response.StatusCode);
         }
 
         using var doc = JsonDocument.Parse(responseBody);
-        var reply = doc.RootElement
-            .GetProperty("choices")[0]
-            .GetProperty("message")
+        var candidates = doc.RootElement.GetProperty("candidates");
+        if (candidates.GetArrayLength() == 0)
+            return new AiResponse { Reply = "" };
+
+        var reply = candidates[0]
             .GetProperty("content")
+            .GetProperty("parts")[0]
+            .GetProperty("text")
             .GetString() ?? "";
 
         return new AiResponse { Reply = reply };
