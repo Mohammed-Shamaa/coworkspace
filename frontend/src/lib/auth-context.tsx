@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import i18n from './i18n'
-import api from './api'
+import api, { setIsLoggingOut } from './api'
 import type { User, Tenant, AuthResponse, GoogleLoginResponse } from '@/types'
 
 interface AuthContextType {
@@ -177,6 +177,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [handleAuthResponse])
 
   const logout = useCallback(() => {
+    const refreshToken = localStorage.getItem('refreshToken')
+    setIsLoggingOut(true)
+    if (refreshToken) {
+      api.post('/auth/logout', { refreshToken }).catch(() => { /* best-effort */ })
+    }
     localStorage.removeItem('token')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('expiresAt')

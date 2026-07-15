@@ -658,6 +658,29 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(RefreshTokenRequest request)
+    {
+        try
+        {
+            var rows = await _db.Users
+                .Where(u => u.RefreshToken == request.RefreshToken)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.RefreshToken, (string?)null)
+                    .SetProperty(u => u.RefreshTokenExpiry, (DateTime?)null));
+
+            if (rows == 0)
+                _logger.LogWarning("Logout attempted with invalid or expired refresh token");
+
+            return Ok(new { success = true, message = "Logged out successfully." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during logout");
+            return StatusCode(500, new { success = false, message = "An unexpected error occurred during logout." });
+        }
+    }
+
     [Authorize]
     [HttpGet("me")]
     public async Task<ActionResult<UserInfo>> GetMe()

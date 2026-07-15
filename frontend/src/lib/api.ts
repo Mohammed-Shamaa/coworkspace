@@ -36,6 +36,12 @@ function getRefreshToken(): string | null {
   }
 }
 
+let _isLoggingOut = false
+
+export function setIsLoggingOut(val: boolean): void {
+  _isLoggingOut = val
+}
+
 function safeRemoveAll(): void {
   try {
     if (typeof window !== 'undefined') {
@@ -96,7 +102,7 @@ async function refreshTokenIfNeeded(): Promise<void> {
     try {
       const res = await api.post('/auth/refresh', { refreshToken })
       const { token: newToken } = res.data
-      if (newToken) {
+      if (newToken && !_isLoggingOut) {
         try { localStorage.setItem('token', newToken) } catch { /* ignore */ }
         return true
       }
@@ -189,9 +195,11 @@ api.interceptors.response.use(
           const res = await api.post('/auth/refresh', { refreshToken })
           const { token } = res.data
           if (token) {
-            try { localStorage.setItem('token', token) } catch { /* ignore */ }
-            if (originalRequest.headers) originalRequest.headers.Authorization = `Bearer ${token}`
-            return api(originalRequest)
+            if (!_isLoggingOut) {
+              try { localStorage.setItem('token', token) } catch { /* ignore */ }
+              if (originalRequest.headers) originalRequest.headers.Authorization = `Bearer ${token}`
+              return api(originalRequest)
+            }
           }
         }
       } catch {
