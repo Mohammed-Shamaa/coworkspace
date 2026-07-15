@@ -1,6 +1,5 @@
 'use client'
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
 import i18n from './i18n'
 import api, { setIsLoggingOut } from './api'
 import type { User, Tenant, AuthResponse, GoogleLoginResponse } from '@/types'
@@ -35,7 +34,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [tenant, setTenant] = useState<Tenant | null>(null)
   const [loading, setLoading] = useState(true)
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
     let redirected = false
@@ -178,6 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     const refreshToken = localStorage.getItem('refreshToken')
+    try { sessionStorage.setItem('_manualLogout', 'true') } catch { /* ignore */ }
     setIsLoggingOut(true)
     if (refreshToken) {
       api.post('/auth/logout', { refreshToken }).catch(() => { /* best-effort */ })
@@ -189,8 +188,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('tenant')
     setUser(null)
     setTenant(null)
-    router.push('/auth/login')
-  }, [router])
+    window.location.href = '/auth/login'
+  }, [])
 
   const value = useMemo(() => ({
     user,

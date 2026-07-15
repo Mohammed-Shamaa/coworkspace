@@ -22,6 +22,11 @@ function LoginForm() {
   const { t } = useTranslation()
 
   useEffect(() => {
+    const wasManualLogout = sessionStorage.getItem('_manualLogout')
+    if (wasManualLogout) {
+      sessionStorage.removeItem('_manualLogout')
+      return
+    }
     const params = new URLSearchParams(window.location.search)
     let credential = params.get('credential')
     if (!credential && window.location.hash) {
