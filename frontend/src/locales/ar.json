@@ -46,7 +46,10 @@
     "serverError": "الخادم غير متاح. يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
     "unexpectedApiError": "حدث خطأ غير متوقع.",
     "currencySymbol": "$",
-    "notAvailable": "—"
+    "notAvailable": "—",
+    "upload": "رفع",
+    "delete": "حذف",
+    "replace": "استبدال"
   },
   "sidebar": {
     "home": "الرئيسية",
@@ -63,7 +66,7 @@
     "analytics": "التحليلات"
   },
   "dashboard": {
-    "title": "كاوورك سبيس",
+    "title": "ديسكورا",
     "subtitle": "لوحة إدارة مساحة العمل",
     "overview": "نظرة عامة",
     "students": "الطلاب",
@@ -183,10 +186,18 @@
     "saving": "جارٍ الحفظ...",
     "savedSuccess": "تم حفظ الإعدادات بنجاح!",
     "failedToSave": "فشل حفظ الإعدادات",
-    "logoPlaceholder": "https://example.com/logo.png"
+    "logoPlaceholder": "https://example.com/logo.png",
+    "logo": "شعار الشركة",
+    "noLogo": "لا يوجد شعار",
+    "logoUploaded": "تم رفع الشعار بنجاح!",
+    "failedToUpload": "فشل رفع الشعار",
+    "logoDeleted": "تم حذف الشعار بنجاح!",
+    "failedToDelete": "فشل حذف الشعار",
+    "fileTooLarge": "الملف كبير جدًا. الحجم الأقصى 5 ميجابايت.",
+    "invalidFileType": "يُسمح فقط بصور JPG و PNG و WebP و GIF."
   },
   "auth": {
-    "loginTitle": "كاوورك سبيس",
+    "loginTitle": "ديسكورا",
     "loginSubtitle": "تسجيل الدخول إلى حسابك",
     "subdomain": "النطاق الفرعي",
     "email": "البريد الإلكتروني",
@@ -200,7 +211,7 @@
     "registerSubtitle": "سجل مساحة العمل الخاصة بك",
     "companyName": "اسم الشركة *",
     "subdomainLabel": "النطاق الفرعي *",
-    "subdomainHint": "(your-company.coworkspace.com)",
+    "subdomainHint": "(your-company.deskora.com)",
     "fullName": "الاسم الكامل *",
     "emailLabel": "البريد الإلكتروني *",
     "passwordLabel": "كلمة المرور *",
@@ -256,7 +267,7 @@
     "onboardingRequired": "يرجى إكمال إعداد مساحة العمل أولاً."
   },
   "onboarding": {
-    "title": "مرحباً بك في كاوورك سبيس",
+    "title": "مرحباً بك في ديسكورا",
     "subtitle": "دعنا نعد مساحة العمل الخاصة بك في بضع خطوات",
     "step1Title": "معلومات مساحة العمل",
     "step1Description": "أخبرنا عن مساحة العمل المشتركة الخاصة بك",
@@ -561,7 +572,7 @@
     },
     "cta": {
       "title": "هل أنت مستعد لتحويل مساحة العمل المشتركة الخاصة بك؟",
-      "subtitle": "انضم إلى مئات مديري مساحات العمل الذين يثقون في كاوورك سبيس لإدارة أعمالهم.",
+      "subtitle": "انضم إلى مئات مديري مساحات العمل الذين يثقون في ديسكورا لإدارة أعمالهم.",
       "getStarted": "ابدأ مجاناً",
       "signIn": "تسجيل الدخول"
     },
@@ -569,8 +580,8 @@
       "home": "الرئيسية",
       "login": "تسجيل الدخول",
       "register": "إنشاء حساب",
-      "logoAlt": "كاوورك سبيس",
-      "copyright": "\u00a9 {{year}} كاوورك سبيس. جميع الحقوق محفوظة."
+      "logoAlt": "ديسكورا",
+      "copyright": "\u00a9 {{year}} ديسكورا. جميع الحقوق محفوظة."
     }
   },
   "about": {

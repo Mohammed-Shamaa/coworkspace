@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useTheme } from '@/lib/theme-provider'
 import { Sun, Moon, Globe } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { DeskoraLogo } from '@/components/deskora-logo'
 import '@/lib/i18n'
 
 export default function Navbar() {
@@ -21,7 +22,7 @@ export default function Navbar() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 md:gap-3 shrink-0">
           <Image src="/logo-48.png" alt={t('landing.navbar.logoAlt')} width={32} height={32} className="h-7 w-7 md:h-8 md:w-8" />
-          <span className="text-base md:text-lg font-bold text-gray-900 dark:text-gray-100 hidden sm:inline">{t('landing.navbar.logoAlt')}</span>
+          <DeskoraLogo className="text-base md:text-lg text-gray-900 dark:text-gray-100 hidden sm:inline" />
         </Link>
         <nav className="flex items-center gap-1 md:gap-2">
           <button

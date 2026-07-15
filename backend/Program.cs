@@ -552,6 +552,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
+app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())
 {

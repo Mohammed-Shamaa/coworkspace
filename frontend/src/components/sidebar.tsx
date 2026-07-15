@@ -41,9 +41,15 @@ export default function Sidebar() {
 
   return (
     <aside className="w-16 md:w-64 min-h-screen bg-[#1A237E] text-white flex flex-col shrink-0">
-      <div className="p-3 md:p-6 border-b border-[#283593]">
-        <h1 className="text-xs md:text-xl font-bold text-center md:text-left truncate">{tenant?.companyName?.[0] || 'C'}</h1>
-        <p className="hidden md:block text-xs text-blue-200 mt-1">{t('sidebar.membershipManager')}</p>
+      <div className="p-3 md:p-6 border-b border-[#283593] flex flex-col items-center md:items-start">
+        {tenant?.logoUrl ? (
+          <img src={tenant.logoUrl} alt={tenant.companyName || 'Logo'} className="w-10 h-10 md:w-20 md:h-20 rounded-full object-cover ring-2 ring-white/20" />
+        ) : (
+          <div className="w-10 h-10 md:w-20 md:h-20 rounded-full bg-[#283593] flex items-center justify-center text-lg md:text-3xl font-bold text-white ring-2 ring-white/20">
+            {tenant?.companyName?.[0] || 'C'}
+          </div>
+        )}
+        <h1 className="text-xs md:text-lg font-bold text-center md:text-left truncate w-full mt-2">{tenant?.companyName || t('sidebar.membershipManager')}</h1>
       </div>
 
       <nav className="flex-1 py-2 md:py-4">
@@ -69,7 +75,6 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-2 md:p-4 border-t border-[#283593]">
-        <div className="hidden md:block text-xs text-blue-200 mb-2">{tenant?.companyName}</div>
         <button
           onClick={toggleTheme}
           className="flex items-center justify-center md:justify-start gap-2 text-sm text-blue-200 hover:text-white transition-colors w-full cursor-pointer"

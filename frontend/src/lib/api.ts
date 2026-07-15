@@ -228,6 +228,12 @@ export const membersApi = {
 
 export const tenantsApi = {
   updateSettings: (data: { companyName: string; name: string; primaryColor: string; logoUrl: string }) => api.put('/tenants/settings', data),
+  uploadLogo: (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/tenants/logo', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+  },
+  deleteLogo: () => api.delete('/tenants/logo'),
 }
 
 export const setupApi = {

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -10,24 +10,72 @@ import '@/lib/i18n'
 
 function SettingsContent({ tenant }: { tenant: { companyName?: string; name?: string; primaryColor?: string; logoUrl?: string } | null }) {
   const { t } = useTranslation()
+  const { refreshTenant } = useAuth()
   const [companyName, setCompanyName] = useState(tenant?.companyName || '')
   const [name, setName] = useState(tenant?.name || '')
   const [primaryColor, setPrimaryColor] = useState(tenant?.primaryColor || '#1565C0')
   const [logoUrl, setLogoUrl] = useState(tenant?.logoUrl || '')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSave = async () => {
     setSaving(true)
     setMessage('')
     try {
       await tenantsApi.updateSettings({ companyName, name, primaryColor, logoUrl })
+      await refreshTenant()
       setMessage(t('settings.savedSuccess'))
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } }; message?: string }
       setMessage(error.response?.data?.message || t('settings.failedToSave'))
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage(t('settings.fileTooLarge'))
+      return
+    }
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    if (!validTypes.includes(file.type)) {
+      setMessage(t('settings.invalidFileType'))
+      return
+    }
+
+    setUploading(true)
+    setMessage('')
+    try {
+      const res = await tenantsApi.uploadLogo(file)
+      setLogoUrl(res.data.logoUrl)
+      setMessage(t('settings.logoUploaded'))
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string }
+      setMessage(error.response?.data?.message || t('settings.failedToUpload'))
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleDeleteLogo = async () => {
+    setDeleting(true)
+    setMessage('')
+    try {
+      await tenantsApi.deleteLogo()
+      setLogoUrl('')
+      setMessage(t('settings.logoDeleted'))
+    } catch {
+      setMessage(t('settings.failedToDelete'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -61,9 +109,34 @@ function SettingsContent({ tenant }: { tenant: { companyName?: string; name?: st
               <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="flex-1" placeholder="#1565C0" />
             </div>
           </div>
+
           <div>
-            <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('settings.logoUrl')}</label>
-            <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder={t('settings.logoPlaceholder')} />
+            <label className="block text-sm font-semibold text-[var(--text-primary)] mb-1">{t('settings.logo')}</label>
+            <div className="flex flex-col gap-3">
+              {logoUrl ? (
+                <div className="flex items-center gap-4">
+                  <img src={logoUrl} alt="Logo" className="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                      {uploading ? '...' : t('common.replace')}
+                    </Button>
+                    <Button variant="danger" size="sm" onClick={handleDeleteLogo} disabled={deleting}>
+                      {deleting ? '...' : t('common.delete')}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-400 text-sm">
+                    {t('settings.noLogo')}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                    {uploading ? '...' : t('common.upload')}
+                  </Button>
+                </div>
+              )}
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleFileSelect} />
+            </div>
           </div>
 
           <Button onClick={handleSave} disabled={saving}>

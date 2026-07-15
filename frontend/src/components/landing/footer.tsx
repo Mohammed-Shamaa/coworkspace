@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
+import { DeskoraLogo } from '@/components/deskora-logo'
 import '@/lib/i18n'
 
 export default function Footer() {
@@ -9,8 +10,8 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <div className="flex items-center gap-3">
-            <img src="/logo-48.png" alt={t('landing.footer.logoAlt')} className="h-8 w-8" />
-            <span className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{t('landing.footer.logoAlt')}</span>
+            <img src="/logo-48.png" alt="DesKora" className="h-8 w-8" />
+            <DeskoraLogo className="text-lg text-gray-900 dark:text-[var(--text-primary)]" />
           </div>
 
           <nav className="flex items-center gap-4 md:gap-6 text-sm">

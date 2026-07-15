@@ -107,20 +107,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshTenant = useCallback(async () => {
     try {
-      const res = await api.get('/setup/info')
-      const info = res.data
+      const [infoRes, settingsRes] = await Promise.allSettled([
+        api.get('/setup/info'),
+        api.get('/tenants/settings'),
+      ])
       setTenant(prev => {
-        const updatedTenant = {
-          ...prev,
-          hasMeetingRoom: info.hasMeetingRoom,
-          address: info.address,
-          openingTime: info.openingTime,
-          closingTime: info.closingTime,
-        } as Tenant
-        if (updatedTenant) {
-          localStorage.setItem('tenant', JSON.stringify(updatedTenant))
+        let updated = { ...prev } as Tenant
+        if (infoRes.status === 'fulfilled') {
+          const info = infoRes.value.data
+          updated = { ...updated, hasMeetingRoom: info.hasMeetingRoom }
         }
-        return updatedTenant
+        if (settingsRes.status === 'fulfilled') {
+          const s = settingsRes.value.data
+          updated = { ...updated, logoUrl: s.logoUrl, companyName: s.companyName, name: s.name, primaryColor: s.primaryColor }
+        }
+        localStorage.setItem('tenant', JSON.stringify(updated))
+        return updated
       })
     } catch { /* ignore */ }
   }, [])

@@ -90,6 +90,11 @@ public class TestEmailRequest
     public string? Name { get; set; }
 }
 
+public class LogoUploadResponse
+{
+    public string LogoUrl { get; set; } = string.Empty;
+}
+
 public class TenantInfo
 {
     public int Id { get; set; }
