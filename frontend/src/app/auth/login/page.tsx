@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
@@ -17,9 +17,32 @@ function LoginForm() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const submittingRef = useRef(false)
-  const { login } = useAuth()
+  const { login, loginWithGoogle } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    let credential = params.get('credential')
+    if (!credential && window.location.hash) {
+      credential = new URLSearchParams(window.location.hash.substring(1)).get('id_token')
+    }
+    if (credential) {
+      const cleanUrl = window.location.origin + window.location.pathname
+      window.history.replaceState({}, '', cleanUrl)
+      setLoading(true)
+      loginWithGoogle(credential).then((result) => {
+        if (result.requiresRegistration) {
+          router.push('/auth/complete-google-registration')
+        } else {
+          router.push('/dashboard')
+        }
+      }).catch((err: unknown) => {
+        const apiErr = err as { apiError?: { message: string } }
+        setError(apiErr?.apiError?.message || 'Google sign-in failed.')
+      }).finally(() => setLoading(false))
+    }
+  }, [loginWithGoogle, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

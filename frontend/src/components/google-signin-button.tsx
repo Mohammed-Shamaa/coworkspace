@@ -137,10 +137,12 @@ export function GoogleSignInButton() {
           type="button"
           disabled={!!gisError || submitting}
           onClick={() => {
-            if (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && window.google?.accounts?.id) {
-              gisInitialized = false
-              window.google.accounts.id.prompt()
-            }
+            const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+            if (!clientId) return
+            const redirectUri = window.location.origin + '/auth/login'
+            const nonce = crypto.randomUUID()
+            const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&response_type=id_token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=openid%20email%20profile&nonce=${nonce}`
+            window.location.href = oauthUrl
           }}
           className="group relative w-full flex items-center justify-center gap-3 px-5 py-3
             border border-[var(--card-border)] rounded-xl
