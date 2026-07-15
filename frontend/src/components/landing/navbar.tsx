@@ -6,7 +6,6 @@ import { useTheme } from '@/lib/theme-provider'
 import { Sun, Moon, Globe } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { DeskoraLogo } from '@/components/deskora-logo'
-import AiAssistant from '@/components/ai-assistant'
 import '@/lib/i18n'
 
 export default function Navbar() {
@@ -43,8 +42,6 @@ export default function Navbar() {
           >
             {theme === 'dark' ? <Sun size={16} className="transition-transform duration-300 group-hover:rotate-45" /> : <Moon size={16} className="transition-transform duration-300 group-hover:-rotate-12" />}
           </button>
-
-          <AiAssistant />
 
           <Link
             href="/about"
