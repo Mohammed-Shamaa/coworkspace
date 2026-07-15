@@ -22,7 +22,6 @@ declare global {
               text?: string
               size?: string
               logo_alignment?: string
-              width?: string
             }
           ) => void
           prompt: () => void
@@ -32,6 +31,8 @@ declare global {
     }
   }
 }
+
+let gisInitialized = false
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -46,15 +47,14 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export function GoogleSignInButton() {
   const buttonContainerRef = useRef<HTMLDivElement>(null)
-  const initializedRef = useRef(false)
-  const [gisReady, setGisReady] = useState(false)
+  const [gisReady, setGisReady] = useState(gisInitialized)
   const [gisError, setGisError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const { loginWithGoogle } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (initializedRef.current) return
+    if (gisInitialized) return
 
     const handleCredentialResponse = async (response: { credential: string }) => {
       setSubmitting(true)
@@ -64,7 +64,6 @@ export function GoogleSignInButton() {
           router.push('/auth/complete-google-registration')
         }
       } catch {
-        // Handled by auth context / api interceptor
       } finally {
         setSubmitting(false)
       }
@@ -72,7 +71,8 @@ export function GoogleSignInButton() {
 
     const initGIS = () => {
       if (!window.google?.accounts?.id || !buttonContainerRef.current) return
-      initializedRef.current = true
+      if (gisInitialized) return
+      gisInitialized = true
 
       const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
       if (!clientId) {
@@ -138,7 +138,7 @@ export function GoogleSignInButton() {
           disabled={!!gisError || submitting}
           onClick={() => {
             if (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && window.google?.accounts?.id) {
-              initializedRef.current = false
+              gisInitialized = false
               window.google.accounts.id.prompt()
             }
           }}
