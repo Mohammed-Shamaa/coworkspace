@@ -289,5 +289,6 @@ export const analyticsApi = {
   getOverview: (params?: { period?: string }) => api.get('/analytics', { params }),
 }
 
-
-
+export const aiApi = {
+  chat: (messages: { role: string; content: string }[]) => api.post('/ai/chat', { messages }),
+}

@@ -674,5 +674,16 @@
     "thu": "Thu",
     "fri": "Fri",
     "sat": "Sat"
+  },
+  "aiAssistant": {
+    "title": "AI Assistant",
+    "open": "Open AI Assistant",
+    "close": "Close AI Assistant",
+    "welcome": "Hello! How can I help you with Deskora?",
+    "welcomeHint": "Ask me about registration, members, desks, payments, and more.",
+    "placeholder": "Type your question...",
+    "bot": "Deskora AI",
+    "you": "You",
+    "errorMessage": "Sorry, I'm having trouble connecting. Please try again."
   }
 }
