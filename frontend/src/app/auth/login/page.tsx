@@ -38,6 +38,11 @@ function LoginForm() {
       setLoading(true)
       loginWithGoogle(credential).then((result) => {
         if (result.requiresRegistration) {
+          try {
+            sessionStorage.setItem('googleRegToken', result.registrationToken ?? '')
+            sessionStorage.setItem('googleEmail', result.email ?? '')
+            sessionStorage.setItem('googleName', result.name ?? '')
+          } catch { /* ignore */ }
           router.push('/auth/complete-google-registration')
         } else {
           router.push('/dashboard')
