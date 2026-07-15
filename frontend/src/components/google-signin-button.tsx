@@ -1,38 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
-import { useAuth } from '@/lib/auth-context'
-import { useRouter } from 'next/navigation'
-
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: {
-            client_id: string
-            callback: (response: { credential: string }) => void
-            auto_prompt?: boolean
-          }) => void
-          renderButton: (
-            element: HTMLElement,
-            options: {
-              type?: string
-              shape?: string
-              theme?: string
-              text?: string
-              size?: string
-              logo_alignment?: string
-            }
-          ) => void
-          prompt: () => void
-          cancel: () => void
-        }
-      }
-    }
-  }
-}
-
-let gisInitialized = false
+import { useState } from 'react'
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -46,139 +13,57 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export function GoogleSignInButton() {
-  const buttonContainerRef = useRef<HTMLDivElement>(null)
-  const [gisReady, setGisReady] = useState(gisInitialized)
-  const [gisError, setGisError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const { loginWithGoogle } = useAuth()
-  const router = useRouter()
 
-  useEffect(() => {
-    if (gisInitialized) return
-
-    const handleCredentialResponse = async (response: { credential: string }) => {
-      setSubmitting(true)
-      try {
-        const result = await loginWithGoogle(response.credential)
-        if (result.requiresRegistration) {
-          router.push('/auth/complete-google-registration')
-        }
-      } catch {
-      } finally {
-        setSubmitting(false)
-      }
-    }
-
-    const initGIS = () => {
-      if (!window.google?.accounts?.id || !buttonContainerRef.current) return
-      if (gisInitialized) return
-      gisInitialized = true
-
-      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-      if (!clientId) {
-        setGisError('Google Sign-In is not configured')
-        return
-      }
-
-      try {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: handleCredentialResponse,
-          auto_prompt: false,
-        })
-
-        window.google.accounts.id.renderButton(buttonContainerRef.current, {
-          type: 'standard',
-          shape: 'rectangular',
-          theme: 'outline',
-          text: 'signin_with',
-          size: 'large',
-          logo_alignment: 'left',
-        })
-
-        setGisReady(true)
-      } catch {
-        setGisError('Failed to initialize')
-      }
-    }
-
-    if (!window.google?.accounts?.id) {
-      const script = document.createElement('script')
-      script.src = 'https://accounts.google.com/gsi/client'
-      script.async = true
-      script.defer = true
-      script.onload = initGIS
-      script.onerror = () => setGisError('Failed to load')
-      document.body.appendChild(script)
-      return () => {
-        if (script.parentNode) document.body.removeChild(script)
-      }
-    }
-
-    initGIS()
-  }, [loginWithGoogle, router])
+  const handleClick = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    if (!clientId) return
+    setSubmitting(true)
+    const redirectUri = window.location.origin + '/auth/login'
+    const nonce = crypto.randomUUID()
+    const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&response_type=id_token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=openid%20email%20profile&nonce=${nonce}`
+    window.location.href = oauthUrl
+  }
 
   return (
     <div className="w-full">
       <div className="relative flex items-center gap-4 my-5">
         <div className="flex-1 border-t border-[var(--card-border)]" />
-        <span className="text-xs text-[var(--text-secondary)] uppercase tracking-[0.12em] font-medium select-none">
-          {submitting ? 'Signing in…' : 'or'}
-        </span>
+        <span className="text-xs text-[var(--text-secondary)] uppercase tracking-[0.12em] font-medium select-none">or</span>
         <div className="flex-1 border-t border-[var(--card-border)]" />
       </div>
 
-      {gisError && !gisReady && (
-        <p className="text-xs text-[var(--error-text)] text-center mb-3">{gisError}</p>
-      )}
-
-      {!gisReady ? (
-        <button
-          type="button"
-          disabled={!!gisError || submitting}
-          onClick={() => {
-            const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-            if (!clientId) return
-            const redirectUri = window.location.origin + '/auth/login'
-            const nonce = crypto.randomUUID()
-            const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&response_type=id_token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=openid%20email%20profile&nonce=${nonce}`
-            window.location.href = oauthUrl
-          }}
-          className="group relative w-full flex items-center justify-center gap-3 px-5 py-3
-            border border-[var(--card-border)] rounded-xl
-            bg-white dark:bg-[#111432]
-            text-[var(--text-primary)]
-            shadow-sm
-            transition-all duration-300 ease-out
-            hover:scale-[1.02] hover:shadow-md hover:border-gray-300
-            dark:hover:border-gray-600 dark:hover:shadow-[0_4px_20px_rgba(255,255,255,0.06)]
-            active:scale-[0.98] active:shadow-sm
-            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-sm
-          "
-        >
-          <span className="relative z-10 flex items-center justify-center w-[22px] h-[22px]">
-            {submitting ? (
-              <svg className="animate-spin h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-            ) : (
-              <GoogleIcon />
-            )}
-          </span>
-          <span className="relative z-10 text-sm font-semibold tracking-tight">
-            {submitting
-              ? 'Signing in…'
-              : gisError
-                ? 'Google unavailable'
-                : 'Sign in with Google'
-            }
-          </span>
-          <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-white/[0.02] dark:to-white/[0.01] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        </button>
-      ) : null}
-
-      <div ref={buttonContainerRef} className={`w-full flex justify-center ${gisReady ? '' : 'hidden'}`} />
+      <button
+        type="button"
+        disabled={submitting}
+        onClick={handleClick}
+        className="group relative w-full flex items-center justify-center gap-3 px-5 py-3
+          border border-[var(--card-border)] rounded-xl
+          bg-white dark:bg-[#111432]
+          text-[var(--text-primary)]
+          shadow-sm
+          transition-all duration-300 ease-out
+          hover:scale-[1.02] hover:shadow-md hover:border-gray-300
+          dark:hover:border-gray-600 dark:hover:shadow-[0_4px_20px_rgba(255,255,255,0.06)]
+          active:scale-[0.98] active:shadow-sm
+          disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-sm
+        "
+      >
+        <span className="relative z-10 flex items-center justify-center w-[22px] h-[22px]">
+          {submitting ? (
+            <svg className="animate-spin h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          ) : (
+            <GoogleIcon />
+          )}
+        </span>
+        <span className="relative z-10 text-sm font-semibold tracking-tight">
+          {submitting ? 'Redirecting…' : 'Sign in with Google'}
+        </span>
+        <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-white/[0.02] dark:to-white/[0.01] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </button>
     </div>
   )
 }
