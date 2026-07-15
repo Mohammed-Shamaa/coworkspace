@@ -45,7 +45,10 @@ public class AiController : ControllerBase
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "AI service request failed: {Message}", ex.Message);
-            return StatusCode(502, new AiResponse { Reply = ex.Message });
+            var userMessage = ex.Message.Contains("429") || ex.Message.Contains("quota")
+                ? "The AI assistant is currently unavailable due to usage limits. Please try again later or contact support."
+                : "The AI service is temporarily unavailable. Please try again later.";
+            return StatusCode(502, new AiResponse { Reply = userMessage });
         }
         catch (Exception ex)
         {
