@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -21,6 +20,42 @@ public class AiResponse
     [JsonPropertyName("reply")] public string Reply { get; set; } = string.Empty;
 }
 
+public class GroqRequest
+{
+    [JsonPropertyName("model")] public string Model { get; set; } = "";
+    [JsonPropertyName("messages")] public List<GroqMessage> Messages { get; set; } = [];
+    [JsonPropertyName("temperature")] public double Temperature { get; set; } = 0.3;
+    [JsonPropertyName("max_tokens")] public int MaxTokens { get; set; } = 500;
+}
+
+public class GroqMessage
+{
+    [JsonPropertyName("role")] public string Role { get; set; } = "";
+    [JsonPropertyName("content")] public string Content { get; set; } = "";
+}
+
+public class GroqResponse
+{
+    [JsonPropertyName("choices")] public List<GroqChoice>? Choices { get; set; }
+    [JsonPropertyName("error")] public GroqError? Error { get; set; }
+}
+
+public class GroqChoice
+{
+    [JsonPropertyName("message")] public GroqResponseMessage? Message { get; set; }
+}
+
+public class GroqResponseMessage
+{
+    [JsonPropertyName("content")] public string? Content { get; set; }
+}
+
+public class GroqError
+{
+    [JsonPropertyName("message")] public string? Message { get; set; }
+    [JsonPropertyName("code")] public string? Code { get; set; }
+}
+
 public class AIAssistantService
 {
     private readonly HttpClient _httpClient;
@@ -28,12 +63,13 @@ public class AIAssistantService
     private readonly string _model;
     private readonly ILogger<AIAssistantService> _logger;
     private static readonly string SystemPrompt = BuildSystemPrompt();
+    private const string GroqApiUrl = "https://api.groq.com/openai/v1/chat/completions";
 
     public AIAssistantService(IHttpClientFactory httpClientFactory, IConfiguration config, ILogger<AIAssistantService> logger)
     {
         _httpClient = httpClientFactory.CreateClient();
-        _apiKey = config["GEMINI_API_KEY"];
-        _model = config["GEMINI_MODEL"] ?? "gemini-2.0-flash";
+        _apiKey = config["GROQ_API_KEY"];
+        _model = config["GROQ_MODEL"] ?? config["Groq:Model"] ?? "llama-3.3-70b-versatile";
         _logger = logger;
     }
 
@@ -41,29 +77,28 @@ public class AIAssistantService
 
     public async Task<AiResponse> ChatAsync(AiChatRequest request)
     {
-        var contents = new List<object>();
-        foreach (var msg in request.Messages)
+        var groqMessages = new List<GroqMessage>
         {
-            if (msg.Role == "assistant" || msg.Role == "model")
-                contents.Add(new { role = "model", parts = new[] { new { text = msg.Content } } });
-            else
-                contents.Add(new { role = "user", parts = new[] { new { text = msg.Content } } });
-        }
-
-        var body = new
-        {
-            system_instruction = new { parts = new[] { new { text = SystemPrompt } } },
-            contents,
-            generation_config = new
-            {
-                max_output_tokens = 1024,
-                temperature = 0.3
-            }
+            new() { Role = "system", Content = SystemPrompt }
         };
 
-        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
-        var json = JsonSerializer.Serialize(body, jsonOptions);
-        var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent";
+        foreach (var msg in request.Messages)
+        {
+            var role = msg.Role == "assistant" || msg.Role == "model" ? "assistant" : "user";
+            groqMessages.Add(new GroqMessage { Role = role, Content = msg.Content });
+        }
+
+        var groqRequest = new GroqRequest
+        {
+            Model = _model,
+            Messages = groqMessages,
+            Temperature = 0.3,
+            MaxTokens = 500
+        };
+
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var json = JsonSerializer.Serialize(groqRequest, jsonOptions);
+        var url = GroqApiUrl;
 
         HttpResponseMessage? response = null;
         string responseBody;
@@ -76,7 +111,7 @@ public class AIAssistantService
             {
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
-            httpRequest.Headers.Add("x-goog-api-key", _apiKey);
+            httpRequest.Headers.Add("Authorization", $"Bearer {_apiKey}");
 
             response = await _httpClient.SendAsync(httpRequest);
             responseBody = await response.Content.ReadAsStringAsync();
@@ -87,26 +122,25 @@ public class AIAssistantService
             if ((int)response.StatusCode == 429 && retries < maxRetries)
             {
                 retries++;
-                _logger.LogWarning("Gemini 429 rate limited, retry {Retry}/{MaxRetries} after {Delay}s", retries, maxRetries, retries);
+                _logger.LogWarning("Groq 429 rate limited, retry {Retry}/{MaxRetries} after {Delay}s", retries, maxRetries, retries);
                 await Task.Delay(1000 * retries);
                 continue;
             }
 
             string detail = ExtractErrorDetail(responseBody);
-            _logger.LogError("Gemini API error: {StatusCode} {Detail}", (int)response.StatusCode, detail);
-            throw new HttpRequestException($"Gemini returned {(int)response.StatusCode}: {detail}", null, response.StatusCode);
+            _logger.LogError("Groq API error: {StatusCode} {Detail}", (int)response.StatusCode, detail);
+            throw new HttpRequestException($"Groq returned {(int)response.StatusCode}: {detail}", null, response.StatusCode);
         }
 
-        using var doc = JsonDocument.Parse(responseBody);
-        var candidates = doc.RootElement.GetProperty("candidates");
-        if (candidates.GetArrayLength() == 0)
-            return new AiResponse { Reply = "" };
+        var groqResponse = JsonSerializer.Deserialize<GroqResponse>(responseBody, jsonOptions);
 
-        var reply = candidates[0]
-            .GetProperty("content")
-            .GetProperty("parts")[0]
-            .GetProperty("text")
-            .GetString() ?? "";
+        if (groqResponse?.Error != null)
+        {
+            _logger.LogError("Groq API error in response: {Message}", groqResponse.Error.Message);
+            throw new HttpRequestException($"Groq returned error: {groqResponse.Error.Message}");
+        }
+
+        var reply = groqResponse?.Choices?.FirstOrDefault()?.Message?.Content ?? "";
 
         return new AiResponse { Reply = reply };
     }
@@ -115,13 +149,10 @@ public class AIAssistantService
     {
         try
         {
-            using var doc = JsonDocument.Parse(responseBody);
-            if (doc.RootElement.TryGetProperty("error", out var errProp))
-            {
-                var msg = errProp.TryGetProperty("message", out var m) ? m.GetString() : null;
-                var status = errProp.TryGetProperty("status", out var s) ? s.GetString() : null;
-                return msg ?? status ?? responseBody;
-            }
+            var groqResponse = JsonSerializer.Deserialize<GroqResponse>(responseBody,
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            if (groqResponse?.Error?.Message != null)
+                return groqResponse.Error.Message;
             return responseBody;
         }
         catch
