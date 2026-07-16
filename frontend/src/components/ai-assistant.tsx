@@ -175,33 +175,41 @@ export default function AiAssistant() {
       <AnimatePresence>
         {isOpen && (
           <>
+            {/* Backdrop - full screen on all devices */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="fixed inset-0 z-[90] bg-black/20 backdrop-blur-sm md:hidden"
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-sm"
               onClick={close}
             />
 
+            {/* Outer container: handles positioning per device */}
             <motion.div
-              role="dialog"
-              aria-label="Deskora AI Assistant"
-              initial={{ opacity: 0, scale: 0.92, y: 8 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 8 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="fixed z-[100]
-                         bottom-0 left-0 right-0
-                         md:bottom-auto md:left-auto md:right-4 md:top-[68px]
-                         md:w-[400px]"
+                inset-0                                          /* mobile: full screen */
+                sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2   /* tablet: centered modal */
+                lg:top-[68px] lg:right-4 lg:left-auto lg:bottom-auto lg:translate-x-0 lg:translate-y-0  /* desktop: dropdown */
+              "
             >
-              <div
-                className="flex h-full max-h-[85dvh] flex-col overflow-hidden
-                            rounded-t-2xl border border-gray-200/80 bg-white/95 shadow-2xl shadow-black/[0.08] backdrop-blur-xl
-                            md:max-h-[560px] md:rounded-2xl md:border-gray-200/60
-                            dark:border-gray-700/60 dark:bg-gray-900/95"
+              {/* Inner panel: handles size + animation */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: 8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: 8 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="flex h-full w-full flex-col overflow-hidden          /* mobile: fill screen */
+                  sm:h-auto sm:max-h-[600px] sm:w-[480px] sm:rounded-2xl         /* tablet: modal size */
+                  lg:w-[420px]                                                   /* desktop: narrower */
+                  rounded-t-2xl border border-gray-200/80 bg-white/95 shadow-2xl shadow-black/[0.08] backdrop-blur-xl
+                  dark:border-gray-700/60 dark:bg-gray-900/95"
               >
+                {/* Header */}
                 <div className="relative flex items-center justify-between bg-gradient-to-r from-[#1565C0] to-[#0d47a1] px-5 py-4">
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2">
@@ -222,12 +230,13 @@ export default function AiAssistant() {
                   <button
                     onClick={close}
                     aria-label="Close AI Assistant"
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/60 transition-all hover:bg-white/15 hover:text-white"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/60 transition-all hover:bg-white/15 hover:text-white"
                   >
-                    <X size={15} />
+                    <X size={16} />
                   </button>
                 </div>
 
+                {/* Messages */}
                 <div className="flex-1 overflow-y-auto overscroll-contain">
                   {messages.length === 0 ? (
                     <EmptyState t={t} />
@@ -242,7 +251,8 @@ export default function AiAssistant() {
                   )}
                 </div>
 
-                <div className="border-t border-gray-100 p-3 dark:border-gray-800">
+                {/* Input */}
+                <div className="border-t border-gray-100 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] dark:border-gray-800">
                   <div className="flex items-center gap-2">
                     <input
                       ref={inputRef}
@@ -251,7 +261,7 @@ export default function AiAssistant() {
                       onKeyDown={handleKeyDown}
                       placeholder={t('aiAssistant.placeholder')}
                       disabled={loading}
-                      className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-gray-400
+                      className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400
                                  focus:border-[#1565C0]/40 focus:bg-white focus:ring-[3px] focus:ring-[#1565C0]/10
                                  disabled:opacity-50
                                  dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:placeholder:text-gray-500
@@ -260,15 +270,15 @@ export default function AiAssistant() {
                     <button
                       onClick={handleSend}
                       disabled={!input.trim() || loading}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1565C0] text-white transition-all
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1565C0] text-white transition-all
                                  hover:bg-[#0d47a1] hover:shadow-lg hover:shadow-[#1565C0]/25 active:scale-90
                                  disabled:opacity-40 disabled:hover:shadow-none"
                     >
-                      {loading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                      {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           </>
         )}
