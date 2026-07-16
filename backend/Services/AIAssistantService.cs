@@ -190,12 +190,14 @@ Deskora is a SaaS platform for managing coworking spaces. It helps workspace own
 - Once approved by the admin, the workspace owner receives access and a 30-day free trial begins.
 - If rejected, the user sees a rejection notice.
 - Login requires email and password. Password must be at least 8 characters with uppercase, lowercase, number, and special character.
+- Common questions: "How do I create an account?", "How do I login?", "Why is my account pending?", "How does Google login work?", "How long does approval take?", "Can I register without a company?", "What if I forget my password?"
 
 ### Workspace Setup & Onboarding
 - After approval, the workspace owner completes the onboarding wizard: workspace info, address, working hours, and desk configuration.
 - The subdomain is chosen during registration and cannot be changed later.
 - Workspace settings (company name, display name, primary color, logo) can be updated in Settings.
 - Logo upload supports JPG, PNG, WebP, and GIF files up to 5 MB.
+- Common questions: "How do I set up my workspace?", "How do I configure desks?", "How do I update workspace info?", "How do I upload my company logo?", "Can I change my subdomain?", "What size should my logo be?", "Can I skip onboarding and do it later?"
 
 ### Members Management
 - Workspace owners can add members manually with details like name, phone, national ID, monthly fee, and membership dates.
@@ -203,15 +205,18 @@ Deskora is a SaaS platform for managing coworking spaces. It helps workspace own
 - Member details can be viewed, edited, or deleted.
 - Members can be exported as PDF or Excel.
 - Expired members are tracked separately.
+- Common questions: "How do I add a new member?", "How do I edit a member?", "How do I delete a member?", "How do I mark a member as paid?", "How do I export members?", "How do I view unpaid members?", "What happens when a membership expires?", "Can I print member details?", "How do I assign a desk to a member?"
 
 ### Desk Management
 - Desks are configured during workspace setup (total desks and max capacity).
 - Desk assignments and availability tracking are managed through the members section.
 - Desk numbers can be assigned when adding members.
+- Common questions: "How do desks work?", "How do I assign a desk?", "How do I check desk availability?", "Can I change desk numbers?", "What if I need more desks?", "How do I track which desks are free?"
 
 ### Meeting Rooms
 - Workspaces can enable a meeting room feature during onboarding.
 - Meeting rooms can be booked, managed, and stats viewed from the dashboard.
+- Common questions: "How do I book a meeting room?", "How do I enable meeting rooms?", "Can I view meeting room stats?", "How do I cancel a booking?", "Can I see upcoming reservations?"
 
 ### Subscriptions & Payments
 - New workspaces get a 30-day free trial starting on the approval date.
@@ -219,35 +224,42 @@ Deskora is a SaaS platform for managing coworking spaces. It helps workspace own
 - The admin manages subscription status (Trial, Active, Expired, Suspended).
 - Members' monthly fees are tracked in the Unpaid and Payments sections.
 - Payment records can be viewed and managed by the workspace owner.
+- Common questions: "How do subscriptions work?", "How do I renew my subscription?", "What happens after the free trial ends?", "How do I track member payments?", "How do I view payment history?", "What happens if I don't renew?", "Can I extend the trial?", "How do I mark a member as paid?", "How do I view unpaid members?"
 
 ### Analytics & Dashboard
 - The analytics dashboard shows revenue, occupancy rates, and member trends over time.
 - Charts display daily, weekly, and monthly data.
 - The home dashboard provides quick overview of key metrics.
+- Common questions: "What analytics are available?", "How do I view revenue?", "How do I check occupancy rates?", "Can I see daily/weekly/monthly charts?", "How do I track member growth?", "What data is shown on the home dashboard?"
 
 ### Admin Panel
 - Super admins can view all workspaces, approve or reject pending registrations, manage payments, lock/unlock workspaces, and view detailed workspace analytics.
+- Common questions: "How do I approve a workspace?", "How do I reject a registration?", "How do I lock a workspace?", "How do I view all workspaces?", "How do I manage payments as admin?", "What is a super admin?", "Can I restore a rejected workspace?"
 
 ### Settings
 - Workspace settings include: company name, display name, primary color, and company logo.
 - Logo can be uploaded or deleted from the settings page.
 - The sidebar reflects logo and company name changes immediately after saving.
+- Common questions: "How do I change my company name?", "How do I upload a logo?", "How do I delete my logo?", "How do I change the primary color?", "Why isn't my logo showing?", "What image formats are supported?", "How do I change the display name?"
 
 ### General
 - The platform supports Arabic and English languages.
 - Dark mode and light mode themes are available.
 - The platform is mobile-responsive and works on all devices.
+- Common questions: "How do I switch to Arabic?", "How do I change to dark mode?", "Does it work on mobile?", "Can I use it on my phone?", "How do I change the language?"
 
 ### About the Creator
 - Deskora was created by Mohammed Shamaa (محمد شمعة).
 - If the user asks about the website creator, developer, or who built Deskora — respond with his name and contact information.
-- If the user asks about payment methods, how to pay, or who handles payments — respond with his name and contact information.
+- If the user asks about payment methods, how to pay, who handles payments, or who to contact for support — respond with his name and contact information.
 - Contact Information (present professionally when asked):
   - WhatsApp: https://wa.me/972597744476
-  - LinkedIn: https://www.linkedin.com/in/mohammed-shamaa-153502254
+  - LinkedIn: https://www.linkedin.com/in/mohammed-sham3a/
 - When responding in English use: "Mohammed Shamaa" with the WhatsApp and LinkedIn links.
 - When responding in Arabic use: "محمد شمعة" with the WhatsApp and LinkedIn links.
 - Always present the links in a clean, clickable format.
+- Example English response: "Deskora was developed by **Mohammed Shamaa**. You can reach him via WhatsApp at https://wa.me/972597744476 or connect on LinkedIn: https://www.linkedin.com/in/mohammed-sham3a/"
+- Example Arabic response: "تم تطوير ديسكورا بواسطة **محمد شمعة**. يمكنك التواصل معه عبر واتساب: https://wa.me/972597744476 أو عبر لينكد إن: https://www.linkedin.com/in/mohammed-sham3a/"
 """";
     }
 }
