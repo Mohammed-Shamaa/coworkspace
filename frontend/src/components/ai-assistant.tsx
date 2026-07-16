@@ -92,9 +92,11 @@ export default function AiAssistant() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [mobileKeyboard, setMobileKeyboard] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -122,6 +124,24 @@ export default function AiAssistant() {
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [isOpen])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const vv = window.visualViewport
+    if (!vv) return
+    const onResize = () => {
+      const isKeyboardOpen = window.innerHeight - vv.height > 100
+      setMobileKeyboard(isKeyboardOpen)
+    }
+    vv.addEventListener('resize', onResize)
+    return () => vv.removeEventListener('resize', onResize)
+  }, [])
+
+  useEffect(() => {
+    if (mobileKeyboard) {
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 200)
+    }
+  }, [mobileKeyboard])
 
   const handleSend = async () => {
     const text = input.trim()
@@ -191,11 +211,12 @@ export default function AiAssistant() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed z-[100]
-                inset-0                                          /* mobile: full screen */
+              ref={panelRef}
+              className={`fixed z-[100]
+                inset-x-3 top-14 ${mobileKeyboard ? 'bottom-2' : 'bottom-8'}  /* mobile: inset with margins */
                 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2   /* tablet: centered modal */
                 lg:top-[68px] lg:right-4 lg:left-auto lg:bottom-auto lg:translate-x-0 lg:translate-y-0  /* desktop: dropdown */
-              "
+              `}
             >
               {/* Inner panel: handles size + animation */}
               <motion.div
@@ -203,10 +224,10 @@ export default function AiAssistant() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.92, y: 8 }}
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="flex h-full w-full flex-col overflow-hidden          /* mobile: fill screen */
+                className="flex h-full w-full flex-col overflow-hidden          /* mobile: fill container */
                   sm:h-auto sm:max-h-[600px] sm:w-[480px] sm:rounded-2xl         /* tablet: modal size */
                   lg:w-[420px]                                                   /* desktop: narrower */
-                  rounded-t-2xl border border-gray-200/80 bg-white/95 shadow-2xl shadow-black/[0.08] backdrop-blur-xl
+                  rounded-2xl border border-gray-200/80 bg-white/95 shadow-2xl shadow-black/[0.08] backdrop-blur-xl
                   dark:border-gray-700/60 dark:bg-gray-900/95"
               >
                 {/* Header */}
