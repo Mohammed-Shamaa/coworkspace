@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { aiApi } from '@/lib/api'
 import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react'
@@ -86,17 +87,241 @@ function EmptyState({ t }: { t: (key: string) => string }) {
   )
 }
 
+function MobileChatPanel({
+  close,
+  t,
+  messages,
+  loading,
+  input,
+  setInput,
+  handleSend,
+  handleKeyDown,
+  inputRef,
+  messagesEndRef,
+}: {
+  close: () => void
+  t: (key: string) => string
+  messages: Message[]
+  loading: boolean
+  input: string
+  setInput: (v: string) => void
+  handleSend: () => void
+  handleKeyDown: (e: React.KeyboardEvent) => void
+  inputRef: React.RefObject<HTMLInputElement | null>
+  messagesEndRef: React.RefObject<HTMLDivElement | null>
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.92, y: 8 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.92, y: 8 }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-gray-200/80 bg-white/95 shadow-2xl shadow-black/[0.08] backdrop-blur-xl dark:border-gray-700/60 dark:bg-gray-900/95"
+    >
+      <div className="relative flex items-center justify-between bg-gradient-to-r from-[#1565C0] to-[#0d47a1] px-5 py-4">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+              <Bot size={15} className="text-white" />
+            </div>
+            <span className="text-sm font-bold tracking-tight text-white">
+              <span>Des</span>
+              <span className="text-[#D4AF37]">K</span>
+              <span>ora</span>
+              <span className="ml-1.5 font-medium opacity-80">Assistant</span>
+            </span>
+          </div>
+          <span className="mt-0.5 pl-9 text-[11px] font-medium text-white/55">
+            {t('aiAssistant.subtitle')}
+          </span>
+        </div>
+        <button
+          onClick={close}
+          aria-label="Close AI Assistant"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/60 transition-all hover:bg-white/15 hover:text-white"
+        >
+          <X size={16} />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        {messages.length === 0 ? (
+          <EmptyState t={t} />
+        ) : (
+          <div>
+            {messages.map((msg, i) => (
+              <MessageBubble key={i} msg={msg} />
+            ))}
+            {loading && <TypingIndicator />}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-gray-100 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] dark:border-gray-800">
+        <div className="flex items-center gap-2">
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={t('aiAssistant.placeholder')}
+            disabled={loading}
+            className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400
+                       focus:border-[#1565C0]/40 focus:bg-white focus:ring-[3px] focus:ring-[#1565C0]/10
+                       disabled:opacity-50
+                       dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:placeholder:text-gray-500
+                       dark:focus:border-[#1565C0]/50 dark:focus:bg-gray-900 dark:focus:ring-[#1565C0]/15"
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || loading}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1565C0] text-white transition-all
+                       hover:bg-[#0d47a1] hover:shadow-lg hover:shadow-[#1565C0]/25 active:scale-90
+                       disabled:opacity-40 disabled:hover:shadow-none"
+          >
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+function DesktopChatPanel({
+  close,
+  t,
+  messages,
+  loading,
+  input,
+  setInput,
+  handleSend,
+  handleKeyDown,
+  inputRef,
+  messagesEndRef,
+}: {
+  close: () => void
+  t: (key: string) => string
+  messages: Message[]
+  loading: boolean
+  input: string
+  setInput: (v: string) => void
+  handleSend: () => void
+  handleKeyDown: (e: React.KeyboardEvent) => void
+  inputRef: React.RefObject<HTMLInputElement | null>
+  messagesEndRef: React.RefObject<HTMLDivElement | null>
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed z-[100] sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 lg:top-[68px] lg:right-4 lg:left-auto lg:bottom-auto lg:translate-x-0 lg:translate-y-0"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.92, y: 8 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        className="flex h-auto max-h-[600px] w-[480px] flex-col overflow-hidden rounded-2xl border border-gray-200/80 bg-white/95 shadow-2xl shadow-black/[0.08] backdrop-blur-xl lg:w-[420px] dark:border-gray-700/60 dark:bg-gray-900/95"
+      >
+        <div className="relative flex items-center justify-between bg-gradient-to-r from-[#1565C0] to-[#0d47a1] px-5 py-4">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
+                <Bot size={15} className="text-white" />
+              </div>
+              <span className="text-sm font-bold tracking-tight text-white">
+                <span>Des</span>
+                <span className="text-[#D4AF37]">K</span>
+                <span>ora</span>
+                <span className="ml-1.5 font-medium opacity-80">Assistant</span>
+              </span>
+            </div>
+            <span className="mt-0.5 pl-9 text-[11px] font-medium text-white/55">
+              {t('aiAssistant.subtitle')}
+            </span>
+          </div>
+          <button
+            onClick={close}
+            aria-label="Close AI Assistant"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/60 transition-all hover:bg-white/15 hover:text-white"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          {messages.length === 0 ? (
+            <EmptyState t={t} />
+          ) : (
+            <div>
+              {messages.map((msg, i) => (
+                <MessageBubble key={i} msg={msg} />
+              ))}
+              {loading && <TypingIndicator />}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+
+        <div className="border-t border-gray-100 p-3 dark:border-gray-800">
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={t('aiAssistant.placeholder')}
+              disabled={loading}
+              className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400
+                         focus:border-[#1565C0]/40 focus:bg-white focus:ring-[3px] focus:ring-[#1565C0]/10
+                         disabled:opacity-50
+                         dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:placeholder:text-gray-500
+                         dark:focus:border-[#1565C0]/50 dark:focus:bg-gray-900 dark:focus:ring-[#1565C0]/15"
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || loading}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1565C0] text-white transition-all
+                         hover:bg-[#0d47a1] hover:shadow-lg hover:shadow-[#1565C0]/25 active:scale-90
+                         disabled:opacity-40 disabled:hover:shadow-none"
+            >
+              {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 export default function AiAssistant() {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [mobileKeyboard, setMobileKeyboard] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)')
+    setIsMobile(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  useEffect(() => {
+    if (!isMobile || !isOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [isMobile, isOpen])
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -124,24 +349,6 @@ export default function AiAssistant() {
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [isOpen])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const vv = window.visualViewport
-    if (!vv) return
-    const onResize = () => {
-      const isKeyboardOpen = window.innerHeight - vv.height > 100
-      setMobileKeyboard(isKeyboardOpen)
-    }
-    vv.addEventListener('resize', onResize)
-    return () => vv.removeEventListener('resize', onResize)
-  }, [])
-
-  useEffect(() => {
-    if (mobileKeyboard) {
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 200)
-    }
-  }, [mobileKeyboard])
 
   const handleSend = async () => {
     const text = input.trim()
@@ -181,6 +388,57 @@ export default function AiAssistant() {
     setTimeout(() => buttonRef.current?.focus(), 200)
   }
 
+  const sharedProps = {
+    close,
+    t,
+    messages,
+    loading,
+    input,
+    setInput,
+    handleSend,
+    handleKeyDown,
+    inputRef,
+    messagesEndRef,
+  }
+
+  const content = isOpen ? (
+    isMobile ? (
+      <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 bg-black/45"
+          style={{ zIndex: 999999 }}
+          onClick={close}
+        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 flex flex-col p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,16px))]"
+          style={{ zIndex: 999999 }}
+        >
+          <MobileChatPanel {...sharedProps} />
+        </motion.div>
+      </>
+    ) : (
+      <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-sm"
+          onClick={close}
+        />
+        <DesktopChatPanel {...sharedProps} />
+      </>
+    )
+  ) : null
+
   return (
     <>
       <button
@@ -191,119 +449,10 @@ export default function AiAssistant() {
       >
         <MessageCircle size={16} className="transition-transform duration-300 group-hover:scale-110" />
       </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop - full screen on all devices */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-sm"
-              onClick={close}
-            />
-
-            {/* Outer container: handles positioning per device */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              ref={panelRef}
-              className={`fixed z-[100]
-                inset-x-3 top-14 ${mobileKeyboard ? 'bottom-2' : 'bottom-8'}  /* mobile: inset with margins */
-                sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2   /* tablet: centered modal */
-                lg:top-[68px] lg:right-4 lg:left-auto lg:bottom-auto lg:translate-x-0 lg:translate-y-0  /* desktop: dropdown */
-              `}
-            >
-              {/* Inner panel: handles size + animation */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.92, y: 8 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.92, y: 8 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="flex h-full w-full flex-col overflow-hidden          /* mobile: fill container */
-                  sm:h-auto sm:max-h-[600px] sm:w-[480px] sm:rounded-2xl         /* tablet: modal size */
-                  lg:w-[420px]                                                   /* desktop: narrower */
-                  rounded-2xl border border-gray-200/80 bg-white/95 shadow-2xl shadow-black/[0.08] backdrop-blur-xl
-                  dark:border-gray-700/60 dark:bg-gray-900/95"
-              >
-                {/* Header */}
-                <div className="relative flex items-center justify-between bg-gradient-to-r from-[#1565C0] to-[#0d47a1] px-5 py-4">
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
-                        <Bot size={15} className="text-white" />
-                      </div>
-                      <span className="text-sm font-bold tracking-tight text-white">
-                        <span>Des</span>
-                        <span className="text-[#D4AF37]">K</span>
-                        <span>ora</span>
-                        <span className="ml-1.5 font-medium opacity-80">Assistant</span>
-                      </span>
-                    </div>
-                    <span className="mt-0.5 pl-9 text-[11px] font-medium text-white/55">
-                      {t('aiAssistant.subtitle')}
-                    </span>
-                  </div>
-                  <button
-                    onClick={close}
-                    aria-label="Close AI Assistant"
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/60 transition-all hover:bg-white/15 hover:text-white"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto overscroll-contain">
-                  {messages.length === 0 ? (
-                    <EmptyState t={t} />
-                  ) : (
-                    <div>
-                      {messages.map((msg, i) => (
-                        <MessageBubble key={i} msg={msg} />
-                      ))}
-                      {loading && <TypingIndicator />}
-                      <div ref={messagesEndRef} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Input */}
-                <div className="border-t border-gray-100 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] dark:border-gray-800">
-                  <div className="flex items-center gap-2">
-                    <input
-                      ref={inputRef}
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder={t('aiAssistant.placeholder')}
-                      disabled={loading}
-                      className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400
-                                 focus:border-[#1565C0]/40 focus:bg-white focus:ring-[3px] focus:ring-[#1565C0]/10
-                                 disabled:opacity-50
-                                 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:placeholder:text-gray-500
-                                 dark:focus:border-[#1565C0]/50 dark:focus:bg-gray-900 dark:focus:ring-[#1565C0]/15"
-                    />
-                    <button
-                      onClick={handleSend}
-                      disabled={!input.trim() || loading}
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1565C0] text-white transition-all
-                                 hover:bg-[#0d47a1] hover:shadow-lg hover:shadow-[#1565C0]/25 active:scale-90
-                                 disabled:opacity-40 disabled:hover:shadow-none"
-                    >
-                      {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {isMobile && typeof document !== 'undefined'
+        ? createPortal(<AnimatePresence>{content}</AnimatePresence>, document.body)
+        : <AnimatePresence>{content}</AnimatePresence>
+      }
     </>
   )
 }
