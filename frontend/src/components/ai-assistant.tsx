@@ -6,9 +6,6 @@ import { aiApi } from '@/lib/api'
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 
-const HINT_DISMISSED_KEY = 'deskora_ai_hint_dismissed'
-const HINT_OPENED_KEY = 'deskora_ai_hint_opened'
-
 type Message = {
   role: 'user' | 'assistant'
   content: string
@@ -405,12 +402,8 @@ export default function AiAssistant() {
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    const dismissed = localStorage.getItem(HINT_DISMISSED_KEY) === 'true'
-    const opened = localStorage.getItem(HINT_OPENED_KEY) === 'true'
-    if (!dismissed && !opened) {
-      const timer = setTimeout(() => setShowHint(true), 600)
-      return () => clearTimeout(timer)
-    }
+    const timer = setTimeout(() => setShowHint(true), 600)
+    return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
@@ -422,13 +415,11 @@ export default function AiAssistant() {
   }, [])
 
   const openAssistant = useCallback(() => {
-    localStorage.setItem(HINT_OPENED_KEY, 'true')
     setShowHint(false)
     setIsOpen(true)
   }, [])
 
   const dismissHint = useCallback(() => {
-    localStorage.setItem(HINT_DISMISSED_KEY, 'true')
     setShowHint(false)
   }, [])
 
