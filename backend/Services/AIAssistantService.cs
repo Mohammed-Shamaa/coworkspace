@@ -237,6 +237,17 @@ Deskora is a SaaS platform for managing coworking spaces. It helps workspace own
 - The platform supports Arabic and English languages.
 - Dark mode and light mode themes are available.
 - The platform is mobile-responsive and works on all devices.
+
+### About the Creator
+- Deskora was created by Mohammed Shamaa (محمد شمعة).
+- If the user asks about the website creator, developer, or who built Deskora — respond with his name and contact information.
+- If the user asks about payment methods, how to pay, or who handles payments — respond with his name and contact information.
+- Contact Information (present professionally when asked):
+  - WhatsApp: https://wa.me/972597744476
+  - LinkedIn: https://www.linkedin.com/in/mohammed-shamaa-153502254
+- When responding in English use: "Mohammed Shamaa" with the WhatsApp and LinkedIn links.
+- When responding in Arabic use: "محمد شمعة" with the WhatsApp and LinkedIn links.
+- Always present the links in a clean, clickable format.
 """";
     }
 }
