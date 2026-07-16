@@ -3,8 +3,11 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { aiApi } from '@/lib/api'
-import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react'
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
+
+const HINT_DISMISSED_KEY = 'deskora_ai_hint_dismissed'
+const HINT_OPENED_KEY = 'deskora_ai_hint_opened'
 
 type Message = {
   role: 'user' | 'assistant'
@@ -297,6 +300,98 @@ function DesktopChatPanel({
   )
 }
 
+function OnboardingHint({
+  buttonRef,
+  onOpen,
+  onDismiss,
+  isMobile,
+}: {
+  buttonRef: React.RefObject<HTMLButtonElement | null>
+  onOpen: () => void
+  onDismiss: () => void
+  isMobile: boolean
+}) {
+  const [pos, setPos] = useState({ bottom: 0, top: 0, rightInset: 0 })
+
+  useEffect(() => {
+    const update = () => {
+      const el = buttonRef.current
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      setPos({
+        top: r.top,
+        bottom: window.innerHeight - r.bottom,
+        rightInset: window.innerWidth - r.right,
+      })
+    }
+    update()
+    addEventListener('scroll', update, { passive: true })
+    addEventListener('resize', update)
+    return () => {
+      removeEventListener('scroll', update)
+      removeEventListener('resize', update)
+    }
+  }, [buttonRef])
+
+  const desktopStyle: React.CSSProperties = {
+    top: pos.bottom ? pos.top + 48 : -9999,
+    right: Math.max(pos.rightInset - 8, 8),
+  }
+  const mobileStyle: React.CSSProperties = {
+    bottom: pos.bottom ? pos.bottom + 48 : -9999,
+    right: Math.max(pos.rightInset - 8, 8),
+  }
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85, y: isMobile ? 10 : -6 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.85, y: isMobile ? 10 : -6 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      style={isMobile ? mobileStyle : desktopStyle}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen() } }}
+      role="tooltip"
+      tabIndex={0}
+      aria-label="Open Deskora AI Assistant"
+      className="fixed z-[99999] cursor-pointer select-none outline-none focus-visible:ring-2 focus-visible:ring-[#1565C0]/50 focus-visible:ring-offset-2"
+    >
+      <div
+        className="relative rounded-xl border border-gray-200/80 bg-white shadow-xl shadow-black/[0.06] transition-all duration-200
+                   hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#1565C0]/10
+                   dark:border-gray-700/60 dark:bg-gray-900 dark:hover:shadow-[#D4AF37]/5"
+      >
+        <span
+          className={`absolute right-5 h-0 w-0 border-[7px] border-l-transparent border-r-transparent
+            ${isMobile ? '-bottom-1.5 border-t-[7px] border-t-white dark:border-t-gray-900' : '-top-1.5 border-b-[7px] border-b-white dark:border-b-gray-900'}
+          `}
+        />
+        <div className="flex items-start gap-3 px-3.5 py-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#1565C0]/10">
+            <Sparkles size={15} className="text-[#1565C0]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+              Des<span className="text-[#D4AF37]">K</span>ora Assistant
+            </p>
+            <p className="mt-0.5 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+              Need help? Ask me anything about Deskora and I&apos;ll guide you.
+            </p>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDismiss() }}
+            aria-label="Dismiss hint"
+            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-gray-100 hover:text-gray-500 dark:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-400"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      </div>
+    </motion.div>,
+    document.body,
+  )
+}
+
 export default function AiAssistant() {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
@@ -304,9 +399,19 @@ export default function AiAssistant() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [showHint, setShowHint] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem(HINT_DISMISSED_KEY) === 'true'
+    const opened = localStorage.getItem(HINT_OPENED_KEY) === 'true'
+    if (!dismissed && !opened) {
+      const timer = setTimeout(() => setShowHint(true), 600)
+      return () => clearTimeout(timer)
+    }
+  }, [])
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)')
@@ -314,6 +419,17 @@ export default function AiAssistant() {
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  const openAssistant = useCallback(() => {
+    localStorage.setItem(HINT_OPENED_KEY, 'true')
+    setShowHint(false)
+    setIsOpen(true)
+  }, [])
+
+  const dismissHint = useCallback(() => {
+    localStorage.setItem(HINT_DISMISSED_KEY, 'true')
+    setShowHint(false)
   }, [])
 
   useEffect(() => {
@@ -441,18 +557,38 @@ export default function AiAssistant() {
 
   return (
     <>
-      <button
+      <motion.button
         ref={buttonRef}
-        onClick={() => (isOpen ? close() : setIsOpen(true))}
+        onClick={() => (showHint ? openAssistant() : isOpen ? close() : setIsOpen(true))}
         aria-label={isOpen ? t('aiAssistant.close') : t('aiAssistant.open')}
         className="group rounded-lg p-2 md:p-2.5 text-gray-500 transition-all duration-300 hover:scale-105 hover:bg-purple-50 hover:text-purple-600 hover:shadow-sm hover:shadow-purple-200/50 active:scale-95 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-purple-400 dark:hover:shadow-purple-900/30"
+        animate={showHint ? { scale: [1, 1.1, 1, 1.08, 1] } : {}}
+        transition={showHint ? { duration: 2, repeat: Infinity, repeatDelay: 2.5, ease: 'easeInOut' } : {}}
       >
-        <MessageCircle size={16} className="transition-transform duration-300 group-hover:scale-110" />
-      </button>
+        <motion.span
+          className="flex"
+          animate={showHint ? { rotate: [0, -8, 8, -4, 0] } : {}}
+          transition={showHint ? { duration: 0.6, delay: 0.3, ease: 'easeInOut' } : {}}
+        >
+          <MessageCircle size={16} className="transition-transform duration-300 group-hover:scale-110" />
+        </motion.span>
+      </motion.button>
       {isMobile && typeof document !== 'undefined'
         ? createPortal(<AnimatePresence>{content}</AnimatePresence>, document.body)
         : <AnimatePresence>{content}</AnimatePresence>
       }
+      {typeof document !== 'undefined' && (
+        <AnimatePresence>
+          {showHint && (
+            <OnboardingHint
+              buttonRef={buttonRef}
+              onOpen={openAssistant}
+              onDismiss={dismissHint}
+              isMobile={isMobile}
+            />
+          )}
+        </AnimatePresence>
+      )}
     </>
   )
 }
