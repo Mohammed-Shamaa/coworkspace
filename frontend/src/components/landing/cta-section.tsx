@@ -19,7 +19,7 @@ export default function CTASection() {
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
 
           <div className="relative z-10">
-            <h2 className="text-3xl font-bold text-white md:text-4xl">{t('landing.cta.title')}</h2>
+            <h2 className="text-3xl font-bold text-white md:text-4xl font-['Playfair_Display']">{t('landing.cta.title')}</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-blue-200">
               {t('landing.cta.subtitle')}
             </p>

@@ -22,7 +22,7 @@ export default function DashboardPreview() {
       <div className="mx-auto max-w-7xl px-6">
         <ScrollReveal yOffset={20} className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.dashboard.badge')}</span>
-          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.dashboard.title')}</h2>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)] font-['Playfair_Display']">{t('landing.dashboard.title')}</h2>
           <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.dashboard.subtitle')}</p>
         </ScrollReveal>
 

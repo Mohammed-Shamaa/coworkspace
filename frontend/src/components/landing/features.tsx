@@ -17,7 +17,7 @@ function FeatureCard({ icon: Icon, title, description, index }: { icon: typeof B
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#1565C0] transition-colors group-hover:bg-[#1565C0] group-hover:text-white">
         <Icon size={24} />
       </div>
-      <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)]">{title}</h3>
+      <h3 className="text-lg font-bold text-gray-900 dark:text-[var(--text-primary)] font-['Playfair_Display']">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-[var(--text-secondary)]">{description}</p>
     </ScrollReveal>
   )
@@ -41,7 +41,7 @@ export default function Features() {
       <div className="mx-auto max-w-7xl px-6">
         <ScrollReveal yOffset={20} className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0]">{t('landing.features.badge')}</span>
-          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{t('landing.features.title')}</h2>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)] font-['Playfair_Display']">{t('landing.features.title')}</h2>
           <p className="mt-4 text-lg text-gray-500 dark:text-[var(--text-secondary)]">{t('landing.features.subtitle')}</p>
         </ScrollReveal>
 
