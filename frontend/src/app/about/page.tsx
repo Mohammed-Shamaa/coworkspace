@@ -54,7 +54,7 @@ function QuoteSection({ dir }: { dir: React.MutableRefObject<'down' | 'up'> }) {
             scale: 1.02,
             textShadow: '0 0 30px rgba(59,130,246,0.5), 0 0 60px rgba(59,130,246,0.2)',
           }}
-          className="whitespace-nowrap text-center text-xl font-bold leading-snug text-gray-900 md:text-2xl lg:text-3xl dark:text-[var(--text-primary)]"
+          className="whitespace-nowrap text-center text-xl font-bold leading-snug text-gray-900 md:text-2xl lg:text-3xl dark:text-[var(--text-primary)] font-['Playfair_Display'] italic"
         >
           {t('about.quote')}
         </motion.div>
@@ -69,7 +69,7 @@ function SectionHeading({ label, title }: { label: string; title: string }) {
       <span className="inline-block rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-[#1565C0] dark:bg-blue-950">
         {label}
       </span>
-      <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)]">{title}</h2>
+      <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-[var(--text-primary)] font-['Playfair_Display']">{title}</h2>
     </div>
   )
 }
