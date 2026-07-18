@@ -83,7 +83,9 @@ function CompleteGoogleRegistrationForm() {
     } catch (err: unknown) {
       const apiErr = err as { apiError?: { message: string; status?: number }; response?: { data?: { message?: string; errors?: Record<string, string[]> } }; code?: string }
 
-      if (apiErr.apiError?.message) {
+      if (apiErr.apiError?.status === 0 || apiErr.code === 'ERR_NETWORK') {
+        setError(t('auth.connectionError'))
+      } else if (apiErr.apiError?.message) {
         setError(apiErr.apiError.message)
       } else if (apiErr.response?.data?.message) {
         const serverMsg = apiErr.response.data.message
@@ -95,8 +97,6 @@ function CompleteGoogleRegistrationForm() {
         } else {
           setError(serverMsg)
         }
-      } else if (apiErr.code === 'ERR_NETWORK') {
-        setError(t('auth.connectionError'))
       } else {
         setError(t('auth.loginFailed'))
       }
