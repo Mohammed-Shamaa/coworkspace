@@ -69,14 +69,14 @@ function LoginForm() {
       router.push('/dashboard')
     } catch (err: unknown) {
       const apiErr = err as { apiError?: { status: number; message: string; code?: string }; code?: string; response?: { status?: number; data?: { message?: string; title?: string } } }
-      if (apiErr.apiError) {
-        setError(apiErr.apiError.message)
-      } else if (apiErr.code === 'ERR_NETWORK' || !apiErr.response) {
+      if (apiErr.apiError?.status === 0 || apiErr.code === 'ERR_NETWORK' || !apiErr.response) {
         setError(t('auth.connectionError'))
       } else if (apiErr.code === 'ECONNABORTED') {
         setError(t('auth.timeoutError'))
       } else if (apiErr.response?.status === 401) {
         setError(t('auth.invalidCredentials'))
+      } else if (apiErr.apiError) {
+        setError(apiErr.apiError.message)
       } else {
         setError(apiErr.response?.data?.message || apiErr.response?.data?.title || t('auth.loginFailed'))
       }

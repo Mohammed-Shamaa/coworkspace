@@ -222,7 +222,7 @@
     "subdomainPlaceholder": "your-company",
     "redirecting": "Redirecting...",
     "fillRequired": "Please fill in all required fields.",
-    "connectionError": "Unable to connect to the server. Please ensure the backend is running on port 5000 and try again.",
+    "connectionError": "Unable to connect to the server. Please check your internet connection and try again.",
     "timeoutError": "Connection timed out. Please check your network and try again.",
     "invalidCredentials": "Invalid email or password.",
     "whatsappLabel": "WhatsApp Number",

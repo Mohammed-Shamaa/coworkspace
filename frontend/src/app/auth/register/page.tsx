@@ -62,20 +62,26 @@ function RegisterForm() {
       })
       router.push('/dashboard')
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string; title?: string; errors?: Record<string, string[]> } }; message?: string }
-      const data = axiosErr.response?.data
-      if (data) {
-        if (data.errors && typeof data.errors === 'object') {
-          const backendFieldErrors: FieldErrors = {}
-          for (const [field, msgs] of Object.entries(data.errors)) {
-            const lowerField = field.charAt(0).toLowerCase() + field.slice(1)
-            backendFieldErrors[lowerField] = msgs
-          }
-          setFieldErrors(backendFieldErrors)
-        }
-        setErrorMessage(data.message || data.title || t('auth.registrationFailed'))
+      const axiosErr = err as { apiError?: { status: number; message: string; code?: string }; code?: string; response?: { status?: number; data?: { message?: string; title?: string; errors?: Record<string, string[]> } }; message?: string }
+      if (axiosErr.apiError?.status === 0 || axiosErr.code === 'ERR_NETWORK') {
+        setErrorMessage(t('auth.connectionError'))
+      } else if (axiosErr.code === 'ECONNABORTED') {
+        setErrorMessage(t('auth.timeoutError'))
       } else {
-        setErrorMessage(axiosErr.message || t('auth.registrationFailed'))
+        const data = axiosErr.response?.data
+        if (data) {
+          if (data.errors && typeof data.errors === 'object') {
+            const backendFieldErrors: FieldErrors = {}
+            for (const [field, msgs] of Object.entries(data.errors)) {
+              const lowerField = field.charAt(0).toLowerCase() + field.slice(1)
+              backendFieldErrors[lowerField] = msgs
+            }
+            setFieldErrors(backendFieldErrors)
+          }
+          setErrorMessage(data.message || data.title || t('auth.registrationFailed'))
+        } else {
+          setErrorMessage(t('auth.connectionError'))
+        }
       }
     } finally {
       setLoading(false)
