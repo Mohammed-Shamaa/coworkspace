@@ -115,7 +115,7 @@ export default function AboutPage() {
             whileHover={{
               textShadow: '0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(59, 130, 246, 0.3)',
             }}
-            className="max-w-4xl text-center text-2xl font-bold leading-tight text-white drop-shadow-lg md:text-4xl lg:text-5xl"
+            className="max-w-4xl text-center text-2xl font-bold leading-tight text-white drop-shadow-lg md:text-4xl lg:text-5xl font-['Playfair_Display']"
           >
             {t('about.heroTitle')}
           </motion.h1>
