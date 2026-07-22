@@ -34,6 +34,32 @@ function TypingIndicator() {
   )
 }
 
+const URL_REGEX = /https?:\/\/[^\s),;]+|wa\.me\/[^\s),;]+|linkedin\.com\/in\/[^\s),;]+/g
+
+function parseContent(text: string): React.ReactNode[] {
+  const parts = text.split(URL_REGEX)
+  const matches = text.match(URL_REGEX) || []
+  const elements: React.ReactNode[] = []
+  for (let i = 0; i < parts.length; i++) {
+    if (parts[i]) elements.push(parts[i])
+    if (matches[i]) {
+      const href = matches[i].startsWith('http') ? matches[i] : `https://${matches[i]}`
+      elements.push(
+        <a
+          key={`link-${i}`}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline text-[#1565C0] underline decoration-[#1565C0]/30 decoration-1 underline-offset-2 break-all hover:text-[#0d47a1] hover:decoration-[#0d47a1]/50 transition-colors dark:text-[#4dabf7] dark:hover:text-[#8ecae6]"
+        >
+          {matches[i]}
+        </a>,
+      )
+    }
+  }
+  return elements
+}
+
 function MessageBubble({ msg }: { msg: Message }) {
   const isUser = msg.role === 'user'
   return (
@@ -59,7 +85,7 @@ function MessageBubble({ msg }: { msg: Message }) {
           {isUser ? 'You' : 'Deskora AI'}
         </p>
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800 dark:text-gray-200">
-          {msg.content}
+          {isUser ? msg.content : parseContent(msg.content)}
         </p>
       </div>
     </motion.div>
