@@ -245,7 +245,7 @@ export default function WorkspacesPage() {
       {/* Detail slide-over */}
       {selectedId && (
         <>
-          <div className="fixed inset-0 bg-black/30 z-40" onClick={closeDetail} />
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity" onClick={closeDetail} />
           <div className="fixed top-0 right-0 h-full w-full max-w-lg bg-[var(--card-bg)] border-l border-[var(--card-border)] shadow-2xl z-50 overflow-y-auto">
             <div className="p-5">
               <div className="flex items-center justify-between mb-5">
@@ -261,104 +261,157 @@ export default function WorkspacesPage() {
                   <Loader2 className="w-6 h-6 animate-spin text-[#1565C0]" />
                 </div>
               ) : detail ? (
-                <div className="space-y-5">
-                  {/* Header */}
-                  <div className="bg-[var(--hover-bg)] rounded-xl p-4">
-                    <h3 className="text-xl font-bold text-[var(--text-primary)]">{detail.companyName}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <User className="w-4 h-4 text-blue-500" />
-                      <p className="text-sm text-[var(--text-secondary)]">{detail.adminName || detail.name}</p>
-                    </div>
-                    <div className="flex gap-2 mt-2">
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        detail.paymentStatus === 'Active' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
-                        detail.paymentStatus === 'Trial' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                        'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                      }`}>
-                        {detail.paymentStatus === 'Active' ? t('admin.workspaces.paid') : detail.paymentStatus}
-                      </span>
-                      <span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                        {detail.status}
-                      </span>
+                <div className="space-y-4">
+                  {/* Hero section */}
+                  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-6 text-white">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8" />
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-6 -translate-x-6" />
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-lg font-bold">
+                          {(detail.companyName || 'W').charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-xl font-bold truncate">{detail.companyName}</h3>
+                          <div className="flex items-center gap-1.5 text-white/80 text-sm">
+                            <User className="w-3.5 h-3.5" />
+                            <span className="truncate">{detail.adminName || detail.name}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                          detail.paymentStatus === 'Active' ? 'bg-green-400/20 text-green-100 border border-green-300/30' :
+                          detail.paymentStatus === 'Trial' ? 'bg-blue-400/20 text-blue-100 border border-blue-300/30' :
+                          'bg-red-400/20 text-red-100 border border-red-300/30'
+                        }`}>
+                          {detail.paymentStatus === 'Active' ? t('admin.workspaces.paid') : detail.paymentStatus}
+                        </span>
+                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-white/20 text-white border border-white/30">
+                          {detail.status}
+                        </span>
+                        {detail.isLocked && (
+                          <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-100 border border-amber-300/30 flex items-center gap-1">
+                            <Lock className="w-3 h-3" />
+                            Locked
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Contact */}
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-                      <Mail className="w-4 h-4 shrink-0" />
-                      <span>{detail.adminEmail || 'N/A'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-                      <Phone className="w-4 h-4 shrink-0" />
-                      <span>{detail.whatsappNumber || 'N/A'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-                      <Hash className="w-4 h-4 shrink-0" />
-                      <span>{detail.subdomain}.deskora.com</span>
-                    </div>
-                    {detail.address && (
-                      <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-                        <MapPin className="w-4 h-4 shrink-0" />
-                        <span>{detail.address}</span>
+                  {/* Contact info */}
+                  <div className="bg-[var(--hover-bg)] rounded-xl p-4">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-3">{t('admin.workspaces.detail.contactInfo')}</h4>
+                    <div className="space-y-2.5 text-sm">
+                      <div className="flex items-center gap-2.5 text-[var(--text-secondary)]">
+                        <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                          <Mail className="w-3.5 h-3.5 text-blue-500" />
+                        </div>
+                        <span className="truncate">{detail.adminEmail || 'N/A'}</span>
                       </div>
-                    )}
+                      <div className="flex items-center gap-2.5 text-[var(--text-secondary)]">
+                        <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+                          <Phone className="w-3.5 h-3.5 text-green-500" />
+                        </div>
+                        <span>{detail.whatsappNumber || 'N/A'}</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-[var(--text-secondary)]">
+                        <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
+                          <Hash className="w-3.5 h-3.5 text-purple-500" />
+                        </div>
+                        <span>{detail.subdomain}.deskora.com</span>
+                      </div>
+                      {detail.address && (
+                        <div className="flex items-center gap-2.5 text-[var(--text-secondary)]">
+                          <div className="w-7 h-7 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
+                            <MapPin className="w-3.5 h-3.5 text-orange-500" />
+                          </div>
+                          <span>{detail.address}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Stats grid */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-[var(--hover-bg)] rounded-lg p-3">
-                      <div className="text-xs text-[var(--text-secondary)]">{t('admin.workspaces.detail.members')}</div>
-                      <div className="text-xl font-bold text-[var(--text-primary)]">{detail.memberCount}</div>
+                    <div className="bg-[var(--hover-bg)] rounded-xl p-4 text-center">
+                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center mx-auto mb-2">
+                        <Users className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div className="text-2xl font-bold text-[var(--text-primary)]">{detail.memberCount}</div>
+                      <div className="text-xs text-[var(--text-secondary)] mt-0.5">{t('admin.workspaces.detail.members')}</div>
                     </div>
-                    <div className="bg-[var(--hover-bg)] rounded-lg p-3">
-                      <div className="text-xs text-[var(--text-secondary)]">{t('admin.workspaces.detail.meetingReservations')}</div>
-                      <div className="text-xl font-bold text-[var(--text-primary)]">{detail.meetingRoomReservationCount}</div>
+                    <div className="bg-[var(--hover-bg)] rounded-xl p-4 text-center">
+                      <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center mx-auto mb-2">
+                        <Calendar className="w-5 h-5 text-green-500" />
+                      </div>
+                      <div className="text-2xl font-bold text-[var(--text-primary)]">{detail.meetingRoomReservationCount}</div>
+                      <div className="text-xs text-[var(--text-secondary)] mt-0.5">{t('admin.workspaces.detail.meetingReservations')}</div>
                     </div>
-                    <div className="bg-[var(--hover-bg)] rounded-lg p-3">
-                      <div className="text-xs text-[var(--text-secondary)]">{t('admin.workspaces.detail.totalDesks')}</div>
-                      <div className="text-xl font-bold text-[var(--text-primary)]">{detail.totalDesks ?? 'N/A'}</div>
+                    <div className="bg-[var(--hover-bg)] rounded-xl p-4 text-center">
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mx-auto mb-2">
+                        <Building2 className="w-5 h-5 text-purple-500" />
+                      </div>
+                      <div className="text-2xl font-bold text-[var(--text-primary)]">{detail.totalDesks ?? 'N/A'}</div>
+                      <div className="text-xs text-[var(--text-secondary)] mt-0.5">{t('admin.workspaces.detail.totalDesks')}</div>
                     </div>
-                    <div className="bg-[var(--hover-bg)] rounded-lg p-3">
-                      <div className="text-xs text-[var(--text-secondary)]">{t('admin.workspaces.detail.maxCapacity')}</div>
-                      <div className="text-xl font-bold text-[var(--text-primary)]">{detail.maxCapacity ?? 'N/A'}</div>
+                    <div className="bg-[var(--hover-bg)] rounded-xl p-4 text-center">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mx-auto mb-2">
+                        <FileText className="w-5 h-5 text-amber-500" />
+                      </div>
+                      <div className="text-2xl font-bold text-[var(--text-primary)]">{detail.maxCapacity ?? 'N/A'}</div>
+                      <div className="text-xs text-[var(--text-secondary)] mt-0.5">{t('admin.workspaces.detail.maxCapacity')}</div>
                     </div>
                   </div>
 
-                  {/* Subscription info */}
-                  <div className="bg-[var(--hover-bg)] rounded-xl p-4 space-y-2">
-                    <h4 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.workspaces.detail.subscription')}</h4>
-                    <div className="space-y-1 text-sm text-[var(--text-secondary)]">
-                      <div className="flex justify-between">
-                        <span>{t('admin.workspaces.detail.registered')}</span>
-                        <span className="text-[var(--text-primary)]">{detail.createdAt ? new Date(detail.createdAt).toLocaleDateString() : 'N/A'}</span>
+                  {/* Subscription */}
+                  <div className="bg-[var(--hover-bg)] rounded-xl p-4">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-3">{t('admin.workspaces.detail.subscription')}</h4>
+                    <div className="space-y-2.5 text-sm">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[var(--text-secondary)]">{t('admin.workspaces.detail.registered')}</span>
+                        <span className="text-[var(--text-primary)] font-medium">{detail.createdAt ? new Date(detail.createdAt).toLocaleDateString() : 'N/A'}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>{t('admin.workspaces.detail.trialStart')}</span>
-                        <span className="text-[var(--text-primary)]">{detail.trialStartDate ? new Date(detail.trialStartDate).toLocaleDateString() : 'N/A'}</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[var(--text-secondary)]">{t('admin.workspaces.detail.trialStart')}</span>
+                        <span className="text-[var(--text-primary)] font-medium">{detail.trialStartDate ? new Date(detail.trialStartDate).toLocaleDateString() : 'N/A'}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>{t('admin.workspaces.detail.trialRemaining')}</span>
-                        <span className={`text-[var(--text-primary)] ${(() => { const d = remainingTrialDays(detail.trialStartDate); return d != null && d <= 0 ? 'text-red-500 font-medium' : '' })()}`}>
-                          {(() => { const d = remainingTrialDays(detail.trialStartDate); return d != null ? (d <= 0 ? t('admin.workspaces.ended') : t('admin.workspaces.days', { days: d })) : 'N/A' })()}
-                        </span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[var(--text-secondary)]">{t('admin.workspaces.detail.trialRemaining')}</span>
+                        {(() => { const d = remainingTrialDays(detail.trialStartDate); return d != null ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-24 h-1.5 bg-[var(--card-border)] rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full transition-all ${d <= 0 ? 'bg-red-500 w-full' : d <= 7 ? 'bg-amber-500' : 'bg-green-500'}`} style={{ width: d <= 0 ? '100%' : `${Math.min(100, (d / 30) * 100)}%` }} />
+                            </div>
+                            <span className={`font-medium ${d <= 0 ? 'text-red-500' : 'text-[var(--text-primary)]'}`}>
+                              {d <= 0 ? t('admin.workspaces.ended') : t('admin.workspaces.days', { days: d })}
+                            </span>
+                          </div>
+                        ) : <span className="text-[var(--text-primary)]">N/A</span> })()}
                       </div>
-                      <div className="flex justify-between">
-                        <span>{t('admin.workspaces.detail.subscriptionExpiry')}</span>
-                        <span className={`text-[var(--text-primary)] ${isExpired(detail.subscriptionExpiryDate) ? 'text-red-500 font-medium' : ''}`}>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[var(--text-secondary)]">{t('admin.workspaces.detail.subscriptionExpiry')}</span>
+                        <span className={`font-medium ${isExpired(detail.subscriptionExpiryDate) ? 'text-red-500' : 'text-[var(--text-primary)]'}`}>
                           {detail.subscriptionExpiryDate ? new Date(detail.subscriptionExpiryDate).toLocaleDateString() : 'N/A'}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>{t('admin.workspaces.detail.approved')}</span>
-                        <span className="text-[var(--text-primary)]">{detail.approvalDate ? new Date(detail.approvalDate).toLocaleDateString() : 'N/A'}</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[var(--text-secondary)]">{t('admin.workspaces.detail.approved')}</span>
+                        <span className="text-[var(--text-primary)] font-medium">{detail.approvalDate ? new Date(detail.approvalDate).toLocaleDateString() : 'N/A'}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Lock/Unlock controls */}
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm text-[var(--text-primary)]">{t('admin.workspaces.detail.paymentControls')}</h4>
+                  {/* Actions */}
+                  <div className="bg-[var(--hover-bg)] rounded-xl p-4">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-3">{t('admin.workspaces.detail.paymentControls')}</h4>
+                    {detail.isLocked && (
+                      <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2.5 mb-3">
+                        <Lock className="w-3.5 h-3.5 shrink-0" />
+                        <span>{t('admin.workspaces.detail.workspaceLocked')}</span>
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-2">
                       {detail.isLocked ? (
                         <Button
@@ -366,7 +419,7 @@ export default function WorkspacesPage() {
                           size="sm"
                           className="bg-emerald-600 hover:bg-emerald-700 gap-2 text-xs"
                         >
-                          <Unlock className="w-3 h-3" />
+                          <Unlock className="w-3.5 h-3.5" />
                           {t('admin.workspaces.detail.unlockWorkspace')}
                         </Button>
                       ) : (
@@ -376,7 +429,7 @@ export default function WorkspacesPage() {
                           variant="outline"
                           className="gap-2 text-amber-600 border-amber-300 text-xs"
                         >
-                          <Lock className="w-3 h-3" />
+                          <Lock className="w-3.5 h-3.5" />
                           {t('admin.workspaces.detail.lockWorkspace')}
                         </Button>
                       )}
@@ -387,7 +440,7 @@ export default function WorkspacesPage() {
                           size="sm"
                           className="bg-green-600 hover:bg-green-700 gap-2 text-xs"
                         >
-                          {actionLoading === detail.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
+                          {actionLoading === detail.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
                           {t('admin.workspaces.detail.restoreAccess')}
                         </Button>
                       )}
@@ -399,7 +452,7 @@ export default function WorkspacesPage() {
                           variant="outline"
                           className="gap-2 text-red-600 border-red-300 text-xs"
                         >
-                          <AlertTriangle className="w-3 h-3" />
+                          <AlertTriangle className="w-3.5 h-3.5" />
                           {t('admin.workspaces.detail.markExpired')}
                         </Button>
                       )}
@@ -410,30 +463,29 @@ export default function WorkspacesPage() {
                         variant="outline"
                         className="gap-2 text-xs"
                       >
-                        {pdfLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
+                        {pdfLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                         {t('admin.workspaces.detail.exportPdf')}
                       </Button>
                     </div>
-                    {detail.isLocked && (
-                      <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2">
-                        <Lock className="w-3 h-3 shrink-0" />
-                        <span>{t('admin.workspaces.detail.workspaceLocked')}</span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Recent members */}
                   {detail.recentMembers.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-sm text-[var(--text-primary)] mb-2">{t('admin.workspaces.detail.recentMembers')}</h4>
+                    <div className="bg-[var(--hover-bg)] rounded-xl p-4">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-3">{t('admin.workspaces.detail.recentMembers')}</h4>
                       <div className="space-y-2">
                         {detail.recentMembers.map(m => (
-                          <div key={m.id} className="flex items-center justify-between bg-[var(--hover-bg)] rounded-lg p-3">
-                            <div>
-                              <div className="text-sm font-medium text-[var(--text-primary)]">{m.fullName}</div>
-                              <div className="text-xs text-[var(--text-secondary)]">{m.memberType}</div>
+                          <div key={m.id} className="flex items-center justify-between bg-[var(--card-bg)] rounded-lg p-3 border border-[var(--card-border)]">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">
+                                {m.fullName?.charAt(0)?.toUpperCase() || '?'}
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-[var(--text-primary)]">{m.fullName}</div>
+                                <div className="text-xs text-[var(--text-secondary)]">{m.memberType}</div>
+                              </div>
                             </div>
-                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                            <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
                               m.paymentStatus === 'Paid' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
                               'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
                             }`}>
@@ -447,7 +499,8 @@ export default function WorkspacesPage() {
 
                   {/* Working hours */}
                   {detail.openingTime && (
-                    <div className="text-xs text-[var(--text-secondary)]">
+                    <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] bg-[var(--hover-bg)] rounded-xl p-3">
+                      <Clock className="w-4 h-4 shrink-0" />
                       {t('admin.workspaces.detail.workingHours', { open: detail.openingTime, close: detail.closingTime })}
                     </div>
                   )}

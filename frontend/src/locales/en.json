@@ -390,6 +390,8 @@
       "ended": "Ended",
       "detail": {
         "title": "Workspace Detail",
+        "overview": "Overview",
+        "contactInfo": "Contact Information",
         "subscription": "Subscription",
         "members": "Members",
         "meetingReservations": "Meeting Reservations",
@@ -400,7 +402,7 @@
         "trialRemaining": "Trial Remaining",
         "subscriptionExpiry": "Subscription Expiry",
         "approved": "Approved",
-        "paymentControls": "Payment Controls",
+        "paymentControls": "Actions",
         "restoreAccess": "Restore Access",
         "markExpired": "Mark Expired",
         "exportPdf": "Export PDF",

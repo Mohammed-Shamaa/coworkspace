@@ -391,6 +391,8 @@
       "ended": "انتهت",
       "detail": {
         "title": "تفاصيل مساحة العمل",
+        "overview": "نظرة عامة",
+        "contactInfo": "معلومات الاتصال",
         "subscription": "الاشتراك",
         "members": "الأعضاء",
         "meetingReservations": "حجوزات غرفة الاجتماعات",
@@ -401,7 +403,7 @@
         "trialRemaining": "المتبقي من التجربة",
         "subscriptionExpiry": "انتهاء الاشتراك",
         "approved": "تمت الموافقة",
-        "paymentControls": "التحكم في الدفع",
+        "paymentControls": "الإجراءات",
         "restoreAccess": "استعادة الوصول",
         "markExpired": "تحديد منتهية",
         "exportPdf": "تصدير PDF",
